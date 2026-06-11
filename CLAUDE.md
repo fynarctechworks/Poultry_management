@@ -13,6 +13,17 @@ PoultryOS is a cross-platform poultry farm management platform for medium-scale 
 - **Weather**: OpenWeatherMap (free tier)
 - **Target**: ₹6k–12k Android phones, 2 GB RAM, 4G connections
 
+### Repository structure (see `README.md`)
+```
+mobile-app/            Expo (React Native) farmer app           (was PoultryOS/)
+frontend/              Next.js customer web dashboard            (was web/)  · port 3000
+saas-control-center/   Next.js internal operator Control Center  · port 3001 · serves /admin
+supabase/              the ONE shared backend (migrations + Edge Functions)
+packages/shared/       @poultryos/shared
+```
+All three apps use the same Supabase backend. The Control Center sits above tenant RLS
+(`platform_admins`, not tenant members) — see `execution/control-center-master-plan.md`.
+
 ---
 
 ## Agent Workflow (PRIMARY — use these for all build work)
@@ -395,7 +406,7 @@ Enforce at BOTH client UI AND database function / Edge Function level.
 **`DESIGN.md` (project root) is the single source of truth for tokens.** All UI work
 keys to those tokens. Anything below is either (a) a domain colour overlay PoultryOS
 needs that DESIGN.md does not cover, or (b) a UX rule that the design system can't
-encode. Never hardcode hex values — import from `PoultryOS/theme/tokens.ts` instead.
+encode. Never hardcode hex values — import from `mobile-app/theme/tokens.ts` (mobile) or `frontend/lib/theme/tokens.ts` / `saas-control-center/lib/theme/tokens.ts` (web) instead.
 
 ### Token Quick Reference (from DESIGN.md — Kraken-inspired system)
 

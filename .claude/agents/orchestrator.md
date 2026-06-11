@@ -43,8 +43,8 @@ For each feature, break into these task types and delegate to the matching speci
 |-----------|-------|--------|
 | Schema, migration SQL, RLS policies, DB functions, triggers | `db-architect` | `supabase/migrations/*.sql` |
 | Edge Functions (Deno/TS), RPC functions, cron jobs, third-party webhooks | `api-builder` | `supabase/functions/<name>/index.ts` |
-| Reusable UI components (mobile + web) keyed to DESIGN.md tokens | `component-builder` | `PoultryOS/components/ui/*.tsx`, `web/components/ui/*.tsx` |
-| Expo Router screens (mobile), Next.js App Router pages (web) | `frontend-builder` | `PoultryOS/app/**/*.tsx`, `web/app/**/*.tsx` |
+| Reusable UI components (mobile + web) keyed to DESIGN.md tokens | `component-builder` | `mobile-app/components/ui/*.tsx`, `frontend/components/ui/*.tsx` |
+| Expo Router screens (mobile), Next.js App Router pages (web) | `frontend-builder` | `mobile-app/app/**/*.tsx`, `frontend/app/**/*.tsx` |
 | RLS policy tests, Edge Function tests, component tests, e2e flows | `test-writer` | `tests/**/*` |
 
 ### Step 4: Write Self-Contained Prompts for Subagents
@@ -80,7 +80,7 @@ After subagents complete:
 
 ```
 poultry_management/
-├── PoultryOS/                  # Expo SDK 54 mobile app (Android + Web target)
+├── mobile-app/                  # Expo SDK 54 mobile app (Android + Web target)
 │   ├── app/                    # Expo Router screens
 │   │   ├── (auth)/             # login.tsx, register.tsx
 │   │   └── (tabs)/             # dashboard, flocks, log, khata, more
@@ -94,7 +94,7 @@ poultry_management/
 ├── supabase/
 │   ├── migrations/             # raw SQL migrations (NOT prisma)
 │   └── functions/              # Edge Functions (Deno/TS) — to be added
-├── web/                        # Next.js 14 App Router — Phase 5
+├── frontend/                        # Next.js 14 App Router — Phase 5
 ├── tasks/
 │   ├── todo.md
 │   └── lessons.md
@@ -122,8 +122,8 @@ poultry_management/
 1. Read PRD Module 9 (Financials), DESIGN.md tokens, `buyers` + `financial_transactions` schema in CLAUDE.md.
 2. **db-architect**: "Create `supabase/migrations/<ts>_seed_buyer_test_data.sql` with 3 test buyers for farm X. Verify the existing `update_buyer_balance()` trigger fires when `financial_transactions.buyer_id` is set."
 3. **api-builder**: "Create `supabase/functions/create-upi-collect-link/index.ts`. Input: `{ buyer_id, amount_inr, invoice_note }`. Calls Razorpay `/v1/payment_links` API. Returns short URL. Auth: requires owner JWT. Logs to `whatsapp_messages_log` if `send_via_whatsapp=true`."
-4. **component-builder**: "Create `BuyerCard`, `KhataLedgerRow`, `UpiQrModal` in `PoultryOS/components/ui/`. Use `colors.primary` (#e60000) for primary CTA, `rounded.pill-lg` for buttons, `typography.body-md`, `spacing.lg` for card padding. UpiQrModal renders `react-native-qrcode-svg` at 250×250."
-5. **frontend-builder**: "Create `PoultryOS/app/(tabs)/khata.tsx` (buyer list) and `PoultryOS/app/khata/[buyerId].tsx` (buyer detail). Use BuyerCard from step 4. Pull buyers via `supabase.from('buyers').select().eq('farm_id', farmId)`. Include 'Send WhatsApp reminder' action that calls send-payment-reminders Edge Function."
+4. **component-builder**: "Create `BuyerCard`, `KhataLedgerRow`, `UpiQrModal` in `mobile-app/components/ui/`. Use `colors.primary` (#e60000) for primary CTA, `rounded.pill-lg` for buttons, `typography.body-md`, `spacing.lg` for card padding. UpiQrModal renders `react-native-qrcode-svg` at 250×250."
+5. **frontend-builder**: "Create `mobile-app/app/(tabs)/khata.tsx` (buyer list) and `mobile-app/app/khata/[buyerId].tsx` (buyer detail). Use BuyerCard from step 4. Pull buyers via `supabase.from('buyers').select().eq('farm_id', farmId)`. Include 'Send WhatsApp reminder' action that calls send-payment-reminders Edge Function."
 6. **test-writer**: "Write RLS tests verifying worker role gets empty result on `buyers` table; owner sees all their farm's buyers; cross-farm read returns nothing."
 
 ## Communication Style

@@ -109,7 +109,7 @@ Run with `supabase functions serve --no-verify-jwt` locally, then `deno test --a
 ## Mobile Component Test Pattern
 
 ```tsx
-// PoultryOS/components/ui/Button.test.tsx
+// mobile-app/components/ui/Button.test.tsx
 import { render, fireEvent } from "@testing-library/react-native";
 import { Button } from "./Button";
 import { colors } from "../../theme/tokens";
@@ -201,7 +201,7 @@ appId: com.poultryos.app
 
 ## Before Starting
 1. Read the source code being tested + relevant schema columns
-2. Confirm test data factories exist in `supabase/tests/fixtures.sql` or `PoultryOS/tests/factories.ts`
+2. Confirm test data factories exist in `supabase/tests/fixtures.sql` or `mobile-app/tests/factories.ts`
 3. Check `tasks/lessons.md` for known DB pitfalls to add as regression tests
 
 ## After Completing

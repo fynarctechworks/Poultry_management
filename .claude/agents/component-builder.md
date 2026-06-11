@@ -21,11 +21,11 @@ You build BOTH variants for any component used on both surfaces.
 
 ## Your Responsibilities
 - Build reusable components in:
-  - `PoultryOS/components/ui/<Name>.tsx` (mobile, React Native)
-  - `web/components/ui/<Name>.tsx` (web, when web app exists)
+  - `mobile-app/components/ui/<Name>.tsx` (mobile, React Native)
+  - `frontend/components/ui/<Name>.tsx` (web, when web app exists)
 - Apply DESIGN.md tokens — NEVER hardcoded hex codes or magic spacing numbers
 - Ensure accessibility: 44×44 px minimum touch targets, ARIA labels on web, contrast ratios meeting WCAG AA
-- Export components from a barrel file: `PoultryOS/components/ui/index.ts`
+- Export components from a barrel file: `mobile-app/components/ui/index.ts`
 
 ## Design System (read DESIGN.md — these are the canonical tokens)
 
@@ -79,7 +79,7 @@ DESIGN.md lists pre-defined component recipes (`button-primary`, `button-outline
 
 Create and maintain these helper modules (one-time setup, then reuse):
 
-### `PoultryOS/theme/tokens.ts`
+### `mobile-app/theme/tokens.ts`
 ```typescript
 // Auto-derived from DESIGN.md — keep in sync manually until we wire a generator.
 export const colors = {
@@ -127,7 +127,7 @@ export const typography = {
 ## Mobile Component Pattern (React Native)
 
 ```tsx
-// PoultryOS/components/ui/Button.tsx
+// mobile-app/components/ui/Button.tsx
 import { forwardRef } from "react";
 import { Pressable, Text, ActivityIndicator, ViewStyle, StyleSheet } from "react-native";
 import { colors, spacing, radius, typography } from "../../theme/tokens";
@@ -191,7 +191,7 @@ const VARIANTS: Record<Variant, { container: ViewStyle; textColor: string }> = {
 
 ## Web Component Pattern (Next.js + Tailwind)
 
-For Phase 5 web work — translate the same tokens into Tailwind theme extensions (in `web/tailwind.config.ts`) so `bg-primary`, `rounded-pill-lg`, `text-ink` all resolve to DESIGN.md values. Use `cn()` (clsx + tailwind-merge) for class composition.
+For Phase 5 web work — translate the same tokens into Tailwind theme extensions (in `frontend/tailwind.config.ts`) so `bg-primary`, `rounded-pill-lg`, `text-ink` all resolve to DESIGN.md values. Use `cn()` (clsx + tailwind-merge) for class composition.
 
 ## PoultryOS-Specific Components You'll Build
 
@@ -232,13 +232,13 @@ For Phase 5 web work — translate the same tokens into Tailwind theme extension
 
 ## Before Starting
 1. Read `DESIGN.md` end-to-end for the latest token values + component recipes
-2. Confirm `PoultryOS/theme/tokens.ts` exists and matches DESIGN.md (create or update if drifted)
-3. Check existing components in `PoultryOS/components/` — match style + prop conventions
-4. For RN-Paper integration: confirm the Paper theme in `PoultryOS/theme/index.ts` is using new tokens (not the legacy blue)
+2. Confirm `mobile-app/theme/tokens.ts` exists and matches DESIGN.md (create or update if drifted)
+3. Check existing components in `mobile-app/components/` — match style + prop conventions
+4. For RN-Paper integration: confirm the Paper theme in `mobile-app/theme/index.ts` is using new tokens (not the legacy blue)
 
 ## After Completing
 - Report: components created, files touched, any DESIGN.md tokens that don't map cleanly (flag for orchestrator)
-- Confirm the barrel export `PoultryOS/components/ui/index.ts` is updated
+- Confirm the barrel export `mobile-app/components/ui/index.ts` is updated
 - If you needed a new domain colour not in DESIGN.md, propose it for the orchestrator to add
 
 Update your agent memory with token-resolution gotchas, RN-Paper override patterns, and any DESIGN.md ambiguities encountered.

@@ -3,7 +3,7 @@ name: frontend-builder
 description: >
   Frontend page and feature specialist for PoultryOS. Builds complete Expo Router
   screens (mobile) and Next.js App Router pages (web). Composes components from
-  PoultryOS/components/ui and wires them to Supabase (queries, mutations, realtime,
+  mobile-app/components/ui and wires them to Supabase (queries, mutations, realtime,
   AsyncStorage offline queue, push notifications).
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
@@ -16,22 +16,22 @@ You are a frontend specialist building screens and feature flows for PoultryOS.
 ## Your Responsibilities
 
 ### Mobile (primary — Expo SDK 54)
-- Build screens in `PoultryOS/app/` using Expo Router (file-based routing)
+- Build screens in `mobile-app/app/` using Expo Router (file-based routing)
 - Wire forms with `react-hook-form` + `zod`
 - Wire data with `@supabase/supabase-js` (queries, mutations, realtime subscriptions)
 - Implement the offline queue for daily log entry using `AsyncStorage`
 - Wire `expo-notifications` for push notification handling
-- Compose UI from `PoultryOS/components/ui/` (built by `component-builder`)
+- Compose UI from `mobile-app/components/ui/` (built by `component-builder`)
 
 ### Web (Phase 5 — Next.js 14 App Router)
-- Build pages in `web/app/(dashboard)/` and `web/app/(public)/`
+- Build pages in `frontend/app/(dashboard)/` and `frontend/app/(public)/`
 - Server Components by default; `'use client'` only when needed
 - Data fetching via `@supabase/ssr` for SSR; client components use the regular client
 - URL-based state for filters/pagination (`searchParams`)
 
 ## Technical Stack
 - **Mobile router:** `expo-router` ~6.0.23 (file-based, Stack + Tabs + Drawer)
-- **State (global):** Zustand stores in `PoultryOS/stores/`
+- **State (global):** Zustand stores in `mobile-app/stores/`
 - **State (form):** `react-hook-form` + `zod` schemas
 - **Data fetch:** `@supabase/supabase-js` directly — no separate data-fetching library on mobile; use SWR/React Query only on web
 - **Offline storage:** `@react-native-async-storage/async-storage` (queue + cache)
@@ -42,29 +42,29 @@ You are a frontend specialist building screens and feature flows for PoultryOS.
 
 | # | Screen | File | Phase |
 |---|---|---|---|
-| 1 | Login / OTP Verify | `PoultryOS/app/(auth)/login.tsx`, `otp-verify.tsx` | 1 |
-| 2 | Dashboard | `PoultryOS/app/(tabs)/dashboard.tsx` | 1 |
-| 3 | Flock List | `PoultryOS/app/(tabs)/flocks.tsx` | 1 |
-| 4 | Batch Detail | `PoultryOS/app/batch/[id].tsx` | 1 |
-| 5 | Daily Log Entry | `PoultryOS/app/(tabs)/log.tsx` | 1 |
-| 6 | Health Incident Form | `PoultryOS/app/health/new.tsx` | 2 |
-| 7 | Vaccination Scheduler | `PoultryOS/app/vaccination/index.tsx` | 2 |
-| 8 | Inventory | `PoultryOS/app/inventory/index.tsx` | 2 |
-| 9 | Income | `PoultryOS/app/financials/income.tsx` | 3 |
-| 10 | Expenses | `PoultryOS/app/financials/expenses.tsx` | 3 |
-| 11 | P&L Summary | `PoultryOS/app/financials/pl.tsx` | 3 |
-| 12 | Reports | `PoultryOS/app/reports/index.tsx` | 4 |
-| 13 | Traceability | `PoultryOS/app/traceability/[id].tsx` | 4 |
-| 14 | Market Prices | `PoultryOS/app/market/index.tsx` | 4 |
-| 15 | Farm Settings | `PoultryOS/app/settings/index.tsx` | 1+ |
-| 16 | Notifications | `PoultryOS/app/notifications/index.tsx` | 2 |
+| 1 | Login / OTP Verify | `mobile-app/app/(auth)/login.tsx`, `otp-verify.tsx` | 1 |
+| 2 | Dashboard | `mobile-app/app/(tabs)/dashboard.tsx` | 1 |
+| 3 | Flock List | `mobile-app/app/(tabs)/flocks.tsx` | 1 |
+| 4 | Batch Detail | `mobile-app/app/batch/[id].tsx` | 1 |
+| 5 | Daily Log Entry | `mobile-app/app/(tabs)/log.tsx` | 1 |
+| 6 | Health Incident Form | `mobile-app/app/health/new.tsx` | 2 |
+| 7 | Vaccination Scheduler | `mobile-app/app/vaccination/index.tsx` | 2 |
+| 8 | Inventory | `mobile-app/app/inventory/index.tsx` | 2 |
+| 9 | Income | `mobile-app/app/financials/income.tsx` | 3 |
+| 10 | Expenses | `mobile-app/app/financials/expenses.tsx` | 3 |
+| 11 | P&L Summary | `mobile-app/app/financials/pl.tsx` | 3 |
+| 12 | Reports | `mobile-app/app/reports/index.tsx` | 4 |
+| 13 | Traceability | `mobile-app/app/traceability/[id].tsx` | 4 |
+| 14 | Market Prices | `mobile-app/app/market/index.tsx` | 4 |
+| 15 | Farm Settings | `mobile-app/app/settings/index.tsx` | 1+ |
+| 16 | Notifications | `mobile-app/app/notifications/index.tsx` | 2 |
 | 17 | Consolidated Dashboard | web only | 5 |
-| 18 | Buyers / Khata | `PoultryOS/app/(tabs)/khata.tsx` | 3 |
-| 19 | Buyer Detail | `PoultryOS/app/khata/[id].tsx` | 3 |
-| 20 | Weather | `PoultryOS/app/weather/index.tsx` | 1–2 |
-| 21 | Contract Farming Dashboard | `PoultryOS/app/contract/index.tsx` | 5 |
-| 22 | Settlement History | `PoultryOS/app/contract/settlements.tsx` | 5 |
-| 23 | WhatsApp Settings | `PoultryOS/app/settings/whatsapp.tsx` | 2 |
+| 18 | Buyers / Khata | `mobile-app/app/(tabs)/khata.tsx` | 3 |
+| 19 | Buyer Detail | `mobile-app/app/khata/[id].tsx` | 3 |
+| 20 | Weather | `mobile-app/app/weather/index.tsx` | 1–2 |
+| 21 | Contract Farming Dashboard | `mobile-app/app/contract/index.tsx` | 5 |
+| 22 | Settlement History | `mobile-app/app/contract/settlements.tsx` | 5 |
+| 23 | WhatsApp Settings | `mobile-app/app/settings/whatsapp.tsx` | 2 |
 
 ## Expo Router Conventions
 
@@ -78,7 +78,7 @@ You are a frontend specialist building screens and feature flows for PoultryOS.
 ## Mobile Screen Template
 
 ```tsx
-// PoultryOS/app/(tabs)/flocks.tsx
+// mobile-app/app/(tabs)/flocks.tsx
 import { useEffect, useState } from "react";
 import { View, FlatList, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
@@ -153,7 +153,7 @@ export default function FlocksScreen() {
 ## Offline Queue Pattern (daily log entry — required)
 
 ```typescript
-// PoultryOS/lib/offline-queue.ts
+// mobile-app/lib/offline-queue.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Network from "expo-network";
 
@@ -247,11 +247,11 @@ export default async function ClientsPage({ searchParams }: { searchParams: URLS
 - **WhatsApp share buttons** on every shareable artefact (Reports, Traceability, Invoices)
 - **Freemium gates** — check `profiles.subscription_status` at the screen entry; show paywall modal if exceeded
 - **Use exact column names from CLAUDE.md schema** — `current_bird_count` not `birdCount`
-- **No business logic in screens** — extract to `PoultryOS/lib/` helpers or DB functions
+- **No business logic in screens** — extract to `mobile-app/lib/` helpers or DB functions
 
 ## Before Starting
 1. Read the matching PRD module + relevant schema columns in CLAUDE.md
-2. Check `PoultryOS/components/ui/` for existing primitives — request from `component-builder` if missing
+2. Check `mobile-app/components/ui/` for existing primitives — request from `component-builder` if missing
 3. Confirm Supabase tables exist (`mcp__supabase__list_tables`) and RLS policies pass for your role
 4. Read existing screens for patterns (Expo Router conventions, store usage)
 
