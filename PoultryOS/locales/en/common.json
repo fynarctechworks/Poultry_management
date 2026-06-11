@@ -1,0 +1,1082 @@
+{
+  "app": {
+    "name": "PoultryOS",
+    "tagline": "Your farm, in your pocket"
+  },
+  "auth": {
+    "otp": {
+      "heading": "Enter your mobile number",
+      "sub": "We'll send you a one-time password to sign in",
+      "mobile": "Mobile number",
+      "mobile_placeholder": "98765 43210",
+      "send_otp": "Send OTP",
+      "verify_heading": "Verify your number",
+      "verify_sub": "Enter the 6-digit code sent to {{phone}}",
+      "verify": "Verify & continue",
+      "resend": "Resend code",
+      "resend_in": "Resend in {{seconds}}s",
+      "change_number": "Change number",
+      "use_email": "Use email & password instead",
+      "use_mobile": "Use mobile number instead",
+      "sent": "OTP sent to {{phone}}",
+      "errors": {
+        "mobile_invalid": "Enter a valid 10-digit Indian mobile number",
+        "code_invalid": "Enter the 6-digit code",
+        "send_failed": "Could not send OTP. Please try again.",
+        "verify_failed": "Incorrect or expired code. Please try again.",
+        "sms_unconfigured": "SMS login is not available yet. Please use email & password."
+      }
+    },
+    "login": {
+      "heading": "Welcome back",
+      "sub": "Sign in to your PoultryOS account",
+      "email": "Email",
+      "password": "Password",
+      "sign_in": "Sign In",
+      "no_account": "Don't have an account? ",
+      "create_account": "Create account",
+      "login_failed": "Login failed. Please try again.",
+      "errors": {
+        "email_invalid": "Enter a valid email",
+        "password_min": "Password must be at least 6 characters"
+      }
+    },
+    "register": {
+      "heading": "Create account",
+      "sub": "Set up your PoultryOS farm account",
+      "full_name": "Full Name",
+      "mobile": "Mobile number",
+      "mobile_placeholder": "98765 43210",
+      "email": "Email",
+      "password": "Password",
+      "verify_hint": "We'll send a one-time code to verify your mobile number. You can confirm your email later from Security settings.",
+      "create_account": "Create Account",
+      "have_account": "Already have an account? ",
+      "sign_in": "Sign in",
+      "register_failed": "Registration failed. Please try again.",
+      "sms_unconfigured": "Account created. SMS verification isn't available yet — sign in with your email & password.",
+      "errors": {
+        "name_required": "Enter your full name",
+        "phone_invalid": "Enter a valid 10-digit Indian mobile number",
+        "email_invalid": "Enter a valid email",
+        "password_min": "Password must be at least 6 characters"
+      }
+    }
+  },
+  "security": {
+    "title": "Security",
+    "saved": "Security settings saved",
+    "verification": {
+      "title": "Account verification",
+      "mobile": "Mobile number",
+      "email": "Email address",
+      "verified": "Verified",
+      "unverified": "Not verified",
+      "email_pending": "Verify within 7 days"
+    },
+    "twofa": {
+      "title": "Two-factor authentication",
+      "description": "Add a second step at sign-in for extra protection.",
+      "enrolled": "Set up",
+      "setup_authenticator": "Set up an authenticator app",
+      "manage_authenticator": "Manage authenticator app",
+      "option": {
+        "disabled": "Off",
+        "disabled_desc": "Sign in with just your password or OTP.",
+        "sms": "SMS code",
+        "sms_desc": "Receive a code by SMS at sign-in.",
+        "email": "Email code",
+        "email_desc": "Receive a code by email at sign-in.",
+        "totp": "Authenticator app",
+        "totp_desc": "Use Google Authenticator, Authy, or similar (recommended)."
+      }
+    },
+    "twofa_enrol": {
+      "title": "Authenticator app",
+      "scan_title": "Scan this QR code",
+      "scan_desc": "Open your authenticator app and scan the code below to add PoultryOS.",
+      "manual_key": "Or enter this key manually",
+      "enter_code": "Enter the 6-digit code",
+      "verify_enable": "Verify & enable",
+      "active_title": "Authenticator is active",
+      "active_desc": "Your account is protected by an authenticator app.",
+      "disable": "Turn off authenticator",
+      "enabled_ok": "Two-factor authentication enabled",
+      "disabled_ok": "Two-factor authentication turned off",
+      "errors": {
+        "start_failed": "Could not start setup. Please try again.",
+        "code_invalid": "Enter the 6-digit code",
+        "verify_failed": "Incorrect code. Please try again.",
+        "disable_failed": "Could not turn off. Please try again."
+      }
+    },
+    "device": {
+      "remember": "Remember this device for 30 days",
+      "remember_desc": "Skip the OTP step on this device for the next 30 days.",
+      "trusted_ok": "Device remembered for 30 days",
+      "revoked_ok": "Device removed"
+    },
+    "links": {
+      "login_history": "Login history",
+      "trusted_devices": "Trusted devices"
+    },
+    "sessions": {
+      "title": "Login history",
+      "intro": "Recent security activity on your account. If you don't recognise something, change your password.",
+      "ip": "IP {{ip}}",
+      "empty": {
+        "title": "No activity yet",
+        "description": "Sign-ins, OTP verifications and security changes will appear here."
+      }
+    },
+    "devices": {
+      "title": "Trusted devices",
+      "intro": "Devices you've chosen to remember. Remove any you don't recognise.",
+      "this_device": "This device",
+      "unknown": "Unknown device",
+      "trusted_until": "Trusted until {{date}}",
+      "revoke": "Remove device",
+      "empty": {
+        "title": "No trusted devices",
+        "description": "Turn on \"Remember this device\" in Security to skip OTP on a device you trust."
+      }
+    },
+    "event": {
+      "login_success": "Signed in",
+      "login_failed": "Failed sign-in attempt",
+      "logout": "Signed out",
+      "otp_verified": "Mobile OTP verified",
+      "2fa_enabled": "Two-factor enabled",
+      "2fa_disabled": "Two-factor disabled",
+      "2fa_method_changed": "Two-factor method changed",
+      "device_trusted": "Device remembered",
+      "device_revoked": "Device removed",
+      "password_changed": "Password changed",
+      "email_verified": "Email verified"
+    },
+    "errors": {
+      "load_failed": "Could not load security settings",
+      "save_failed": "Could not save. Please try again."
+    }
+  },
+  "language": {
+    "label": "Language",
+    "description": "Switch the app interface to your preferred language",
+    "english": "English",
+    "hindi": "हिंदी (Hindi)",
+    "telugu": "తెలుగు (Telugu)",
+    "tamil": "தமிழ் (Tamil)"
+  },
+  "tabs": {
+    "dashboard": "Dashboard",
+    "flocks": "Flocks",
+    "log": "Log",
+    "khata": "Khata",
+    "more": "More"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "hello": "Hello",
+    "active_batches_section": "Active batches",
+    "empty_batches": {
+      "title": "No active batches",
+      "description": "Add sheds and place a batch to start tracking.",
+      "action": "Set up flock"
+    },
+    "heat_ack": "Heat alert acknowledged",
+    "heat_ack_failed": "Could not acknowledge — try again",
+    "weather_detail_coming": "Weather detail screen coming soon",
+    "setup": {
+      "title": "Finish setting up your farm",
+      "progress": "{{done}} of {{total}} done",
+      "shed_label": "Add a shed",
+      "shed_desc": "Create the housing your birds live in.",
+      "shed_cta": "Add a shed",
+      "batch_label": "Place a batch",
+      "batch_desc": "Add the birds you're raising in a shed.",
+      "batch_cta": "Place a batch",
+      "log_label": "Log today's data",
+      "log_desc": "Record mortality, feed and eggs to unlock KPIs.",
+      "log_cta": "Log today's data"
+    },
+    "kpi": {
+      "active_batches": "Active batches",
+      "active_birds": "Active birds",
+      "mortality_7d": "7-day mortality",
+      "cumulative_fcr": "Cumulative FCR",
+      "eggs_today": "Eggs today",
+      "total_birds": "Total birds",
+      "mortality_today": "Mortality today",
+      "feed_used_today": "Feed used today",
+      "fcr": "FCR",
+      "livability": "Livability"
+    },
+    "weather": {
+      "title": "Weather",
+      "temperature": "Temperature",
+      "humidity": "Humidity",
+      "heat_stress_alert": "Heat-stress alert"
+    },
+    "alerts": {
+      "section_title": "Alerts",
+      "no_alerts": "All clear — no active alerts"
+    },
+    "log_today_cta": "Log today's data"
+  },
+  "daily_log": {
+    "title": "Daily log",
+    "fields": {
+      "log_date": "Date",
+      "birds_dead": "Birds dead",
+      "death_cause": "Cause of death",
+      "feed_consumed_kg": "Feed consumed (kg)",
+      "feed_type": "Feed type",
+      "feed_cost_per_kg": "Feed cost per kg",
+      "eggs_collected": "Eggs collected",
+      "avg_bird_weight_g": "Avg bird weight (g)",
+      "notes": "Notes"
+    },
+    "death_cause": {
+      "disease": "Disease",
+      "culled": "Culled",
+      "injury": "Injury",
+      "heat_stress": "Heat stress",
+      "unknown": "Unknown"
+    },
+    "feed_type": {
+      "starter": "Starter",
+      "grower": "Grower",
+      "finisher": "Finisher",
+      "layer": "Layer",
+      "custom": "Custom"
+    },
+    "save": "Save log",
+    "saved": "Log saved",
+    "offline_queued": "Saved offline — will sync when connected",
+    "batch": "Batch",
+    "select_batch": "Select a batch",
+    "select_batch_first": "Select a batch first",
+    "select_batch_hint": "Select a batch above to start logging.",
+    "feed_cost_per_kg_inr": "Feed cost per kg (₹)",
+    "log_date": "Log date",
+    "date_placeholder": "YYYY-MM-DD",
+    "no_active_batches": {
+      "title": "No active batches",
+      "description": "Add a shed and place a batch before logging daily data."
+    },
+    "duplicate_error": "Already logged for {{date}} on this batch",
+    "save_failed": "Save failed",
+    "save_success": "Saved — bird count and alerts updating"
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "farm_profile": "Farm profile",
+      "farm_type": "Farm type",
+      "payments": "Payments",
+      "climate": "Climate",
+      "whatsapp": "WhatsApp notifications"
+    },
+    "save": "Save changes",
+    "saved": "Settings saved",
+    "form": {
+      "farm_name": "Farm name",
+      "owner_name": "Owner name",
+      "state": "State",
+      "state_placeholder": "Pick state",
+      "district": "District",
+      "phone": "Phone",
+      "gstin": "GSTIN",
+      "type": "Type",
+      "type_options": { "independent": "Independent farm", "contract": "Contract farm" },
+      "integrator": "Integrator",
+      "integrator_placeholder": "Pick integrator",
+      "integrator_none": "— Pick an integrator —",
+      "upi_id": "UPI ID (VPA)",
+      "upi_placeholder": "yourname@bank",
+      "upi_helper": "Used for UPI QR codes shared with buyers in the Khata module.",
+      "heat_threshold": "Heat-stress threshold (°C)",
+      "heat_helper": "Triggers a heat alert when forecast max exceeds this value. Default 35 °C.",
+      "whatsapp_phone": "WhatsApp phone",
+      "wa_toggle": "Receive WhatsApp alerts",
+      "wa_toggle_desc": "Daily digest, mortality alerts, heat-stress alerts, payment reminders.",
+      "save_failed": "Failed to save",
+      "errors": {
+        "required": "Required",
+        "phone_invalid": "Invalid phone",
+        "whatsapp_phone_invalid": "Invalid WhatsApp number",
+        "upi_invalid": "UPI ID must be in format name@bank",
+        "heat_range": "Must be 20–50 °C"
+      }
+    }
+  },
+  "multi_farm": {
+    "title": "Multi-farm dashboard",
+    "gate_reason": "Multi-farm dashboard requires a paid plan",
+    "pro": {
+      "title": "Manage all your farms in one view",
+      "description": "See active batches, birds, mortality, income and receivables across every farm you own. Available on the PoultryOS Pro plan.",
+      "action": "See plans"
+    },
+    "web_only_title": "Best viewed on web",
+    "web_only_p1": "The multi-farm dashboard is optimised for a larger screen. Open PoultryOS in your browser to see the consolidated view across all your farms.",
+    "web_only_p2": "We'll still show you the summary below — but the web version has more density and column-level controls.",
+    "loading_farms": "Loading farms…",
+    "empty": { "title": "No farms yet", "description": "Add a farm to see it appear in this consolidated view." },
+    "per_farm": "Per farm",
+    "farm_type": { "contract": "Contract", "independent": "Independent" },
+    "last_log": "Last log {{date}}",
+    "kpi": {
+      "farms": "Farms",
+      "active_batches": "Active batches",
+      "total_birds": "Total birds",
+      "net_pnl_month": "Net P&L (this month)",
+      "deaths_month": "Deaths (month)",
+      "receivables": "Receivables",
+      "birds": "Birds",
+      "mortality_pct": "Mortality %",
+      "feed_kg": "Feed (kg)",
+      "eggs": "Eggs",
+      "net_month": "Net (month)"
+    }
+  },
+  "weather_screen": {
+    "title": "Weather",
+    "current_conditions": "Current conditions",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "max_today": "Max today",
+    "your_threshold": "Your threshold",
+    "no_data_inline": "No weather data yet. Set farm latitude/longitude in Settings, then the daily fetch will populate this automatically.",
+    "updated_at": "Updated {{ts}}",
+    "next_24h": "Next 24 hours",
+    "three_day": "3-day outlook",
+    "alert_history": "Alert history",
+    "acknowledge": "Acknowledge",
+    "critical": "CRITICAL",
+    "heat_stress_alert": "Heat-stress alert",
+    "alert_body": "Forecast {{temp}}°C{{hum}} on {{date}}.",
+    "alert_acknowledged": "Acknowledged {{date}}",
+    "alert_type": {
+      "heat_stress": "heat stress",
+      "cold_stress": "cold stress",
+      "heavy_rain": "heavy rain"
+    },
+    "severity": {
+      "warning": "WARNING",
+      "critical": "CRITICAL"
+    },
+    "empty": {
+      "title": "No weather data yet",
+      "description": "Configure farm latitude and longitude in Settings, then weather will refresh automatically every 4 hours."
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "add": "Add transaction",
+    "filter": "Filter",
+    "income": "Income",
+    "expense": "Expense",
+    "pending": "Pending",
+    "filter_options": {
+      "all": "All transactions",
+      "income": "Income only",
+      "expense": "Expense only",
+      "pending": "Pending only"
+    },
+    "empty": {
+      "title": "No transactions yet",
+      "description": "Record your first income or expense to start tracking the farm books."
+    },
+    "filtered_empty": {
+      "title": "No transactions match this filter",
+      "description": "Try a different filter or add a new transaction."
+    },
+    "load_failed": "Failed to load transactions"
+  },
+  "billing": {
+    "title": "Billing & subscription",
+    "status": "Status",
+    "status_free": "Free plan",
+    "status_active": "Active subscription",
+    "status_past_due": "Payment past due",
+    "status_cancelled": "Cancelled",
+    "past_due_warning": "A recent payment failed. Settle within 7 days to keep paid features active.",
+    "subscribe": "Subscribe",
+    "already_subscribed": "Already subscribed",
+    "loading_plan": "Loading plan details…",
+    "how_it_works_title": "How billing works",
+    "how_it_works_p1": "We use Razorpay Subscriptions. After tapping Subscribe, complete payment via UPI, card, or net banking in the Razorpay page. Your plan activates automatically within a few seconds — pull-to-refresh this screen if it doesn't update right away.",
+    "how_it_works_p2": "Cancel anytime from this screen. You'll keep paid features through the current billing period.",
+    "errors": {
+      "not_configured": "Razorpay is not configured yet. Try again later.",
+      "plan_not_configured": "This billing cycle is not configured yet. Pick another.",
+      "checkout_failed": "Could not start checkout ({{reason}})",
+      "checkout_unknown": "Failed to start checkout",
+      "missing_url": "Subscription created but checkout URL is missing.",
+      "unexpected": "Unexpected error"
+    },
+    "tiers": {
+      "monthly": "Monthly",
+      "yearly_save": "Yearly · save ~17%",
+      "per_month": "/month",
+      "per_year": "/year",
+      "custom_price": "Custom",
+      "free_price": "Free",
+      "recommended": "Recommended",
+      "current_badge": "Current plan",
+      "current_cta": "Current plan",
+      "free_cta": "Free plan",
+      "contact_sales": "Contact sales",
+      "contact_failed": "Could not open your mail app",
+      "status": {
+        "trial": "Free trial",
+        "trial_days_one": "Free trial — {{count}} day left",
+        "trial_days_other": "Free trial — {{count}} days left",
+        "active": "Active subscription",
+        "past_due": "Payment past due",
+        "suspended": "Subscription suspended",
+        "cancelled": "Subscription cancelled"
+      },
+      "hl": {
+        "farms_one": "{{count}} farm",
+        "farms_other": "{{count}} farms",
+        "farms_unlimited": "Unlimited farms",
+        "users_one": "{{count}} team member",
+        "users_other": "{{count}} team members",
+        "users_unlimited": "Unlimited team members",
+        "buyers_one": "{{count}} buyer",
+        "buyers_other": "{{count}} buyers",
+        "buyers_unlimited": "Unlimited buyers",
+        "whatsapp_one": "{{count}} WhatsApp alert / month",
+        "whatsapp_other": "{{count}} WhatsApp alerts / month",
+        "whatsapp_unlimited": "Unlimited WhatsApp alerts",
+        "contract": "Contract farming module",
+        "traceability": "Traceability QR & PDF",
+        "multi_farm": "Multi-farm dashboard",
+        "vet": "Vet role access",
+        "support": "Dedicated support"
+      }
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "header_title": "WhatsApp log",
+    "header_description": "Last 100 WhatsApp notifications sent for this farm. Failed messages include the reason — most commonly \"free plan limit reached\" or \"opted out of category\".",
+    "empty": {
+      "title": "No notifications yet",
+      "description": "Heat-stress, mortality and payment-reminder messages sent for this farm will appear here once they're dispatched."
+    },
+    "status": {
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "read": "Read",
+      "failed": "Failed"
+    },
+    "type": {
+      "daily_digest": "Daily digest",
+      "mortality_alert": "Mortality alert",
+      "vaccination_reminder": "Vaccination reminder",
+      "heat_stress_alert": "Heat-stress alert",
+      "payment_reminder": "Payment reminder",
+      "low_stock_alert": "Low-stock alert",
+      "invoice": "Invoice share",
+      "traceability_cert": "Traceability certificate",
+      "report": "Report share"
+    }
+  },
+  "whatsapp_settings": {
+    "title": "WhatsApp notifications",
+    "master_label": "WhatsApp notifications",
+    "master_description": "Master switch. When off, no WhatsApp messages will be sent to you — regardless of category preferences below.",
+    "by_category": "By category",
+    "category_hint": "Turn individual templates on or off. The master switch above overrides all of these when off.",
+    "about_limits_title": "About WhatsApp limits",
+    "about_limits": "Free plan: 5 WhatsApp notifications per calendar month. Paid plans get unlimited delivery. User-initiated shares (invoices, certificates, reconciliation reports) are always free.",
+    "saved": "Preferences saved",
+    "save_failed": "Failed to save",
+    "not_signed_in": "Not signed in",
+    "categories": {
+      "mortality_alert": { "label": "Mortality spike alerts", "description": "Sent when daily deaths cross your threshold. Recommended to keep on." },
+      "heat_stress_alert": { "label": "Heat-stress warnings", "description": "Sent the evening before a forecast heat day. Includes mitigation tips." },
+      "vaccination_reminder": { "label": "Vaccination reminders", "description": "Daily 7 AM digest of vaccinations due today." },
+      "payment_reminder": { "label": "Payment reminders", "description": "Day 7 / 15 / 30 reminders for pending receivables." },
+      "low_stock_alert": { "label": "Low-stock alerts", "description": "When feed, medicine or vaccines drop below threshold." },
+      "daily_digest": { "label": "Daily farm digest", "description": "Evening 8 PM summary of mortality, feed and prices." }
+    }
+  },
+  "onboarding": {
+    "step1_heading": "Your profile",
+    "step2_heading": "Your farm",
+    "step3_heading": "Farm type",
+    "step4_heading": "Farm location",
+    "step5_heading": "WhatsApp & payments",
+    "next": "Next",
+    "back": "Back",
+    "finish": "Finish setup",
+    "creating": {
+      "title": "Setting up your workspace",
+      "sub": "This only takes a moment…",
+      "steps": {
+        "tenant": "Creating your workspace",
+        "farm": "Setting up your farm",
+        "trial": "Starting your 14-day free trial",
+        "ready": "Almost ready"
+      },
+      "error_title": "Something went wrong",
+      "error_generic": "We couldn't finish setting up. Please try again.",
+      "retry": "Try again",
+      "go_back": "Go back"
+    },
+    "steps": {
+      "step1": {
+        "sub": "Let us know your name to personalise your experience.",
+        "full_name": "Full name",
+        "errors": { "name_min": "Enter your full name (min 2 characters)" }
+      },
+      "step2": {
+        "sub": "Basic details about your farm for records and compliance.",
+        "farm_name": "Farm name",
+        "owner_name": "Owner name",
+        "state": "State",
+        "state_placeholder": "Select your state",
+        "district": "District",
+        "phone": "Phone number",
+        "phone_placeholder": "+91XXXXXXXXXX",
+        "gstin": "GSTIN (optional)",
+        "gstin_placeholder": "22AAAAA0000A1Z5",
+        "errors": {
+          "farm_name_min": "Farm name must be at least 2 characters",
+          "owner_name_min": "Owner name must be at least 2 characters",
+          "state_required": "Select a state",
+          "district_min": "District must be at least 2 characters",
+          "phone_invalid": "Enter a valid phone number (10–15 digits)",
+          "gstin_invalid": "Enter a valid GSTIN (15 characters)"
+        }
+      },
+      "step3": {
+        "sub": "Are you farming independently or under a contract integrator?",
+        "farm_type": "Farm type",
+        "type": { "independent": "Independent", "contract": "Contract farming" },
+        "integrator": "Integrator",
+        "integrator_loading": "Loading...",
+        "integrator_placeholder": "Select integrator",
+        "custom_option": "Custom (add new)",
+        "custom_name": "Custom integrator name",
+        "errors": {
+          "integrator_required": "Select an integrator",
+          "custom_min": "Enter the integrator name (min 2 characters)"
+        }
+      },
+      "step4": {
+        "sub": "Used for accurate weather and heat-stress alerts. Optional but recommended.",
+        "locating": "Getting location...",
+        "use_current": "Use current location",
+        "permission_denied": "Location permission denied. Enter coordinates manually.",
+        "location_failed": "Could not get location. Enter coordinates manually.",
+        "or_manually": "or enter manually",
+        "latitude": "Latitude (optional)",
+        "latitude_placeholder": "e.g. 17.385044",
+        "longitude": "Longitude (optional)",
+        "longitude_placeholder": "e.g. 78.486671",
+        "heat_threshold": "Heat stress alert threshold (°C)",
+        "heat_threshold_placeholder": "35.0",
+        "heat_hint": "Recommended: 35°C for broilers. Range: 25–45°C.",
+        "errors": {
+          "lat_range": "Latitude must be between -90 and 90",
+          "lon_range": "Longitude must be between -180 and 180",
+          "heat_range": "Heat stress threshold must be between 25°C and 45°C"
+        }
+      },
+      "step5": {
+        "sub": "Receive alerts and invoices on WhatsApp, and accept UPI payments from buyers.",
+        "whatsapp_number": "WhatsApp number",
+        "whatsapp_placeholder": "+91XXXXXXXXXX",
+        "wa_toggle": "Send WhatsApp alerts",
+        "wa_toggle_desc": "Daily digest, mortality alerts, payment reminders",
+        "upi_id": "UPI ID (optional)",
+        "upi_placeholder": "name@bank",
+        "upi_hint": "Used to generate payment QR codes for buyers.",
+        "session_expired": "Session expired. Please log in again.",
+        "setup_failed": "Setup failed. Please try again.",
+        "errors": {
+          "phone_invalid": "Enter a valid phone number (10–15 digits)",
+          "upi_invalid": "Enter a valid UPI ID (e.g. name@bank)"
+        }
+      }
+    }
+  },
+  "setup": {
+    "poultry_type": { "broiler": "Broiler", "layer": "Layer", "breeder": "Breeder" },
+    "sheds": {
+      "empty_title": "No sheds yet",
+      "empty_description": "Add at least one shed to start tracking your flocks.",
+      "your_sheds": "Your sheds",
+      "capacity_meta": "{{type}} · {{capacity}} birds capacity",
+      "add_a_shed": "Add a shed",
+      "shed_name": "Shed name",
+      "shed_name_placeholder": "e.g. Shed A",
+      "capacity": "Capacity (birds)",
+      "capacity_placeholder": "e.g. 1000",
+      "poultry_type": "Poultry type",
+      "add_shed": "Add shed",
+      "continue": "Continue to add birds",
+      "upgrade": "Upgrade to add more sheds",
+      "add_failed": "Failed to add shed. Try again.",
+      "errors": {
+        "name_required": "Enter a shed name",
+        "capacity_valid": "Enter a valid capacity (positive number)",
+        "type_required": "Select a poultry type"
+      }
+    },
+    "batches": {
+      "intro": "Add your first batch for each shed. You can skip and do this later.",
+      "batch_saved": "Batch saved",
+      "toggle_a11y": "Toggle {{name}} batch form",
+      "breed_name": "Breed name",
+      "breed_name_placeholder": "e.g. Cobb 500",
+      "placement_date": "Placement date (YYYY-MM-DD)",
+      "placement_date_placeholder": "e.g. 2026-05-19",
+      "opening_bird_count": "Opening bird count",
+      "opening_bird_count_placeholder": "e.g. 1000",
+      "source_supplier": "Source supplier",
+      "source_supplier_placeholder": "e.g. Suguna Hatchery",
+      "cost_per_bird": "Cost per bird (₹)",
+      "cost_per_bird_placeholder": "e.g. 45.00",
+      "saved": "Saved",
+      "save_batch": "Save batch",
+      "save_failed": "Failed to save batch. Try again.",
+      "no_sheds": "No sheds found. Go back and add a shed first.",
+      "go_to_dashboard": "Go to Dashboard",
+      "skip": "Skip for now",
+      "errors": {
+        "breed_required": "Enter breed name",
+        "date_format": "Date must be in YYYY-MM-DD format",
+        "bird_count_valid": "Enter a valid bird count",
+        "supplier_required": "Enter source supplier",
+        "cost_valid": "Enter a valid cost per bird (₹)"
+      }
+    },
+    "success": {
+      "title": "You're all set!",
+      "sub": "{{farm}} is ready to go.",
+      "your_farm": "Your farm",
+      "sheds": "Sheds added",
+      "batches": "Batches placed",
+      "next_title": "What's next",
+      "next_log": "Log today's mortality, feed and eggs",
+      "next_buyers": "Add buyers to track payments in Khata",
+      "next_trial": "Explore Pro features free for 14 days",
+      "go_to_dashboard": "Go to dashboard"
+    }
+  },
+  "batch_detail": {
+    "fallback_title": "Batch",
+    "loading": "Loading batch…",
+    "age_days_one": "Placed {{date}} · {{count}} day",
+    "age_days_other": "Placed {{date}} · {{count}} days",
+    "supplier": "Supplier: {{name}}",
+    "status": { "active": "Active", "harvested": "Harvested", "closed": "Closed" },
+    "kpi": { "current_birds": "Current birds", "cumulative_fcr": "Cumulative FCR", "livability": "Livability", "avg_weight": "Avg weight" },
+    "target_fcr": "Target: {{fcr}} ({{breed}})",
+    "target_livability": "Target: ≥ {{pct}}%",
+    "target_weight": "Target: {{kg}} kg @ {{days}}d",
+    "pnl_title": "Profit & loss",
+    "pnl": { "chick_cost": "Chick cost", "feed_cost": "Feed cost", "other_expenses": "Other expenses", "total_cost": "Total cost", "harvest_sale": "Harvest sale", "other_income": "Other income", "total_income": "Total income", "net": "Net P&L", "per_bird": "P&L per bird", "realised": "Realised P&L (paid only)" },
+    "no_pnl": { "title": "No P&L data yet", "description": "Record daily feed costs, expenses, and sales to populate this batch's P&L." },
+    "add_transaction": "Add transaction for this batch",
+    "view_vaccinations": "View vaccinations",
+    "view_health": "View health incidents",
+    "close_batch": "Close batch (harvest)",
+    "view_certificate": "View traceability certificate",
+    "generating": "Generating…",
+    "generate_certificate": "Generate traceability certificate",
+    "trace_gate_reason": "Upgrade to generate traceability certificates",
+    "errors": { "load_failed": "Failed to load batch", "generate_failed": "Failed to generate certificate" },
+    "batch_closed": "Batch closed — P&L locked."
+  },
+  "contract": {
+    "title": "Contract farming",
+    "gate_reason": "Contract farming requires a paid plan",
+    "pro": {
+      "title": "Contract farming is a Pro feature",
+      "description": "Track integrator-supplied inputs, calculate expected settlements from tariff cards, and reconcile actual payouts. Available on the PoultryOS Pro plan.",
+      "action": "See plans"
+    },
+    "status": { "active": "Active", "harvest_complete": "Harvest complete", "settled": "Settled", "disputed": "Disputed" },
+    "unknown_integrator": "Unknown integrator",
+    "placed_chicks": "Placed {{date}} · {{count}} chicks",
+    "actual": "Actual",
+    "expected": "Expected",
+    "empty": {
+      "title": "No contract cycles yet",
+      "description": "Contract cycles appear here after a contract-farm batch is placed. Set farm type to 'contract' in farm settings, pick an integrator, then place a batch."
+    },
+    "kg_suffix": "{{value}} kg",
+    "detail": {
+      "fallback_title": "Contract cycle",
+      "loading": "Loading…",
+      "status_line": "Status: {{status}}",
+      "inputs": "Integrator inputs",
+      "chicks_supplied": "Chicks supplied",
+      "placed_on": "Placed on",
+      "feed_supplied": "Feed supplied",
+      "expected_harvest": "Expected harvest",
+      "performance": "Cycle performance",
+      "birds_delivered": "Birds delivered",
+      "avg_weight": "Avg weight",
+      "actual_fcr": "Actual FCR",
+      "actual_mortality": "Actual mortality",
+      "harvested_on": "Harvested on",
+      "tariff_card": "Integrator tariff card",
+      "base_rate": "Base rate",
+      "base_rate_value": "₹{{rate}} / kg",
+      "fcr_bonus": "FCR bonus",
+      "fcr_bonus_value": "+₹{{bonus}}/kg if FCR ≤ {{threshold}}",
+      "mortality_bonus": "Mortality bonus",
+      "mortality_bonus_value": "+₹{{bonus}}/kg if mortality ≤ {{threshold}}%",
+      "weight_target": "Weight target",
+      "settlement": "Settlement",
+      "live_weight": "Live weight",
+      "base_amount": "Base amount",
+      "expected_total": "Expected total",
+      "expected_saved": "Expected (saved)",
+      "actual_received": "Actual received",
+      "delta": "Delta (actual − expected)",
+      "received_on": "Received on",
+      "calculating": "Calculating…",
+      "recalculate": "Recalculate from tariff",
+      "need_inputs": "Enter birds delivered + avg weight to calculate the expected settlement.",
+      "dispute_notes": "Dispute notes",
+      "send_reconciliation": "Send reconciliation",
+      "reconciliation_help": "Shares a formatted summary of the cycle and settlement breakdown via WhatsApp. Pick the integrator contact when WhatsApp opens.",
+      "share_a11y": "Share settlement reconciliation via WhatsApp",
+      "send_to_integrator": "Send to integrator",
+      "errors": { "whatsapp_failed": "Could not open WhatsApp", "compute_failed": "Failed to compute" }
+    }
+  },
+  "buyers": {
+    "title_fallback": "Buyer",
+    "loading": "Loading buyer…",
+    "owes_you": "Buyer owes you",
+    "you_owe": "You owe buyer",
+    "settled": "Settled",
+    "total_business": "Total business: {{amount}}",
+    "record_sale_payment": "Record sale / payment",
+    "show_upi_qr": "Show UPI QR",
+    "send_reminder": "Send reminder",
+    "generating": "Generating…",
+    "send_upi_collect": "Send UPI Collect link",
+    "recent_transactions": "Recent transactions",
+    "empty": { "title": "No transactions yet", "description": "Sales and payments linked to this buyer will appear here." },
+    "errors": {
+      "load_failed": "Failed to load buyer",
+      "no_pending": "No pending invoice to collect",
+      "upi_not_configured": "UPI Collect not yet configured — share the UPI QR instead.",
+      "upi_link_failed": "Failed to create UPI link",
+      "generic_failed": "Failed",
+      "add_upi_first": "Add your UPI ID in farm settings first",
+      "no_outstanding": "No outstanding amount to collect"
+    },
+    "qr_note": "PoultryOS Khata — {{name}}",
+    "reminder": {
+      "greeting": "Hi {{name}},",
+      "body": "A friendly reminder: {{amount}} is pending on your khata.",
+      "upi": "UPI: {{vpa}}"
+    },
+    "collect_message": "Hi {{name}}, please pay {{amount}} via this UPI link: {{url}}",
+    "form": {
+      "name": "Buyer name",
+      "phone": "Phone",
+      "whatsapp_phone": "WhatsApp phone",
+      "address": "Address",
+      "gstin": "GSTIN",
+      "credit_limit": "Credit limit (₹)",
+      "saving": "Saving…",
+      "add": "Add buyer",
+      "no_farm_selected": "No farm selected",
+      "add_failed": "Failed to add buyer",
+      "errors": {
+        "name_required": "Name is required",
+        "invalid_phone": "Invalid phone",
+        "invalid_whatsapp": "Invalid WhatsApp phone",
+        "positive_number": "Must be a positive number"
+      }
+    }
+  },
+  "khata": {
+    "title": "Khata",
+    "total_outstanding": "Total outstanding",
+    "buyer_count_one": "buyer",
+    "buyer_count_other": "buyers",
+    "record_income": "Record income",
+    "record_expense": "Record expense",
+    "view_all_transactions": "View all transactions",
+    "add_buyer": "Add buyer",
+    "load_failed": "Failed to load buyers",
+    "upgrade_buyers": "Upgrade to add more buyers",
+    "empty": {
+      "title": "No buyers yet",
+      "description": "Add a buyer to start tracking the khata — outstanding payments, UPI QR, and WhatsApp reminders."
+    }
+  },
+  "more": {
+    "title": "More",
+    "transactions": { "label": "Transactions", "description": "Income, expenses, and payment status" },
+    "market_prices": { "label": "Market prices", "description": "14-day broiler & egg price trend" },
+    "weather": { "label": "Weather & alerts", "description": "Current conditions, forecast, heat-stress history" },
+    "reports": { "label": "Reports", "description": "Operational + financial summaries · WhatsApp + CSV" },
+    "health": { "label": "Health incidents", "description": "Symptoms, treatment, withdrawal" },
+    "vaccinations": { "label": "Vaccinations", "description": "Schedule and history" },
+    "inventory": { "label": "Inventory", "description": "Feed, medicine, equipment stock" },
+    "contract": { "label": "Contract farming", "description": "Cycles, tariff card, settlements" },
+    "settings": { "label": "Settings", "description": "Farm profile, UPI, WhatsApp opt-in, heat threshold" },
+    "security": { "label": "Security", "description": "Two-factor, trusted devices, login history" },
+    "billing": { "label": "Billing & subscription", "description": "Plan, status, upgrade to Pro" },
+    "multi_farm": { "label": "Multi-farm dashboard", "description": "Consolidated KPIs across all your farms (Pro · best on web)" },
+    "notifications": { "label": "Notifications", "description": "WhatsApp alert history for this farm" },
+    "whatsapp_settings": { "label": "WhatsApp notifications", "description": "Master switch + per-category opt-in" },
+    "language": { "label": "Language / भाषा / తెలుగు / மொழி", "description": "English, Hindi, Telugu, Tamil" }
+  },
+  "vaccinations": {
+    "title": "Vaccinations",
+    "batch": "Batch",
+    "select_batch": "Select a batch",
+    "schedule_new": "Schedule new vaccination",
+    "schedule": "Schedule vaccination",
+    "empty": { "title": "No vaccinations scheduled", "description": "Tap + to schedule a vaccination for this batch." },
+    "load_failed": "Failed to load vaccinations: {{reason}}",
+    "update_failed_reason": "Could not update: {{reason}}",
+    "update_failed": "Update failed",
+    "marked_done": "Vaccination marked as done",
+    "status": { "done": "Done", "overdue": "Overdue", "scheduled": "Scheduled" },
+    "route": { "oral": "Oral", "injection": "Injection", "spray": "Spray" },
+    "given": "Given {{date}}",
+    "due": "Due {{date}}",
+    "mark_done": "Mark done",
+    "form": {
+      "title": "Schedule Vaccination",
+      "vaccine_name": "Vaccine name",
+      "vaccine_name_placeholder": "e.g. Newcastle Disease",
+      "scheduled_date": "Scheduled date",
+      "date_placeholder": "YYYY-MM-DD",
+      "dose": "Dose (optional)",
+      "dose_placeholder": "e.g. 0.5 ml",
+      "route_label": "Administration route",
+      "birds_vaccinated": "Birds vaccinated (optional)",
+      "schedule": "Schedule",
+      "cancel": "Cancel",
+      "scheduled_ok": "Vaccination scheduled",
+      "session_error": "Session error — please re-open the app",
+      "no_batch": "No batch selected — go back and pick a batch first",
+      "save_failed": "Save failed: {{reason}}",
+      "errors": {
+        "vaccine_required": "Enter a vaccine name",
+        "date_format": "Date must be YYYY-MM-DD",
+        "date_required": "Date is required",
+        "whole_number": "Must be a whole number ≥ 0"
+      }
+    }
+  },
+  "health": {
+    "title": "Health Incidents",
+    "batch": "Batch",
+    "select_batch": "Select a batch",
+    "birds_affected": "{{count}} birds affected",
+    "diagnosis": "Diagnosis: ",
+    "treatment": "Treatment: ",
+    "vet_note": "Vet note: ",
+    "report_new_incident": "Report new incident",
+    "report_incident": "Report incident",
+    "load_failed": "Failed to load incidents: {{reason}}",
+    "empty": { "title": "No health incidents recorded", "description": "Tap + to report symptoms or treatment for this batch." },
+    "form": {
+      "title": "Report Incident",
+      "incident_date": "Incident date",
+      "date_placeholder": "YYYY-MM-DD",
+      "symptom_description": "Symptom description",
+      "affected_birds": "Affected birds",
+      "vet_consulted": "Vet consulted",
+      "diagnosis": "Diagnosis",
+      "treatment_given": "Treatment given",
+      "medicine_name": "Medicine name",
+      "dose": "Dose",
+      "withdrawal_days": "Withdrawal period (days)",
+      "withdrawal_helper": "Days before birds or eggs are safe to sell",
+      "save": "Save",
+      "cancel": "Cancel",
+      "session_error": "Session error — please re-open the app",
+      "no_batch": "No batch selected — go back and pick a batch first",
+      "save_failed": "Save failed: {{reason}}",
+      "save_failed_generic": "Save failed",
+      "recorded": "Incident recorded",
+      "errors": {
+        "date_format": "Date must be YYYY-MM-DD",
+        "date_required": "Date is required",
+        "symptom_min": "Please describe symptoms (min 3 characters)",
+        "whole_number": "Must be a whole number ≥ 0"
+      }
+    }
+  },
+  "inventory": {
+    "title": "Inventory",
+    "category": "Category",
+    "all_categories": "All Categories",
+    "cat": { "feed": "Feed", "medicine": "Medicine", "vaccine": "Vaccine", "equipment": "Equipment" },
+    "record_purchase": "Record purchase",
+    "record_new_purchase": "Record new purchase",
+    "load_failed": "Failed to load inventory: {{reason}}",
+    "empty_all": { "title": "No inventory items", "description": "Record your first purchase to start tracking stock levels." },
+    "empty_filtered": { "title": "No {{category}} items", "description": "Try a different category filter or record a new purchase." },
+    "purchase": {
+      "title": "Record Purchase",
+      "item": "Item",
+      "item_placeholder": "Select an inventory item",
+      "quantity": "Quantity",
+      "cost_per_unit": "Cost per unit (₹)",
+      "supplier": "Supplier",
+      "purchase_date": "Purchase date",
+      "date_placeholder": "YYYY-MM-DD",
+      "notes": "Notes",
+      "notes_helper": "Optional: batch number, expiry date, etc.",
+      "save": "Save purchase",
+      "cancel": "Cancel",
+      "session_error": "Session error — please re-open the app",
+      "save_failed": "Save failed: {{reason}}",
+      "stock_read_failed": "Purchase recorded but stock level could not be updated",
+      "stock_update_failed": "Purchase recorded but stock update failed",
+      "unexpected": "Unexpected error",
+      "errors": {
+        "select_item": "Please select an item",
+        "quantity_required": "Quantity is required",
+        "quantity_positive": "Quantity must be greater than 0",
+        "cost_non_negative": "Cost must be 0 or greater",
+        "date_format": "Date must be YYYY-MM-DD",
+        "date_required": "Date is required"
+      }
+    }
+  },
+  "market_prices": {
+    "title": "Market prices",
+    "state_title": "{{state}} prices",
+    "no_state": { "title": "No farm state set", "description": "Add a state in farm settings to start tracking market prices." },
+    "trend_14d": "14-day trend",
+    "no_data": "No price data yet for {{state}}. Enter today's price below to start the trend.",
+    "legend_broiler": "Broiler ₹/kg",
+    "legend_eggs": "Eggs ₹/100",
+    "set_today": "Set today's price",
+    "date_label": "Date",
+    "date_placeholder": "YYYY-MM-DD",
+    "broiler_label": "Broiler price (₹/kg)",
+    "egg_label": "Egg price (₹/100)",
+    "saving": "Saving…",
+    "save": "Save price",
+    "saved": "Price saved",
+    "save_failed": "Failed to save",
+    "recent_entries": "Recent entries",
+    "errors": {
+      "date_format": "YYYY-MM-DD",
+      "non_negative": "Must be a non-negative number",
+      "either_price": "Set either broiler or eggs price"
+    }
+  },
+  "flocks": {
+    "active": "Active",
+    "closed": "Closed",
+    "harvested": "Harvested {{date}}",
+    "placed": "Placed {{date}}",
+    "health": "Health",
+    "vaccinations": "Vaccinations",
+    "load_failed": "Could not load batches: {{reason}}",
+    "empty_active": { "title": "No active flocks", "description": "Add your first batch to start tracking daily logs." },
+    "empty_closed": { "title": "No closed flocks yet", "description": "Closed batches will appear here after harvest." },
+    "set_up_flock": "Set up flock"
+  },
+  "reports": {
+    "title": "Reports",
+    "report_type": "Report type",
+    "type": { "operational": "Operational summary", "financial": "Financial summary" },
+    "date_range": "Date range",
+    "from": "From",
+    "to": "To",
+    "date_placeholder": "YYYY-MM-DD",
+    "generating": "Generating…",
+    "generate": "Generate report",
+    "preview": "Preview",
+    "whatsapp": "WhatsApp",
+    "csv": "CSV",
+    "export_csv": "Export CSV",
+    "errors": {
+      "pick_farm": "Pick a farm first",
+      "generate_failed": "Failed to generate report",
+      "whatsapp_failed": "Could not open WhatsApp",
+      "download_unavailable": "Download not available in this environment",
+      "download_failed": "Could not download CSV",
+      "export_failed": "Could not export CSV"
+    },
+    "csv_saved": "CSV saved to {{uri}}"
+  },
+  "transaction_form": {
+    "type_label": "Type",
+    "type": { "income": "Income", "expense": "Expense" },
+    "category_label": "Category",
+    "category_placeholder": "Pick a category",
+    "income_category": {
+      "bird_sale": "Bird sale",
+      "egg_sale": "Egg sale",
+      "manure_sale": "Manure sale",
+      "other_income": "Other income"
+    },
+    "expense_category": {
+      "feed": "Feed",
+      "medicine": "Medicine",
+      "vaccine": "Vaccine",
+      "chicks": "Chicks",
+      "labour": "Labour",
+      "utilities": "Utilities",
+      "equipment": "Equipment",
+      "other_expense": "Other expense"
+    },
+    "amount_label": "Amount (₹)",
+    "quantity_label": "Quantity",
+    "price_per_unit_label": "Price per unit (₹)",
+    "buyer_label": "Buyer (optional)",
+    "buyer_placeholder": "Pick a buyer",
+    "no_buyer_linked": "— No buyer linked —",
+    "buyer_name_label": "Buyer name (free text)",
+    "supplier_name_label": "Supplier name",
+    "transaction_date_label": "Transaction date",
+    "date_placeholder": "YYYY-MM-DD",
+    "payment_status_label": "Payment status",
+    "payment_status": { "paid": "Paid", "pending": "Pending", "partial": "Partial" },
+    "due_date_label": "Due date",
+    "notes_label": "Notes",
+    "save": "Save transaction",
+    "cancel": "Cancel",
+    "no_farm_selected": "No farm selected",
+    "save_failed": "Failed to save",
+    "errors": {
+      "required": "Required",
+      "must_be_positive": "Must be greater than 0",
+      "must_be_zero_or_greater": "Must be 0 or greater",
+      "pick_category": "Pick a category",
+      "date_format": "Date must be YYYY-MM-DD",
+      "due_date_format": "Due date must be YYYY-MM-DD",
+      "due_date_required": "Due date required when payment is pending or partial"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "yes": "Yes",
+    "no": "No"
+  }
+}

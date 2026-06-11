@@ -1,0 +1,89 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+
+const schema = z.object({
+  farm_name: z.string().min(2),
+  owner_name: z.string().optional(),
+  state: z.string().min(2),
+  district: z.string().min(2),
+  phone: z.string().optional(),
+  gstin: z.string().optional(),
+  farm_type: z.enum(['independent', 'contract']),
+  upi_id: z.string().regex(/^[\w.\-]+@[\w.\-]+$/, 'Format: name@bank').or(z.literal('')),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
+  heat_stress_threshold_celsius: z.coerce.number().min(20).max(50).optional(),
+});
+type Form = z.infer<typeof schema>;
+
+export function FarmForm() {
+  const router = useRouter();
+  const supabase = createSupabaseBrowserClient();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+    resolver: zodResolver(schema),
+    defaultValues: { farm_type: 'independent', heat_stress_threshold_celsius: 35 },
+  });
+
+  async function onSubmit(data: Form) {
+    setError(null);
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setError('Not signed in'); setLoading(false); return; }
+    const { data: row, error } = await supabase.from('farms').insert({
+      owner_id: user.id,
+      farm_name: data.farm_name,
+      owner_name: data.owner_name || null,
+      state: data.state,
+      district: data.district,
+      phone: data.phone || null,
+      gstin: data.gstin || null,
+      farm_type: data.farm_type,
+      upi_id: data.upi_id || null,
+      latitude: data.latitude || null,
+      longitude: data.longitude || null,
+      heat_stress_threshold_celsius: data.heat_stress_threshold_celsius || 35,
+    }).select('id').single();
+    setLoading(false);
+    if (error) return setError(error.message);
+    router.push(`/farms/${row!.id}`);
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="card space-y-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+        <Field label="Farm name *" error={errors.farm_name?.message}><input className="input" {...register('farm_name')} /></Field>
+        <Field label="Owner name"><input className="input" {...register('owner_name')} /></Field>
+        <Field label="State *" error={errors.state?.message}><input className="input" {...register('state')} /></Field>
+        <Field label="District *" error={errors.district?.message}><input className="input" {...register('district')} /></Field>
+        <Field label="Phone"><input className="input" placeholder="+91XXXXXXXXXX" {...register('phone')} /></Field>
+        <Field label="GSTIN"><input className="input" {...register('gstin')} /></Field>
+        <Field label="Farm type">
+          <select className="input" {...register('farm_type')}>
+            <option value="independent">Independent</option>
+            <option value="contract">Contract</option>
+          </select>
+        </Field>
+        <Field label="UPI ID" error={errors.upi_id?.message}><input className="input" placeholder="name@okhdfcbank" {...register('upi_id')} /></Field>
+        <Field label="Latitude"><input type="number" step="any" className="input" {...register('latitude')} /></Field>
+        <Field label="Longitude"><input type="number" step="any" className="input" {...register('longitude')} /></Field>
+        <Field label="Heat-stress threshold (°C)"><input type="number" step="0.1" className="input" {...register('heat_stress_threshold_celsius')} /></Field>
+      </div>
+      <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? 'Saving…' : 'Create farm'}</button>
+      {error && <p className="text-sm text-danger">{error}</p>}
+    </form>
+  );
+}
+
+function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+  return <div><label className="label">{label}</label>{children}{error && <p className="text-sm text-danger mt-xs">{error}</p>}</div>;
+}

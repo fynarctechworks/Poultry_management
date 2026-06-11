@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* --font-sans is injected by next/font (IBM Plex Sans) in app/layout.tsx */
+    font-family: var(--font-sans), 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  body {
+    @apply bg-canvas-soft text-ink antialiased;
+  }
+  * {
+    @apply border-mute;
+  }
+  /* Visible keyboard focus everywhere — blueprint §3.3 (state.focus) */
+  :focus-visible {
+    outline: 2px solid theme('colors.primary');
+    outline-offset: 2px;
+  }
+  /* Reduced motion: collapse transitions/animations */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-canvas border border-mute rounded-card p-lg;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-primary text-on-primary rounded-lg px-lg py-md font-semibold text-base min-h-[44px] hover:bg-primary-dark transition-colors disabled:opacity-50;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center bg-canvas border border-primary-dark text-primary-dark rounded-lg px-lg py-md font-semibold text-base min-h-[44px] hover:bg-primary-subtle transition-colors;
+  }
+  .btn-subtle {
+    @apply inline-flex items-center justify-center bg-primary-subtle text-primary rounded-lg px-lg py-md font-semibold text-base min-h-[44px] hover:opacity-80 transition-opacity;
+  }
+  .input {
+    @apply w-full h-[44px] px-md border border-mute rounded-md bg-canvas text-ink text-base focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+  }
+  .label {
+    @apply block text-sm font-semibold text-ink mb-xs;
+  }
+}

@@ -1,0 +1,1069 @@
+{
+  "app": {
+    "name": "PoultryOS",
+    "tagline": "आपका फार्म, आपकी जेब में"
+  },
+  "auth": {
+    "otp": {
+      "heading": "अपना मोबाइल नंबर दर्ज करें",
+      "sub": "साइन इन करने के लिए हम आपको एक वन-टाइम पासवर्ड भेजेंगे",
+      "mobile": "मोबाइल नंबर",
+      "mobile_placeholder": "98765 43210",
+      "send_otp": "OTP भेजें",
+      "verify_heading": "अपना नंबर सत्यापित करें",
+      "verify_sub": "{{phone}} पर भेजा गया 6-अंकों का कोड दर्ज करें",
+      "verify": "सत्यापित करें और जारी रखें",
+      "resend": "कोड पुनः भेजें",
+      "resend_in": "{{seconds}} सेकंड में पुनः भेजें",
+      "change_number": "नंबर बदलें",
+      "use_email": "इसके बजाय ईमेल और पासवर्ड का उपयोग करें",
+      "use_mobile": "इसके बजाय मोबाइल नंबर का उपयोग करें",
+      "sent": "{{phone}} पर OTP भेजा गया",
+      "errors": {
+        "mobile_invalid": "मान्य 10-अंकों का भारतीय मोबाइल नंबर दर्ज करें",
+        "code_invalid": "6-अंकों का कोड दर्ज करें",
+        "send_failed": "OTP नहीं भेजा जा सका। कृपया पुनः प्रयास करें।",
+        "verify_failed": "गलत या समाप्त कोड। कृपया पुनः प्रयास करें।",
+        "sms_unconfigured": "SMS लॉगिन अभी उपलब्ध नहीं है। कृपया ईमेल और पासवर्ड का उपयोग करें।"
+      }
+    },
+    "login": {
+      "heading": "वापस आपका स्वागत है",
+      "sub": "अपने PoultryOS खाते में साइन इन करें",
+      "email": "ईमेल",
+      "password": "पासवर्ड",
+      "sign_in": "साइन इन",
+      "no_account": "खाता नहीं है? ",
+      "create_account": "खाता बनाएं",
+      "login_failed": "लॉगिन विफल। कृपया पुनः प्रयास करें।",
+      "errors": {
+        "email_invalid": "मान्य ईमेल दर्ज करें",
+        "password_min": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए"
+      }
+    },
+    "register": {
+      "heading": "खाता बनाएं",
+      "sub": "अपना PoultryOS फार्म खाता सेट करें",
+      "full_name": "पूरा नाम",
+      "email": "ईमेल",
+      "password": "पासवर्ड",
+      "i_am_a": "मैं हूं",
+      "role": {
+        "owner": "मालिक",
+        "worker": "कर्मचारी",
+        "vet": "पशु चिकित्सक"
+      },
+      "create_account": "खाता बनाएं",
+      "have_account": "पहले से खाता है? ",
+      "sign_in": "साइन इन",
+      "register_failed": "पंजीकरण विफल। कृपया पुनः प्रयास करें।",
+      "errors": {
+        "name_required": "अपना पूरा नाम दर्ज करें",
+        "email_invalid": "मान्य ईमेल दर्ज करें",
+        "password_min": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+        "phone_invalid": "मान्य 10-अंकों का भारतीय मोबाइल नंबर दर्ज करें"
+      },
+      "mobile": "मोबाइल नंबर",
+      "mobile_placeholder": "98765 43210",
+      "verify_hint": "हम आपके मोबाइल नंबर को सत्यापित करने के लिए एक वन-टाइम कोड भेजेंगे। आप अपना ईमेल बाद में सुरक्षा सेटिंग्स से सत्यापित कर सकते हैं।",
+      "sms_unconfigured": "खाता बन गया। SMS सत्यापन अभी उपलब्ध नहीं है — अपने ईमेल और पासवर्ड से साइन इन करें।"
+    }
+  },
+  "language": {
+    "label": "भाषा",
+    "description": "ऐप की भाषा बदलें",
+    "english": "English",
+    "hindi": "हिंदी",
+    "telugu": "తెలుగు",
+    "tamil": "தமிழ்"
+  },
+  "tabs": {
+    "dashboard": "डैशबोर्ड",
+    "flocks": "फ्लॉक्स",
+    "log": "लॉग",
+    "khata": "खाता",
+    "more": "अधिक"
+  },
+  "dashboard": {
+    "title": "डैशबोर्ड",
+    "hello": "नमस्ते",
+    "active_batches_section": "सक्रिय बैच",
+    "empty_batches": {
+      "title": "कोई सक्रिय बैच नहीं",
+      "description": "ट्रैक करने के लिए शेड और बैच जोड़ें।",
+      "action": "फ्लॉक सेट करें"
+    },
+    "heat_ack": "गर्मी अलर्ट स्वीकार किया गया",
+    "heat_ack_failed": "स्वीकार नहीं हो सका — पुनः प्रयास करें",
+    "weather_detail_coming": "मौसम विवरण स्क्रीन जल्द ही",
+    "kpi": {
+      "active_batches": "सक्रिय बैच",
+      "active_birds": "सक्रिय पक्षी",
+      "mortality_7d": "7-दिनी मृत्यु दर",
+      "cumulative_fcr": "कुल एफसीआर",
+      "eggs_today": "आज के अंडे",
+      "total_birds": "कुल पक्षी",
+      "mortality_today": "आज की मृत्यु",
+      "feed_used_today": "आज खपत किया गया दाना",
+      "fcr": "एफसीआर",
+      "livability": "जीवनक्षमता"
+    },
+    "weather": {
+      "title": "मौसम",
+      "temperature": "तापमान",
+      "humidity": "आर्द्रता",
+      "heat_stress_alert": "गर्मी का अलर्ट"
+    },
+    "alerts": {
+      "section_title": "अलर्ट्स",
+      "no_alerts": "सब ठीक है — कोई अलर्ट नहीं"
+    },
+    "log_today_cta": "आज का डेटा दर्ज करें"
+  },
+  "daily_log": {
+    "title": "दैनिक लॉग",
+    "fields": {
+      "log_date": "तारीख",
+      "birds_dead": "मृत पक्षी",
+      "death_cause": "मृत्यु का कारण",
+      "feed_consumed_kg": "खपत किया गया दाना (किलो)",
+      "feed_type": "दाने का प्रकार",
+      "feed_cost_per_kg": "दाने की कीमत प्रति किलो",
+      "eggs_collected": "एकत्रित अंडे",
+      "avg_bird_weight_g": "औसत पक्षी वजन (ग्राम)",
+      "notes": "नोट्स"
+    },
+    "death_cause": {
+      "disease": "रोग",
+      "culled": "हटाया गया",
+      "injury": "चोट",
+      "heat_stress": "गर्मी",
+      "unknown": "अज्ञात"
+    },
+    "feed_type": {
+      "starter": "स्टार्टर",
+      "grower": "ग्रोवर",
+      "finisher": "फिनिशर",
+      "layer": "लेयर",
+      "custom": "कस्टम"
+    },
+    "save": "लॉग सहेजें",
+    "saved": "लॉग सहेजा गया",
+    "offline_queued": "ऑफ़लाइन सहेजा गया — कनेक्शन आने पर सिंक होगा",
+    "batch": "बैच",
+    "select_batch": "एक बैच चुनें",
+    "select_batch_first": "पहले बैच चुनें",
+    "select_batch_hint": "लॉग शुरू करने के लिए ऊपर से बैच चुनें।",
+    "feed_cost_per_kg_inr": "दाने की कीमत प्रति किलो (₹)",
+    "log_date": "लॉग की तारीख",
+    "date_placeholder": "YYYY-MM-DD",
+    "no_active_batches": {
+      "title": "कोई सक्रिय बैच नहीं",
+      "description": "दैनिक डेटा दर्ज करने से पहले शेड और बैच जोड़ें।"
+    },
+    "duplicate_error": "इस बैच के लिए {{date}} का लॉग पहले से है",
+    "save_failed": "सहेजने में विफल",
+    "save_success": "सहेजा गया — पक्षी गणना और अलर्ट अपडेट हो रहे हैं"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "sections": {
+      "farm_profile": "फार्म प्रोफ़ाइल",
+      "farm_type": "फार्म प्रकार",
+      "payments": "भुगतान",
+      "climate": "जलवायु",
+      "whatsapp": "WhatsApp सूचनाएं"
+    },
+    "save": "बदलाव सहेजें",
+    "saved": "सेटिंग्स सहेजी गईं",
+    "form": {
+      "farm_name": "फार्म का नाम",
+      "owner_name": "मालिक का नाम",
+      "state": "राज्य",
+      "state_placeholder": "राज्य चुनें",
+      "district": "जिला",
+      "phone": "फ़ोन",
+      "gstin": "GSTIN",
+      "type": "प्रकार",
+      "type_options": {
+        "independent": "स्वतंत्र फार्म",
+        "contract": "कॉन्ट्रैक्ट फार्म"
+      },
+      "integrator": "इंटीग्रेटर",
+      "integrator_placeholder": "इंटीग्रेटर चुनें",
+      "integrator_none": "— एक इंटीग्रेटर चुनें —",
+      "upi_id": "UPI ID (VPA)",
+      "upi_placeholder": "yourname@bank",
+      "upi_helper": "खाता मॉड्यूल में खरीदारों के साथ साझा UPI QR कोड के लिए।",
+      "heat_threshold": "गर्मी अलर्ट सीमा (°C)",
+      "heat_helper": "पूर्वानुमान अधिकतम इस मान से अधिक होने पर गर्मी अलर्ट ट्रिगर करता है। डिफ़ॉल्ट 35 °C।",
+      "whatsapp_phone": "WhatsApp फ़ोन",
+      "wa_toggle": "WhatsApp अलर्ट प्राप्त करें",
+      "wa_toggle_desc": "दैनिक सारांश, मृत्यु अलर्ट, गर्मी अलर्ट, भुगतान रिमाइंडर।",
+      "save_failed": "सहेजने में विफल",
+      "errors": {
+        "required": "आवश्यक",
+        "phone_invalid": "अमान्य फ़ोन",
+        "whatsapp_phone_invalid": "अमान्य WhatsApp नंबर",
+        "upi_invalid": "UPI ID name@bank प्रारूप में होना चाहिए",
+        "heat_range": "20–50 °C के बीच होना चाहिए"
+      }
+    }
+  },
+  "multi_farm": {
+    "title": "मल्टी-फार्म डैशबोर्ड",
+    "gate_reason": "मल्टी-फार्म डैशबोर्ड के लिए पेड प्लान आवश्यक है",
+    "pro": {
+      "title": "अपने सभी फार्म एक दृश्य में प्रबंधित करें",
+      "description": "आपके सभी फार्म के सक्रिय बैच, पक्षी, मृत्यु, आय और बकाया देखें। PoultryOS Pro प्लान पर उपलब्ध।",
+      "action": "प्लान देखें"
+    },
+    "web_only_title": "वेब पर सबसे अच्छा",
+    "web_only_p1": "मल्टी-फार्म डैशबोर्ड बड़ी स्क्रीन के लिए अनुकूलित है। सभी फार्म के समेकित दृश्य के लिए ब्राउज़र में PoultryOS खोलें।",
+    "web_only_p2": "हम नीचे सारांश दिखाएंगे — लेकिन वेब संस्करण में अधिक घनत्व और कॉलम-स्तरीय नियंत्रण हैं।",
+    "loading_farms": "फार्म लोड हो रहे हैं…",
+    "empty": {
+      "title": "अभी कोई फार्म नहीं",
+      "description": "इस समेकित दृश्य में देखने के लिए एक फार्म जोड़ें।"
+    },
+    "per_farm": "प्रति फार्म",
+    "farm_type": {
+      "contract": "कॉन्ट्रैक्ट",
+      "independent": "स्वतंत्र"
+    },
+    "last_log": "अंतिम लॉग {{date}}",
+    "kpi": {
+      "farms": "फार्म",
+      "active_batches": "सक्रिय बैच",
+      "total_birds": "कुल पक्षी",
+      "net_pnl_month": "शुद्ध लाभ/हानि (इस माह)",
+      "deaths_month": "मृत्यु (माह)",
+      "receivables": "बकाया",
+      "birds": "पक्षी",
+      "mortality_pct": "मृत्यु %",
+      "feed_kg": "दाना (किलो)",
+      "eggs": "अंडे",
+      "net_month": "शुद्ध (माह)"
+    }
+  },
+  "weather_screen": {
+    "title": "मौसम",
+    "current_conditions": "वर्तमान स्थिति",
+    "temperature": "तापमान",
+    "humidity": "आर्द्रता",
+    "max_today": "आज का अधिकतम",
+    "your_threshold": "आपकी सीमा",
+    "no_data_inline": "अभी मौसम डेटा नहीं। सेटिंग्स में फार्म का अक्षांश/देशांतर सेट करें, फिर रोज़ डेटा अपडेट होगा।",
+    "updated_at": "अपडेट {{ts}}",
+    "next_24h": "अगले 24 घंटे",
+    "three_day": "3-दिनी पूर्वानुमान",
+    "alert_history": "अलर्ट इतिहास",
+    "acknowledge": "स्वीकार करें",
+    "critical": "गंभीर",
+    "heat_stress_alert": "गर्मी अलर्ट",
+    "alert_body": "{{date}} को पूर्वानुमान {{temp}}°C{{hum}}।",
+    "alert_acknowledged": "{{date}} को स्वीकार",
+    "alert_type": {
+      "heat_stress": "गर्मी",
+      "cold_stress": "ठंड",
+      "heavy_rain": "तेज बारिश"
+    },
+    "severity": {
+      "warning": "चेतावनी",
+      "critical": "गंभीर"
+    },
+    "empty": {
+      "title": "अभी मौसम डेटा नहीं",
+      "description": "सेटिंग्स में फार्म अक्षांश/देशांतर सेट करें, फिर हर 4 घंटे में डेटा अपडेट होगा।"
+    }
+  },
+  "transactions": {
+    "title": "लेन-देन",
+    "add": "लेन-देन जोड़ें",
+    "filter": "फ़िल्टर",
+    "income": "आय",
+    "expense": "खर्च",
+    "pending": "बकाया",
+    "filter_options": {
+      "all": "सभी लेन-देन",
+      "income": "केवल आय",
+      "expense": "केवल खर्च",
+      "pending": "केवल बकाया"
+    },
+    "empty": {
+      "title": "अभी कोई लेन-देन नहीं",
+      "description": "फार्म की बहीखाता शुरू करने के लिए पहली आय या खर्च दर्ज करें।"
+    },
+    "filtered_empty": {
+      "title": "इस फ़िल्टर के लिए कोई लेन-देन नहीं",
+      "description": "अलग फ़िल्टर आज़माएं या नया लेन-देन जोड़ें।"
+    },
+    "load_failed": "लेन-देन लोड नहीं हो सके"
+  },
+  "billing": {
+    "title": "बिलिंग और सदस्यता",
+    "status": "स्थिति",
+    "status_free": "मुफ़्त योजना",
+    "status_active": "सक्रिय सदस्यता",
+    "status_past_due": "भुगतान बकाया",
+    "status_cancelled": "रद्द",
+    "past_due_warning": "हाल का भुगतान विफल हुआ। पेड फीचर्स बनाए रखने के लिए 7 दिनों में निपटारा करें।",
+    "subscribe": "सदस्यता लें",
+    "already_subscribed": "पहले से सदस्य",
+    "loading_plan": "योजना विवरण लोड हो रहा है…",
+    "how_it_works_title": "बिलिंग कैसे काम करती है",
+    "how_it_works_p1": "हम Razorpay Subscriptions का उपयोग करते हैं। Subscribe दबाने के बाद, Razorpay पेज पर UPI, कार्ड या नेट बैंकिंग से भुगतान पूरा करें। योजना कुछ सेकंड में सक्रिय हो जाती है।",
+    "how_it_works_p2": "कभी भी इस स्क्रीन से रद्द करें। मौजूदा बिलिंग अवधि तक पेड फीचर्स बने रहेंगे।",
+    "errors": {
+      "not_configured": "Razorpay अभी कॉन्फ़िगर नहीं है। बाद में पुनः प्रयास करें।",
+      "plan_not_configured": "यह बिलिंग चक्र कॉन्फ़िगर नहीं है। दूसरा चुनें।",
+      "checkout_failed": "चेकआउट शुरू नहीं हो सका ({{reason}})",
+      "checkout_unknown": "चेकआउट शुरू नहीं हो सका",
+      "missing_url": "सदस्यता बनी लेकिन चेकआउट URL नहीं मिला।",
+      "unexpected": "अप्रत्याशित त्रुटि"
+    }
+  },
+  "notifications": {
+    "title": "सूचनाएं",
+    "header_title": "WhatsApp लॉग",
+    "header_description": "इस फार्म के लिए भेजी गई पिछली 100 WhatsApp सूचनाएं। विफल संदेशों में कारण होता है — आमतौर पर \"मुफ़्त सीमा समाप्त\" या \"श्रेणी से ऑप्ट-आउट\"।",
+    "empty": {
+      "title": "अभी कोई सूचना नहीं",
+      "description": "इस फार्म के लिए भेजी गई गर्मी, मृत्यु और भुगतान रिमाइंडर सूचनाएं यहां दिखेंगी।"
+    },
+    "status": {
+      "sent": "भेजा गया",
+      "delivered": "डिलीवर्ड",
+      "read": "पढ़ा गया",
+      "failed": "विफल"
+    },
+    "type": {
+      "daily_digest": "दैनिक सारांश",
+      "mortality_alert": "मृत्यु अलर्ट",
+      "vaccination_reminder": "टीकाकरण रिमाइंडर",
+      "heat_stress_alert": "गर्मी अलर्ट",
+      "payment_reminder": "भुगतान रिमाइंडर",
+      "low_stock_alert": "कम स्टॉक अलर्ट",
+      "invoice": "इनवॉइस साझा",
+      "traceability_cert": "ट्रेसेबिलिटी सर्टिफिकेट",
+      "report": "रिपोर्ट साझा"
+    }
+  },
+  "whatsapp_settings": {
+    "title": "WhatsApp सूचनाएं",
+    "master_label": "WhatsApp सूचनाएं",
+    "master_description": "मास्टर स्विच। बंद होने पर, श्रेणी सेटिंग्स की परवाह किए बिना कोई WhatsApp संदेश नहीं भेजा जाएगा।",
+    "by_category": "श्रेणी अनुसार",
+    "category_hint": "व्यक्तिगत टेम्पलेट चालू/बंद करें। मास्टर स्विच बंद होने पर ये सभी निष्क्रिय हो जाती हैं।",
+    "about_limits_title": "WhatsApp सीमाओं के बारे में",
+    "about_limits": "मुफ़्त योजना: प्रति माह 5 WhatsApp सूचनाएं। Paid योजनाओं में असीमित। उपयोगकर्ता द्वारा साझा (इनवॉइस, सर्टिफिकेट) हमेशा मुफ़्त।",
+    "saved": "प्राथमिकताएं सहेजी गईं",
+    "save_failed": "सहेजने में विफल",
+    "not_signed_in": "साइन इन नहीं है",
+    "categories": {
+      "mortality_alert": {
+        "label": "मृत्यु अलर्ट",
+        "description": "जब दैनिक मृत्यु आपकी सीमा से अधिक हो। चालू रखने की सलाह।"
+      },
+      "heat_stress_alert": {
+        "label": "गर्मी की चेतावनी",
+        "description": "गर्मी से एक शाम पहले। शमन सुझाव के साथ।"
+      },
+      "vaccination_reminder": {
+        "label": "टीकाकरण रिमाइंडर",
+        "description": "सुबह 7 बजे आज होने वाले टीकाकरण का सारांश।"
+      },
+      "payment_reminder": {
+        "label": "भुगतान रिमाइंडर",
+        "description": "बकाया रकम के लिए दिन 7/15/30 पर रिमाइंडर।"
+      },
+      "low_stock_alert": {
+        "label": "कम स्टॉक अलर्ट",
+        "description": "जब दाना, दवा या टीके सीमा से कम हों।"
+      },
+      "daily_digest": {
+        "label": "दैनिक फार्म सारांश",
+        "description": "रात 8 बजे मृत्यु, दाना और भाव का सारांश।"
+      }
+    }
+  },
+  "onboarding": {
+    "step1_heading": "आपकी प्रोफ़ाइल",
+    "step2_heading": "आपका फार्म",
+    "step3_heading": "फार्म प्रकार",
+    "step4_heading": "फार्म स्थान",
+    "step5_heading": "WhatsApp और भुगतान",
+    "next": "आगे",
+    "back": "वापस",
+    "finish": "सेटअप पूरा करें",
+    "steps": {
+      "step1": {
+        "sub": "अनुभव को व्यक्तिगत बनाने के लिए अपना नाम बताएं।",
+        "full_name": "पूरा नाम",
+        "errors": {
+          "name_min": "अपना पूरा नाम दर्ज करें (न्यूनतम 2 अक्षर)"
+        }
+      },
+      "step2": {
+        "sub": "रिकॉर्ड और अनुपालन के लिए अपने फार्म का बुनियादी विवरण।",
+        "farm_name": "फार्म का नाम",
+        "owner_name": "मालिक का नाम",
+        "state": "राज्य",
+        "state_placeholder": "अपना राज्य चुनें",
+        "district": "जिला",
+        "phone": "फ़ोन नंबर",
+        "phone_placeholder": "+91XXXXXXXXXX",
+        "gstin": "GSTIN (वैकल्पिक)",
+        "gstin_placeholder": "22AAAAA0000A1Z5",
+        "errors": {
+          "farm_name_min": "फार्म का नाम कम से कम 2 अक्षरों का होना चाहिए",
+          "owner_name_min": "मालिक का नाम कम से कम 2 अक्षरों का होना चाहिए",
+          "state_required": "एक राज्य चुनें",
+          "district_min": "जिला कम से कम 2 अक्षरों का होना चाहिए",
+          "phone_invalid": "मान्य फ़ोन नंबर दर्ज करें (10–15 अंक)",
+          "gstin_invalid": "मान्य GSTIN दर्ज करें (15 अक्षर)"
+        }
+      },
+      "step3": {
+        "sub": "क्या आप स्वतंत्र रूप से या किसी इंटीग्रेटर के अधीन कॉन्ट्रैक्ट पर खेती कर रहे हैं?",
+        "farm_type": "फार्म प्रकार",
+        "type": {
+          "independent": "स्वतंत्र",
+          "contract": "कॉन्ट्रैक्ट फार्मिंग"
+        },
+        "integrator": "इंटीग्रेटर",
+        "integrator_loading": "लोड हो रहा है...",
+        "integrator_placeholder": "इंटीग्रेटर चुनें",
+        "custom_option": "कस्टम (नया जोड़ें)",
+        "custom_name": "कस्टम इंटीग्रेटर का नाम",
+        "errors": {
+          "integrator_required": "एक इंटीग्रेटर चुनें",
+          "custom_min": "इंटीग्रेटर का नाम दर्ज करें (न्यूनतम 2 अक्षर)"
+        }
+      },
+      "step4": {
+        "sub": "सटीक मौसम और गर्मी अलर्ट के लिए। वैकल्पिक लेकिन अनुशंसित।",
+        "locating": "स्थान प्राप्त हो रहा है...",
+        "use_current": "वर्तमान स्थान का उपयोग करें",
+        "permission_denied": "स्थान की अनुमति नहीं। निर्देशांक मैन्युअल रूप से दर्ज करें।",
+        "location_failed": "स्थान नहीं मिला। निर्देशांक मैन्युअल रूप से दर्ज करें।",
+        "or_manually": "या मैन्युअल रूप से दर्ज करें",
+        "latitude": "अक्षांश (वैकल्पिक)",
+        "latitude_placeholder": "जैसे 17.385044",
+        "longitude": "देशांतर (वैकल्पिक)",
+        "longitude_placeholder": "जैसे 78.486671",
+        "heat_threshold": "गर्मी अलर्ट सीमा (°C)",
+        "heat_threshold_placeholder": "35.0",
+        "heat_hint": "अनुशंसित: ब्रॉयलर के लिए 35°C। सीमा: 25–45°C।",
+        "errors": {
+          "lat_range": "अक्षांश -90 और 90 के बीच होना चाहिए",
+          "lon_range": "देशांतर -180 और 180 के बीच होना चाहिए",
+          "heat_range": "गर्मी सीमा 25°C और 45°C के बीच होनी चाहिए"
+        }
+      },
+      "step5": {
+        "sub": "WhatsApp पर अलर्ट और इनवॉइस प्राप्त करें, और खरीदारों से UPI भुगतान स्वीकार करें।",
+        "whatsapp_number": "WhatsApp नंबर",
+        "whatsapp_placeholder": "+91XXXXXXXXXX",
+        "wa_toggle": "WhatsApp अलर्ट भेजें",
+        "wa_toggle_desc": "दैनिक सारांश, मृत्यु अलर्ट, भुगतान रिमाइंडर",
+        "upi_id": "UPI ID (वैकल्पिक)",
+        "upi_placeholder": "name@bank",
+        "upi_hint": "खरीदारों के लिए भुगतान QR कोड बनाने हेतु।",
+        "session_expired": "सत्र समाप्त हो गया। कृपया फिर से लॉगिन करें।",
+        "setup_failed": "सेटअप विफल। कृपया पुनः प्रयास करें।",
+        "errors": {
+          "phone_invalid": "मान्य फ़ोन नंबर दर्ज करें (10–15 अंक)",
+          "upi_invalid": "मान्य UPI ID दर्ज करें (जैसे name@bank)"
+        }
+      }
+    }
+  },
+  "setup": {
+    "poultry_type": {
+      "broiler": "ब्रॉयलर",
+      "layer": "लेयर",
+      "breeder": "ब्रीडर"
+    },
+    "sheds": {
+      "empty_title": "अभी कोई शेड नहीं",
+      "empty_description": "अपने फ्लॉक ट्रैक करने के लिए कम से कम एक शेड जोड़ें।",
+      "your_sheds": "आपके शेड",
+      "capacity_meta": "{{type}} · {{capacity}} पक्षी क्षमता",
+      "add_a_shed": "शेड जोड़ें",
+      "shed_name": "शेड का नाम",
+      "shed_name_placeholder": "जैसे शेड A",
+      "capacity": "क्षमता (पक्षी)",
+      "capacity_placeholder": "जैसे 1000",
+      "poultry_type": "पोल्ट्री प्रकार",
+      "add_shed": "शेड जोड़ें",
+      "continue": "पक्षी जोड़ना जारी रखें",
+      "upgrade": "और शेड जोड़ने के लिए अपग्रेड करें",
+      "add_failed": "शेड जोड़ने में विफल। पुनः प्रयास करें।",
+      "errors": {
+        "name_required": "शेड का नाम दर्ज करें",
+        "capacity_valid": "मान्य क्षमता दर्ज करें (धनात्मक संख्या)",
+        "type_required": "पोल्ट्री प्रकार चुनें"
+      }
+    },
+    "batches": {
+      "intro": "प्रत्येक शेड के लिए अपना पहला बैच जोड़ें। आप इसे बाद में भी कर सकते हैं।",
+      "batch_saved": "बैच सहेजा गया",
+      "toggle_a11y": "{{name}} बैच फॉर्म टॉगल करें",
+      "breed_name": "नस्ल का नाम",
+      "breed_name_placeholder": "जैसे Cobb 500",
+      "placement_date": "रखने की तिथि (YYYY-MM-DD)",
+      "placement_date_placeholder": "जैसे 2026-05-19",
+      "opening_bird_count": "प्रारंभिक पक्षी संख्या",
+      "opening_bird_count_placeholder": "जैसे 1000",
+      "source_supplier": "स्रोत आपूर्तिकर्ता",
+      "source_supplier_placeholder": "जैसे Suguna Hatchery",
+      "cost_per_bird": "प्रति पक्षी लागत (₹)",
+      "cost_per_bird_placeholder": "जैसे 45.00",
+      "saved": "सहेजा गया",
+      "save_batch": "बैच सहेजें",
+      "save_failed": "बैच सहेजने में विफल। पुनः प्रयास करें।",
+      "no_sheds": "कोई शेड नहीं मिला। वापस जाकर पहले शेड जोड़ें।",
+      "go_to_dashboard": "डैशबोर्ड पर जाएं",
+      "skip": "अभी छोड़ें",
+      "errors": {
+        "breed_required": "नस्ल का नाम दर्ज करें",
+        "date_format": "तिथि YYYY-MM-DD प्रारूप में होनी चाहिए",
+        "bird_count_valid": "मान्य पक्षी संख्या दर्ज करें",
+        "supplier_required": "स्रोत आपूर्तिकर्ता दर्ज करें",
+        "cost_valid": "प्रति पक्षी मान्य लागत दर्ज करें (₹)"
+      }
+    }
+  },
+  "batch_detail": {
+    "fallback_title": "बैच",
+    "loading": "बैच लोड हो रहा है…",
+    "age_days_one": "{{date}} को रखा · {{count}} दिन",
+    "age_days_other": "{{date}} को रखा · {{count}} दिन",
+    "supplier": "आपूर्तिकर्ता: {{name}}",
+    "status": {
+      "active": "सक्रिय",
+      "harvested": "कटाई",
+      "closed": "बंद"
+    },
+    "kpi": {
+      "current_birds": "वर्तमान पक्षी",
+      "cumulative_fcr": "कुल एफसीआर",
+      "livability": "जीवनक्षमता",
+      "avg_weight": "औसत वजन"
+    },
+    "target_fcr": "लक्ष्य: {{fcr}} ({{breed}})",
+    "target_livability": "लक्ष्य: ≥ {{pct}}%",
+    "target_weight": "लक्ष्य: {{kg}} किलो @ {{days}}दिन",
+    "pnl_title": "लाभ और हानि",
+    "pnl": {
+      "chick_cost": "चूज़ा लागत",
+      "feed_cost": "दाना लागत",
+      "other_expenses": "अन्य व्यय",
+      "total_cost": "कुल लागत",
+      "harvest_sale": "कटाई बिक्री",
+      "other_income": "अन्य आय",
+      "total_income": "कुल आय",
+      "net": "शुद्ध लाभ/हानि",
+      "per_bird": "प्रति पक्षी लाभ/हानि",
+      "realised": "वसूला लाभ/हानि (केवल भुगतान)"
+    },
+    "no_pnl": {
+      "title": "अभी कोई लाभ-हानि डेटा नहीं",
+      "description": "इस बैच की लाभ-हानि भरने के लिए दैनिक दाना लागत, व्यय और बिक्री दर्ज करें।"
+    },
+    "add_transaction": "इस बैच के लिए लेन-देन जोड़ें",
+    "view_vaccinations": "टीकाकरण देखें",
+    "view_health": "स्वास्थ्य घटनाएं देखें",
+    "close_batch": "बैच बंद करें (कटाई)",
+    "view_certificate": "ट्रेसेबिलिटी सर्टिफिकेट देखें",
+    "generating": "बना रहा है…",
+    "generate_certificate": "ट्रेसेबिलिटी सर्टिफिकेट बनाएं",
+    "trace_gate_reason": "ट्रेसेबिलिटी सर्टिफिकेट बनाने के लिए अपग्रेड करें",
+    "errors": {
+      "load_failed": "बैच लोड नहीं हो सका",
+      "generate_failed": "सर्टिफिकेट बनाने में विफल"
+    },
+    "batch_closed": "बैच बंद — लाभ-हानि लॉक।"
+  },
+  "contract": {
+    "title": "कॉन्ट्रैक्ट फार्मिंग",
+    "gate_reason": "कॉन्ट्रैक्ट फार्मिंग के लिए पेड प्लान आवश्यक है",
+    "pro": {
+      "title": "कॉन्ट्रैक्ट फार्मिंग एक Pro सुविधा है",
+      "description": "इंटीग्रेटर द्वारा आपूर्ति किए इनपुट ट्रैक करें, टैरिफ कार्ड से अपेक्षित सेटलमेंट निकालें और वास्तविक भुगतान का मिलान करें। PoultryOS Pro प्लान पर उपलब्ध।",
+      "action": "प्लान देखें"
+    },
+    "status": {
+      "active": "सक्रिय",
+      "harvest_complete": "कटाई पूर्ण",
+      "settled": "निपटान पूर्ण",
+      "disputed": "विवादित"
+    },
+    "unknown_integrator": "अज्ञात इंटीग्रेटर",
+    "placed_chicks": "{{date}} को रखा · {{count}} चूज़े",
+    "actual": "वास्तविक",
+    "expected": "अपेक्षित",
+    "empty": {
+      "title": "अभी कोई कॉन्ट्रैक्ट चक्र नहीं",
+      "description": "कॉन्ट्रैक्ट-फार्म बैच रखने के बाद चक्र यहां दिखेंगे। फार्म सेटिंग्स में फार्म प्रकार 'contract' सेट करें, इंटीग्रेटर चुनें, फिर बैच रखें।"
+    },
+    "kg_suffix": "{{value}} किलो",
+    "detail": {
+      "fallback_title": "कॉन्ट्रैक्ट चक्र",
+      "loading": "लोड हो रहा है…",
+      "status_line": "स्थिति: {{status}}",
+      "inputs": "इंटीग्रेटर इनपुट",
+      "chicks_supplied": "आपूर्ति किए चूज़े",
+      "placed_on": "रखा गया",
+      "feed_supplied": "आपूर्ति किया दाना",
+      "expected_harvest": "अपेक्षित कटाई",
+      "performance": "चक्र प्रदर्शन",
+      "birds_delivered": "वितरित पक्षी",
+      "avg_weight": "औसत वजन",
+      "actual_fcr": "वास्तविक एफसीआर",
+      "actual_mortality": "वास्तविक मृत्यु",
+      "harvested_on": "कटाई की तिथि",
+      "tariff_card": "इंटीग्रेटर टैरिफ कार्ड",
+      "base_rate": "आधार दर",
+      "base_rate_value": "₹{{rate}} / किलो",
+      "fcr_bonus": "एफसीआर बोनस",
+      "fcr_bonus_value": "+₹{{bonus}}/किलो यदि एफसीआर ≤ {{threshold}}",
+      "mortality_bonus": "मृत्यु बोनस",
+      "mortality_bonus_value": "+₹{{bonus}}/किलो यदि मृत्यु ≤ {{threshold}}%",
+      "weight_target": "वजन लक्ष्य",
+      "settlement": "सेटलमेंट",
+      "live_weight": "जीवित वजन",
+      "base_amount": "आधार राशि",
+      "expected_total": "अपेक्षित कुल",
+      "expected_saved": "अपेक्षित (सहेजा)",
+      "actual_received": "वास्तविक प्राप्त",
+      "delta": "अंतर (वास्तविक − अपेक्षित)",
+      "received_on": "प्राप्ति की तिथि",
+      "calculating": "गणना हो रही है…",
+      "recalculate": "टैरिफ से पुनः गणना करें",
+      "need_inputs": "अपेक्षित सेटलमेंट निकालने के लिए वितरित पक्षी + औसत वजन दर्ज करें।",
+      "dispute_notes": "विवाद टिप्पणियां",
+      "send_reconciliation": "मिलान भेजें",
+      "reconciliation_help": "WhatsApp के माध्यम से चक्र और सेटलमेंट का स्वरूपित सारांश साझा करता है। WhatsApp खुलने पर इंटीग्रेटर संपर्क चुनें।",
+      "share_a11y": "WhatsApp के माध्यम से सेटलमेंट मिलान साझा करें",
+      "send_to_integrator": "इंटीग्रेटर को भेजें",
+      "errors": {
+        "whatsapp_failed": "WhatsApp नहीं खुल सका",
+        "compute_failed": "गणना में विफल"
+      }
+    }
+  },
+  "buyers": {
+    "title_fallback": "खरीदार",
+    "loading": "खरीदार लोड हो रहा है…",
+    "owes_you": "खरीदार आपको देना है",
+    "you_owe": "आप खरीदार को देना है",
+    "settled": "निपटान पूर्ण",
+    "total_business": "कुल कारोबार: {{amount}}",
+    "record_sale_payment": "बिक्री / भुगतान दर्ज करें",
+    "show_upi_qr": "UPI QR दिखाएं",
+    "send_reminder": "रिमाइंडर भेजें",
+    "generating": "बना रहा है…",
+    "send_upi_collect": "UPI Collect लिंक भेजें",
+    "recent_transactions": "हाल के लेन-देन",
+    "empty": {
+      "title": "अभी कोई लेन-देन नहीं",
+      "description": "इस खरीदार से जुड़ी बिक्री और भुगतान यहां दिखेंगे।"
+    },
+    "errors": {
+      "load_failed": "खरीदार लोड नहीं हो सका",
+      "no_pending": "वसूलने के लिए कोई बकाया इनवॉइस नहीं",
+      "upi_not_configured": "UPI Collect अभी कॉन्फ़िगर नहीं — इसके बजाय UPI QR साझा करें।",
+      "upi_link_failed": "UPI लिंक बनाने में विफल",
+      "generic_failed": "विफल",
+      "add_upi_first": "पहले फार्म सेटिंग्स में अपना UPI ID जोड़ें",
+      "no_outstanding": "वसूलने के लिए कोई बकाया राशि नहीं"
+    },
+    "qr_note": "PoultryOS खाता — {{name}}",
+    "reminder": {
+      "greeting": "नमस्ते {{name}},",
+      "body": "एक मित्रवत रिमाइंडर: आपके खाते पर {{amount}} बकाया है।",
+      "upi": "UPI: {{vpa}}"
+    },
+    "collect_message": "नमस्ते {{name}}, कृपया इस UPI लिंक से {{amount}} का भुगतान करें: {{url}}",
+    "form": {
+      "name": "खरीदार का नाम",
+      "phone": "फ़ोन",
+      "whatsapp_phone": "WhatsApp फ़ोन",
+      "address": "पता",
+      "gstin": "GSTIN",
+      "credit_limit": "क्रेडिट सीमा (₹)",
+      "saving": "सहेज रहा है…",
+      "add": "खरीदार जोड़ें",
+      "no_farm_selected": "कोई फार्म चयनित नहीं",
+      "add_failed": "खरीदार जोड़ने में विफल",
+      "errors": {
+        "name_required": "नाम आवश्यक है",
+        "invalid_phone": "अमान्य फ़ोन",
+        "invalid_whatsapp": "अमान्य WhatsApp फ़ोन",
+        "positive_number": "धनात्मक संख्या होनी चाहिए"
+      }
+    }
+  },
+  "khata": {
+    "title": "खाता",
+    "total_outstanding": "कुल बकाया",
+    "buyer_count_one": "खरीदार",
+    "buyer_count_other": "खरीदार",
+    "record_income": "आय दर्ज करें",
+    "record_expense": "खर्च दर्ज करें",
+    "view_all_transactions": "सभी लेन-देन देखें",
+    "add_buyer": "खरीदार जोड़ें",
+    "load_failed": "खरीदार लोड नहीं हो सके",
+    "upgrade_buyers": "और खरीदार जोड़ने के लिए अपग्रेड करें",
+    "empty": {
+      "title": "कोई खरीदार नहीं",
+      "description": "खाता ट्रैक करने के लिए खरीदार जोड़ें — बकाया, UPI QR और WhatsApp रिमाइंडर।"
+    }
+  },
+  "more": {
+    "title": "अधिक",
+    "transactions": {
+      "label": "लेन-देन",
+      "description": "आय, खर्च और भुगतान स्थिति"
+    },
+    "market_prices": {
+      "label": "बाजार भाव",
+      "description": "14 दिन का ब्रॉयलर और अंडे का मूल्य रुझान"
+    },
+    "weather": {
+      "label": "मौसम और अलर्ट",
+      "description": "वर्तमान स्थिति, पूर्वानुमान, गर्मी इतिहास"
+    },
+    "reports": {
+      "label": "रिपोर्ट्स",
+      "description": "ऑपरेशनल + वित्तीय सारांश · WhatsApp + CSV"
+    },
+    "health": {
+      "label": "स्वास्थ्य घटनाएं",
+      "description": "लक्षण, उपचार, वापसी"
+    },
+    "vaccinations": {
+      "label": "टीकाकरण",
+      "description": "अनुसूची और इतिहास"
+    },
+    "inventory": {
+      "label": "इन्वेंटरी",
+      "description": "दाना, दवा, उपकरण स्टॉक"
+    },
+    "contract": {
+      "label": "कॉन्ट्रैक्ट फार्मिंग",
+      "description": "चक्र, टैरिफ कार्ड, सेटलमेंट"
+    },
+    "settings": {
+      "label": "सेटिंग्स",
+      "description": "फार्म प्रोफ़ाइल, UPI, WhatsApp, गर्मी सीमा"
+    },
+    "billing": {
+      "label": "बिलिंग और सदस्यता",
+      "description": "योजना, स्थिति, Pro में अपग्रेड"
+    },
+    "multi_farm": {
+      "label": "मल्टी-फार्म डैशबोर्ड",
+      "description": "सभी फार्म्स के KPI (Pro · वेब पर बेहतर)"
+    },
+    "notifications": {
+      "label": "सूचनाएं",
+      "description": "इस फार्म के लिए WhatsApp अलर्ट इतिहास"
+    },
+    "whatsapp_settings": {
+      "label": "WhatsApp सूचनाएं",
+      "description": "मास्टर स्विच + प्रति श्रेणी"
+    },
+    "language": {
+      "label": "Language / भाषा / తెలుగు / மொழி",
+      "description": "English, Hindi, Telugu, Tamil"
+    }
+  },
+  "vaccinations": {
+    "title": "टीकाकरण",
+    "batch": "बैच",
+    "select_batch": "एक बैच चुनें",
+    "schedule_new": "नया टीकाकरण निर्धारित करें",
+    "schedule": "टीकाकरण निर्धारित करें",
+    "empty": {
+      "title": "कोई टीकाकरण निर्धारित नहीं",
+      "description": "इस बैच के लिए टीकाकरण निर्धारित करने हेतु + दबाएं।"
+    },
+    "load_failed": "टीकाकरण लोड नहीं हो सके: {{reason}}",
+    "update_failed_reason": "अपडेट नहीं हो सका: {{reason}}",
+    "update_failed": "अपडेट विफल",
+    "marked_done": "टीकाकरण पूर्ण के रूप में चिह्नित",
+    "status": {
+      "done": "पूर्ण",
+      "overdue": "अतिदेय",
+      "scheduled": "निर्धारित"
+    },
+    "route": {
+      "oral": "मुख",
+      "injection": "इंजेक्शन",
+      "spray": "स्प्रे"
+    },
+    "given": "{{date}} को दिया",
+    "due": "{{date}} को देय",
+    "mark_done": "पूर्ण चिह्नित करें",
+    "form": {
+      "title": "टीकाकरण निर्धारित करें",
+      "vaccine_name": "टीके का नाम",
+      "vaccine_name_placeholder": "जैसे न्यूकैसल रोग",
+      "scheduled_date": "निर्धारित तिथि",
+      "date_placeholder": "YYYY-MM-DD",
+      "dose": "खुराक (वैकल्पिक)",
+      "dose_placeholder": "जैसे 0.5 मि.ली.",
+      "route_label": "देने का तरीका",
+      "birds_vaccinated": "टीका लगाए पक्षी (वैकल्पिक)",
+      "schedule": "निर्धारित करें",
+      "cancel": "रद्द करें",
+      "scheduled_ok": "टीकाकरण निर्धारित",
+      "session_error": "सत्र त्रुटि — ऐप फिर से खोलें",
+      "no_batch": "कोई बैच चयनित नहीं — वापस जाकर बैच चुनें",
+      "save_failed": "सहेजना विफल: {{reason}}",
+      "errors": {
+        "vaccine_required": "टीके का नाम दर्ज करें",
+        "date_format": "तिथि YYYY-MM-DD होनी चाहिए",
+        "date_required": "तिथि आवश्यक है",
+        "whole_number": "पूर्ण संख्या ≥ 0 होनी चाहिए"
+      }
+    }
+  },
+  "health": {
+    "title": "स्वास्थ्य घटनाएं",
+    "batch": "बैच",
+    "select_batch": "एक बैच चुनें",
+    "birds_affected": "{{count}} पक्षी प्रभावित",
+    "diagnosis": "निदान: ",
+    "treatment": "उपचार: ",
+    "vet_note": "पशु चिकित्सक टिप्पणी: ",
+    "report_new_incident": "नई घटना दर्ज करें",
+    "report_incident": "घटना दर्ज करें",
+    "load_failed": "घटनाएं लोड नहीं हो सकीं: {{reason}}",
+    "empty": {
+      "title": "कोई स्वास्थ्य घटना दर्ज नहीं",
+      "description": "इस बैच के लक्षण या उपचार दर्ज करने के लिए + दबाएं।"
+    },
+    "form": {
+      "title": "घटना दर्ज करें",
+      "incident_date": "घटना तिथि",
+      "date_placeholder": "YYYY-MM-DD",
+      "symptom_description": "लक्षण विवरण",
+      "affected_birds": "प्रभावित पक्षी",
+      "vet_consulted": "पशु चिकित्सक से परामर्श",
+      "diagnosis": "निदान",
+      "treatment_given": "दिया गया उपचार",
+      "medicine_name": "दवा का नाम",
+      "dose": "खुराक",
+      "withdrawal_days": "वापसी अवधि (दिन)",
+      "withdrawal_helper": "पक्षी या अंडे बेचने के लिए सुरक्षित होने से पहले के दिन",
+      "save": "सहेजें",
+      "cancel": "रद्द करें",
+      "session_error": "सत्र त्रुटि — ऐप फिर से खोलें",
+      "no_batch": "कोई बैच चयनित नहीं — वापस जाकर बैच चुनें",
+      "save_failed": "सहेजना विफल: {{reason}}",
+      "save_failed_generic": "सहेजना विफल",
+      "recorded": "घटना दर्ज की गई",
+      "errors": {
+        "date_format": "तिथि YYYY-MM-DD होनी चाहिए",
+        "date_required": "तिथि आवश्यक है",
+        "symptom_min": "कृपया लक्षण बताएं (न्यूनतम 3 अक्षर)",
+        "whole_number": "पूर्ण संख्या ≥ 0 होनी चाहिए"
+      }
+    }
+  },
+  "inventory": {
+    "title": "इन्वेंटरी",
+    "category": "श्रेणी",
+    "all_categories": "सभी श्रेणियां",
+    "cat": {
+      "feed": "दाना",
+      "medicine": "दवा",
+      "vaccine": "टीका",
+      "equipment": "उपकरण"
+    },
+    "record_purchase": "खरीद दर्ज करें",
+    "record_new_purchase": "नई खरीद दर्ज करें",
+    "load_failed": "इन्वेंटरी लोड नहीं हो सकी: {{reason}}",
+    "empty_all": {
+      "title": "कोई इन्वेंटरी आइटम नहीं",
+      "description": "स्टॉक स्तर ट्रैक करने के लिए पहली खरीद दर्ज करें।"
+    },
+    "empty_filtered": {
+      "title": "कोई {{category}} आइटम नहीं",
+      "description": "अलग श्रेणी फ़िल्टर आज़माएं या नई खरीद दर्ज करें।"
+    },
+    "purchase": {
+      "title": "खरीद दर्ज करें",
+      "item": "आइटम",
+      "item_placeholder": "एक इन्वेंटरी आइटम चुनें",
+      "quantity": "मात्रा",
+      "cost_per_unit": "प्रति इकाई कीमत (₹)",
+      "supplier": "आपूर्तिकर्ता",
+      "purchase_date": "खरीद तिथि",
+      "date_placeholder": "YYYY-MM-DD",
+      "notes": "टिप्पणियाँ",
+      "notes_helper": "वैकल्पिक: बैच नंबर, समाप्ति तिथि, आदि।",
+      "save": "खरीद सहेजें",
+      "cancel": "रद्द करें",
+      "session_error": "सत्र त्रुटि — ऐप फिर से खोलें",
+      "save_failed": "सहेजना विफल: {{reason}}",
+      "stock_read_failed": "खरीद दर्ज हुई लेकिन स्टॉक स्तर अपडेट नहीं हो सका",
+      "stock_update_failed": "खरीद दर्ज हुई लेकिन स्टॉक अपडेट विफल",
+      "unexpected": "अप्रत्याशित त्रुटि",
+      "errors": {
+        "select_item": "कृपया एक आइटम चुनें",
+        "quantity_required": "मात्रा आवश्यक है",
+        "quantity_positive": "मात्रा 0 से अधिक होनी चाहिए",
+        "cost_non_negative": "कीमत 0 या अधिक होनी चाहिए",
+        "date_format": "तिथि YYYY-MM-DD होनी चाहिए",
+        "date_required": "तिथि आवश्यक है"
+      }
+    }
+  },
+  "market_prices": {
+    "title": "बाजार भाव",
+    "state_title": "{{state}} भाव",
+    "no_state": {
+      "title": "फार्म राज्य सेट नहीं",
+      "description": "बाजार भाव ट्रैक करने के लिए फार्म सेटिंग्स में राज्य जोड़ें।"
+    },
+    "trend_14d": "14-दिनी रुझान",
+    "no_data": "{{state}} के लिए अभी कोई भाव डेटा नहीं। रुझान शुरू करने के लिए नीचे आज का भाव दर्ज करें।",
+    "legend_broiler": "ब्रॉयलर ₹/किलो",
+    "legend_eggs": "अंडे ₹/100",
+    "set_today": "आज का भाव सेट करें",
+    "date_label": "तारीख",
+    "date_placeholder": "YYYY-MM-DD",
+    "broiler_label": "ब्रॉयलर भाव (₹/किलो)",
+    "egg_label": "अंडे का भाव (₹/100)",
+    "saving": "सहेज रहा है…",
+    "save": "भाव सहेजें",
+    "saved": "भाव सहेजा गया",
+    "save_failed": "सहेजने में विफल",
+    "recent_entries": "हाल की प्रविष्टियां",
+    "errors": {
+      "date_format": "YYYY-MM-DD",
+      "non_negative": "गैर-ऋणात्मक संख्या होनी चाहिए",
+      "either_price": "ब्रॉयलर या अंडे में से कोई भाव सेट करें"
+    }
+  },
+  "flocks": {
+    "active": "सक्रिय",
+    "closed": "बंद",
+    "harvested": "{{date}} को कटाई",
+    "placed": "{{date}} को रखा",
+    "health": "स्वास्थ्य",
+    "vaccinations": "टीकाकरण",
+    "load_failed": "बैच लोड नहीं हो सके: {{reason}}",
+    "empty_active": {
+      "title": "कोई सक्रिय फ्लॉक नहीं",
+      "description": "दैनिक लॉग ट्रैक करने के लिए पहला बैच जोड़ें।"
+    },
+    "empty_closed": {
+      "title": "अभी कोई बंद फ्लॉक नहीं",
+      "description": "कटाई के बाद बंद बैच यहां दिखेंगे।"
+    },
+    "set_up_flock": "फ्लॉक सेट करें"
+  },
+  "reports": {
+    "title": "रिपोर्ट्स",
+    "report_type": "रिपोर्ट प्रकार",
+    "type": {
+      "operational": "ऑपरेशनल सारांश",
+      "financial": "वित्तीय सारांश"
+    },
+    "date_range": "तिथि सीमा",
+    "from": "से",
+    "to": "तक",
+    "date_placeholder": "YYYY-MM-DD",
+    "generating": "बना रहा है…",
+    "generate": "रिपोर्ट बनाएं",
+    "preview": "पूर्वावलोकन",
+    "whatsapp": "WhatsApp",
+    "csv": "CSV",
+    "export_csv": "CSV निर्यात",
+    "errors": {
+      "pick_farm": "पहले फार्म चुनें",
+      "generate_failed": "रिपोर्ट बनाने में विफल",
+      "whatsapp_failed": "WhatsApp नहीं खुल सका",
+      "download_unavailable": "इस वातावरण में डाउनलोड उपलब्ध नहीं",
+      "download_failed": "CSV डाउनलोड नहीं हो सका",
+      "export_failed": "CSV निर्यात नहीं हो सका"
+    },
+    "csv_saved": "CSV यहां सहेजा गया {{uri}}"
+  },
+  "transaction_form": {
+    "type_label": "प्रकार",
+    "type": {
+      "income": "आय",
+      "expense": "व्यय"
+    },
+    "category_label": "श्रेणी",
+    "category_placeholder": "श्रेणी चुनें",
+    "income_category": {
+      "bird_sale": "पक्षी बिक्री",
+      "egg_sale": "अंडे की बिक्री",
+      "manure_sale": "खाद बिक्री",
+      "other_income": "अन्य आय"
+    },
+    "expense_category": {
+      "feed": "दाना",
+      "medicine": "दवा",
+      "vaccine": "टीका",
+      "chicks": "चूज़े",
+      "labour": "मजदूरी",
+      "utilities": "उपयोगिताएँ",
+      "equipment": "उपकरण",
+      "other_expense": "अन्य व्यय"
+    },
+    "amount_label": "राशि (₹)",
+    "quantity_label": "मात्रा",
+    "price_per_unit_label": "प्रति इकाई मूल्य (₹)",
+    "buyer_label": "खरीदार (वैकल्पिक)",
+    "buyer_placeholder": "खरीदार चुनें",
+    "no_buyer_linked": "— कोई खरीदार नहीं जुड़ा —",
+    "buyer_name_label": "खरीदार का नाम (मुक्त पाठ)",
+    "supplier_name_label": "आपूर्तिकर्ता का नाम",
+    "transaction_date_label": "लेन-देन की तिथि",
+    "date_placeholder": "YYYY-MM-DD",
+    "payment_status_label": "भुगतान स्थिति",
+    "payment_status": {
+      "paid": "भुगतान हुआ",
+      "pending": "बकाया",
+      "partial": "आंशिक"
+    },
+    "due_date_label": "देय तिथि",
+    "notes_label": "टिप्पणियाँ",
+    "save": "लेन-देन सहेजें",
+    "cancel": "रद्द करें",
+    "no_farm_selected": "कोई फार्म चयनित नहीं",
+    "save_failed": "सहेजने में विफल",
+    "errors": {
+      "required": "आवश्यक",
+      "must_be_positive": "0 से अधिक होना चाहिए",
+      "must_be_zero_or_greater": "0 या अधिक होना चाहिए",
+      "pick_category": "श्रेणी चुनें",
+      "date_format": "तिथि YYYY-MM-DD होनी चाहिए",
+      "due_date_format": "देय तिथि YYYY-MM-DD होनी चाहिए",
+      "due_date_required": "भुगतान बकाया या आंशिक होने पर देय तिथि आवश्यक है"
+    }
+  },
+  "common": {
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "back": "वापस",
+    "next": "आगे",
+    "done": "पूर्ण",
+    "loading": "लोड हो रहा है…",
+    "error": "कुछ गड़बड़ हो गई",
+    "retry": "पुनः प्रयास करें",
+    "yes": "हाँ",
+    "no": "नहीं"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "@poultryos/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PoultryOS shared platform-agnostic logic: UPI, formatting, KPIs, freemium gates. Consumed as TypeScript source by both the Expo app and the Next.js app.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "sideEffects": false
+}
