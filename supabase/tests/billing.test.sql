@@ -73,10 +73,12 @@ SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims', '{"sub":"bbbbbbbb-0000-0000-0000-000000000002","role":"authenticated"}', true);
 
 SELECT ok( NOT public.tenant_can_write('b0000000-0000-0000-0000-0000000000b1'), 'suspended tenant B cannot write' );
+-- tg_enforce_tenant_writable raises ERRCODE check_violation (SQLSTATE 23514)
+-- with HINT renew_subscription — the app keys off this to detect read-only state.
 SELECT throws_ok(
   $$ INSERT INTO public.farms (tenant_id, owner_id, farm_name, owner_name, state)
      VALUES ('b0000000-0000-0000-0000-0000000000b1','bbbbbbbb-0000-0000-0000-000000000002','Blocked Farm','B','KA') $$,
-  'P0001',
+  '23514',
   NULL,
   'write to a suspended tenant is blocked by tenant_can_write trigger'
 );

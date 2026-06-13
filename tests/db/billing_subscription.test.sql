@@ -35,11 +35,12 @@ SELECT is(
   (SELECT status FROM public.tenant_subscriptions WHERE tenant_id = :'bill_tenant'),
   'trial', 'T2: new tenant subscription status = trial');
 
--- T3: trial_ends_at is in the future (~14 days)
+-- T3: trial_ends_at is in the future (~7 days — see 20260613000001 readonly_enforcement)
 SELECT ok(
-  (SELECT trial_ends_at > now() + interval '13 days'
+  (SELECT trial_ends_at > now() + interval '6 days'
+            AND trial_ends_at < now() + interval '8 days'
      FROM public.tenant_subscriptions WHERE tenant_id = :'bill_tenant'),
-  'T3: trial_ends_at ~14 days out');
+  'T3: trial_ends_at ~7 days out');
 
 -- T4: is_tenant_paid TRUE during an active trial
 SELECT ok(public.is_tenant_paid(:'bill_tenant'), 'T4: is_tenant_paid true during trial');
