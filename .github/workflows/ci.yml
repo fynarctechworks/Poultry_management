@@ -110,10 +110,21 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: |
-          set -euo pipefail
+          set -uo pipefail
           pg_prove --verbose \
             -h 127.0.0.1 -p 54322 -U postgres -d postgres \
-            tests/db/*.test.sql supabase/tests/*.test.sql
+            tests/db/*.test.sql supabase/tests/*.test.sql 2>&1 | tee /tmp/pgtap.out
+          rc=${PIPESTATUS[0]}
+          # Surface the actual failing assertions into the job summary (readable via
+          # the public check-runs API) so a red suite is diagnosable without admin
+          # log access. Does NOT suppress the failure — we re-exit with pg_prove's rc.
+          {
+            echo "### pgTAP suite rc=$rc"
+            echo '```'
+            grep -nE '^not ok|^# |ERROR:|FATAL:|does not exist|No plan|Result:|Failed [0-9]|Files=' /tmp/pgtap.out | head -120 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $rc
 
       - name: Stop Supabase
         if: always()
