@@ -119,9 +119,9 @@ jobs:
           # readable via the public check-runs annotations API (logs are admin-only).
           # Does NOT suppress the failure: we re-exit with pg_prove's exit code.
           if [ "$rc" -ne 0 ]; then
-            msg=$(grep -nE '^not ok|^# |^ok [0-9]+ - .*(ERROR|fail)|Wstat|Result:|ERROR:|FATAL:|does not exist|No plan|Failed test' /tmp/pgtap.out | head -60)
-            enc=$(printf '%s' "$msg" | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')
-            echo "::error title=pgTAP failures::${enc}"
+            enc=$(printf '%s' "$(tail -c 9000 /tmp/pgtap.out)" \
+              | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\r//g;s/\n/%0A/g')
+            echo "::error title=pgTAP raw output (rc=$rc)::${enc}"
           fi
           exit $rc
 
