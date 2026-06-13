@@ -6,8 +6,8 @@
 // Auth: HMAC-SHA256 signature verification (NOT service-role — this is a public webhook).
 //   - When AISENSY_WEBHOOK_SECRET is set: verify X-AiSensy-Signature header against
 //     HMAC-SHA256(secret, rawBody). Reject with 401 on mismatch.
-//   - When AISENSY_WEBHOOK_SECRET is not configured: accept but log a warning.
-//     This lets the function be deployed before the AiSensy account is live.
+//   - When AISENSY_WEBHOOK_SECRET is not configured: fail CLOSED (reject 401) by
+//     default (SEC-6). Set ALLOW_UNSIGNED_WEBHOOKS=true to accept unsigned in dev only.
 //
 // Logic (delivery-status events):
 //   - Update whatsapp_messages_log row where aisensy_message_id matches,
@@ -151,11 +151,17 @@ serve(async (req: Request) => {
       console.warn("AISENSY_WEBHOOK_SECRET is set but X-AiSensy-Signature header is missing — rejecting");
       return jsonResponse({ error: "Missing signature header" }, 401);
     }
-  } else {
-    // No secret configured — accept but warn. Useful pre-AiSensy-account-setup.
+  } else if (Deno.env.get("ALLOW_UNSIGNED_WEBHOOKS") === "true") {
+    // DEV ONLY escape hatch — pre-AiSensy-account-setup local testing.
     console.warn(
-      "AISENSY_WEBHOOK_SECRET not configured — accepting webhook without signature verification",
+      "ALLOW_UNSIGNED_WEBHOOKS=true — accepting AiSensy webhook WITHOUT signature verification (DEV ONLY)",
     );
+  } else {
+    // SEC-6: fail CLOSED by default. Without a secret, forged inbound STOP/START
+    // events could flip whatsapp_opt_in for any phone, and forged delivery-status
+    // events could corrupt whatsapp_messages_log. Refuse rather than trust.
+    console.error("AISENSY_WEBHOOK_SECRET not configured — refusing unsigned webhook");
+    return jsonResponse({ error: "Webhook verification not configured" }, 401);
   }
 
   // ---------------------------------------------------------------------------

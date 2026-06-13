@@ -31,7 +31,22 @@ enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
 enable_signup = true
 enable_anonymous_sign_ins = false
-minimum_password_length = 6
+# SEC-3: was 6 (weak). 8 + complexity is the local-dev policy.
+minimum_password_length = 8
+password_requirements = "lower_upper_letters_digits"
+# Leaked-password protection (HaveIBeenPwned) is a HOSTED Auth setting that
+# config.toml does NOT control. It is currently OFF on the live project (flagged
+# by the security advisor `auth_leaked_password_protection`). Enable it in the
+# Supabase dashboard: Authentication > Policies > "Leaked password protection".
+
+# Multi-factor authentication. Without this block the local GoTrue defaults to
+# enroll_enabled = false, which makes POST /auth/v1/factors return 422.
+[auth.mfa]
+max_enrolled_factors = 10
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
 
 [auth.email]
 enable_signup = true

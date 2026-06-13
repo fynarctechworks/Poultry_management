@@ -23,6 +23,20 @@
 **Fix**: For SECURITY DEFINER functions that are *only* called from RLS policies and triggers (never via API), `REVOKE EXECUTE … FROM anon, authenticated, public;`. Policy/trigger calls go through the planner directly and still work.
 **Rule for next time**: SECURITY DEFINER + `public` schema = always pair with REVOKE on `anon, authenticated, public`. Same migration; one-and-done.
 
+> ⚠️ **CORRECTION (2026-06-13) — the claim above about RLS policies is WRONG and dangerous.**
+> PostgreSQL **does** enforce EXECUTE privilege on functions invoked from RLS USING/CHECK
+> expressions — SECURITY DEFINER does not exempt them. Revoking EXECUTE from `authenticated`
+> on an RLS-helper function caused `permission denied for function is_farm_member` lockouts on
+> every table whose policy calls it (see migration `20260521000000_restore_rls_helper_execute`).
+> **Triggers** are different: a trigger function fires under the table-owner context, so revoking
+> the *invoking* user's EXECUTE does NOT break triggers.
+> **Correct rule:** RLS-helper functions → KEEP EXECUTE for whatever roles run queries against the
+> protected tables (almost always `authenticated`; also `anon` if any policy is `TO public`, which
+> is the default — 84/92 of ours are). Only trigger-only / internal-PERFORM-only / never-in-RLS
+> functions are safe to fully revoke. Admin RPCs (cc_*) → revoke `anon`, keep `authenticated`
+> (internal `cc_assert_permission` enforces). See migration
+> `20260613170001_revoke_anon_execute_on_privileged_functions` for the triaged approach.
+
 ### L4. Always pin `search_path` on functions, especially SECURITY DEFINER
 **What broke**: Advisor flagged 10 functions with `function_search_path_mutable`.
 **Root cause**: A function without an explicit `SET search_path` inherits the caller's search_path. A malicious user can prepend a schema with shadow definitions of `pg_catalog`-style names and hijack execution inside SECURITY DEFINER code.
