@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { WithdrawalBadge } from '../../PoultryOS/components/ui/WithdrawalBadge';
+import { WithdrawalBadge } from '../../mobile-app/components/ui/WithdrawalBadge';
 
 function isoDaysFromNow(days: number): string {
   const d = new Date();

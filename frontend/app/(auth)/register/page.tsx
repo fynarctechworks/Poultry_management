@@ -2,18 +2,30 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { GoogleButton } from '@/components/GoogleButton';
+import { PhoneInput } from '@/components/PhoneInput';
+import { isValidPhoneString } from '@/lib/constants/countries';
+import { AuthHeader, AuthField, AuthButton, AuthDivider, AuthFooter, AuthError } from '@/components/auth';
 
-const schema = z.object({
-  fullName: z.string().min(2, 'Enter your name'),
-  email: z.string().email('Enter a valid email'),
-  password: z.string().min(8, 'At least 8 characters'),
-  phone: z.string().regex(/^\+91[0-9]{10}$/, 'Format: +91XXXXXXXXXX'),
-});
+const schema = z
+  .object({
+    fullName: z.string().min(2, 'Enter your name'),
+    email: z.string().email('Enter a valid email'),
+    phone: z
+      .string()
+      .min(1, 'Enter your mobile number')
+      .refine((v) => isValidPhoneString(v, { optional: false }), 'Enter a valid mobile number for the selected country'),
+    password: z.string().min(8, 'At least 8 characters'),
+    confirm: z.string(),
+  })
+  .refine((v) => v.password === v.confirm, {
+    path: ['confirm'],
+    message: 'Passwords do not match',
+  });
 type Form = z.infer<typeof schema>;
 
 export default function RegisterPage() {
@@ -22,73 +34,101 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
+    defaultValues: { phone: '' },
   });
 
   async function onSubmit(data: Form) {
     setError(null);
     setLoading(true);
-    const { data: { user }, error } = await supabase.auth.signUp({
+    const emailRedirectTo =
+      typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/onboarding` : undefined;
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         data: { full_name: data.fullName, phone: data.phone },
+        emailRedirectTo,
       },
     });
     if (error) {
       setLoading(false);
       return setError(error.message);
     }
-    if (user) {
-      await supabase.from('profiles').upsert({
-        id: user.id,
-        full_name: data.fullName,
-        phone: data.phone,
-      });
-    }
     setLoading(false);
-    router.push('/multi-farm');
+
+    // Email-verification gating: when confirmation is required Supabase returns
+    // NO session — the tenant is NOT created until the user verifies. Send them
+    // to the verify screen. (handle_new_user trigger has already created the
+    // profile row server-side, so no client write is needed here.)
+    if (!signUpData.session) {
+      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
+      return;
+    }
+    // Confirmation disabled (e.g. dev) → straight into the onboarding wizard.
+    router.push('/onboarding');
     router.refresh();
   }
 
   return (
-    <div className="card shadow-subtle">
-      <h1 className="text-2xl font-bold text-ink mb-xs">Create account</h1>
-      <p className="text-sm text-body mb-lg">Get started with PoultryOS</p>
+    <div>
+      <AuthHeader
+        title="Create an account"
+        subtitle="Manage your flocks, finances, and alerts — all in one place."
+      />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-md">
-        <div>
-          <label className="label">Full name</label>
-          <input className="input" {...register('fullName')} />
-          {errors.fullName && <p className="text-sm text-danger mt-xs">{errors.fullName.message}</p>}
-        </div>
+        <AuthField
+          label="Full name"
+          placeholder="e.g. Ramesh Kumar"
+          error={errors.fullName?.message}
+          {...register('fullName')}
+        />
+        <AuthField
+          label="Your email"
+          type="email"
+          placeholder="you@example.com"
+          error={errors.email?.message}
+          {...register('email')}
+        />
         <div>
           <label className="label">Mobile number</label>
-          <input className="input" placeholder="+91XXXXXXXXXX" {...register('phone')} />
-          {errors.phone && <p className="text-sm text-danger mt-xs">{errors.phone.message}</p>}
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field }) => (
+              <PhoneInput id="phone" value={field.value} onChange={field.onChange} />
+            )}
+          />
+          {errors.phone?.message && <p className="mt-xs text-sm text-danger">{errors.phone.message}</p>}
         </div>
-        <div>
-          <label className="label">Email</label>
-          <input type="email" className="input" {...register('email')} />
-          {errors.email && <p className="text-sm text-danger mt-xs">{errors.email.message}</p>}
-        </div>
-        <div>
-          <label className="label">Password</label>
-          <input type="password" className="input" {...register('password')} />
-          {errors.password && <p className="text-sm text-danger mt-xs">{errors.password.message}</p>}
-        </div>
-        <button type="submit" className="btn-primary w-full" disabled={loading}>
-          {loading ? 'Creating…' : 'Create account'}
-        </button>
+        <AuthField
+          label="Create password"
+          type="password"
+          placeholder="At least 8 characters"
+          autoComplete="new-password"
+          error={errors.password?.message}
+          {...register('password')}
+        />
+        <AuthField
+          label="Confirm password"
+          type="password"
+          placeholder="Re-enter password"
+          autoComplete="new-password"
+          error={errors.confirm?.message}
+          {...register('confirm')}
+        />
+        <AuthButton loading={loading} loadingLabel="Creating…">Create account</AuthButton>
       </form>
 
-      {error && <p className="text-sm text-danger mt-md">{error}</p>}
+      <AuthError message={error} />
 
-      <p className="text-sm text-body mt-lg text-center">
-        Already have an account?{' '}
-        <Link href="/login" className="text-primary-dark font-semibold">Sign in</Link>
-      </p>
+      <AuthDivider label="or continue with" />
+
+      <GoogleButton onError={(m) => setError(m || null)} />
+
+      <AuthFooter prompt="Already have an account?" linkLabel="Sign in" href="/login" />
     </div>
   );
 }

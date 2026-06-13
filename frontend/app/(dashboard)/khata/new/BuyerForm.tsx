@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { PhoneInput } from '@/components/PhoneInput';
+import { isValidPhoneString } from '@/lib/constants/countries';
 
-const phoneRegex = /^\+91[0-9]{10}$/;
+const phoneField = z.string().refine((v) => isValidPhoneString(v), 'Enter a valid phone number');
 const schema = z.object({
   farm_id: z.string().uuid(),
   buyer_name: z.string().min(2),
-  phone: z.string().regex(phoneRegex, 'Format: +91XXXXXXXXXX').or(z.literal('')),
-  whatsapp_phone: z.string().regex(phoneRegex, 'Format: +91XXXXXXXXXX').or(z.literal('')),
+  phone: phoneField,
+  whatsapp_phone: phoneField,
   address: z.string().optional(),
   gstin: z.string().optional(),
   credit_limit: z.coerce.number().min(0).optional(),
@@ -25,9 +27,9 @@ export function BuyerForm({ farms }: { farms: { id: string; farm_name: string }[
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { farm_id: farms[0]?.id },
+    defaultValues: { farm_id: farms[0]?.id, phone: '', whatsapp_phone: '' },
   });
 
   async function onSubmit(data: Form) {
@@ -59,8 +61,12 @@ export function BuyerForm({ farms }: { farms: { id: string; farm_name: string }[
           <select className="input" {...register('farm_id')}>{farms.map((f) => <option key={f.id} value={f.id}>{f.farm_name}</option>)}</select>
         </Field>
         <Field label="Buyer name" error={errors.buyer_name?.message}><input className="input" {...register('buyer_name')} /></Field>
-        <Field label="Phone" error={errors.phone?.message}><input className="input" placeholder="+91XXXXXXXXXX" {...register('phone')} /></Field>
-        <Field label="WhatsApp" error={errors.whatsapp_phone?.message}><input className="input" placeholder="+91XXXXXXXXXX" {...register('whatsapp_phone')} /></Field>
+        <Field label="Phone" error={errors.phone?.message}>
+          <Controller control={control} name="phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
+        </Field>
+        <Field label="WhatsApp" error={errors.whatsapp_phone?.message}>
+          <Controller control={control} name="whatsapp_phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
+        </Field>
         <Field label="GSTIN"><input className="input" {...register('gstin')} /></Field>
         <Field label="Credit limit (₹)"><input type="number" step="0.01" className="input" {...register('credit_limit')} /></Field>
       </div>

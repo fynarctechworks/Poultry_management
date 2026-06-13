@@ -5,7 +5,7 @@ import {
   livabilityTone,
   type BatchSnapshot,
   type DailyLogRow,
-} from '../../PoultryOS/lib/kpis';
+} from '../../mobile-app/lib/kpis';
 
 describe('aggregateFcr', () => {
   const oneBatch: BatchSnapshot[] = [

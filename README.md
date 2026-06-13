@@ -12,7 +12,7 @@ Cross-platform poultry-farm management SaaS + an internal operator Control Cente
 ├─ saas-control-center/         Next.js 14 — internal operator Control Center (separate app)
 ├─ packages/shared/             @poultryos/shared — code shared across apps
 ├─ docs:  PRD.md TRD.md DESIGN.md CLAUDE.md
-└─ tests/ execution/ audit/ tasks/
+└─ tests/ tasks/
 ```
 
 > **Why `supabase/` isn't renamed to `backend/`:** PoultryOS is Supabase-native — there is

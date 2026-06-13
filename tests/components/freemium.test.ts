@@ -8,7 +8,7 @@ import {
   hasTraceability,
   hasMultiFarmDashboard,
   hasVetAccess,
-} from '../../PoultryOS/lib/freemium';
+} from '../../mobile-app/lib/freemium';
 
 describe('FREE_LIMITS constants', () => {
   it('matches CLAUDE.md freemium table', () => {

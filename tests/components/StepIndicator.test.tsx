@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { StepIndicator } from '../../PoultryOS/components/ui/StepIndicator';
+import { StepIndicator } from '../../mobile-app/components/ui/StepIndicator';
 
 describe('StepIndicator', () => {
   it('current=3 total=5 → 3 filled dots, 2 muted dots', () => {

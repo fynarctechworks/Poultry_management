@@ -17,7 +17,7 @@ import {
   flush,
   QUEUE_KEY,
   type QueuedOperation,
-} from '../../PoultryOS/lib/offline-queue';
+} from '../../mobile-app/lib/offline-queue';
 
 // In-memory AsyncStorage mock
 jest.mock('@react-native-async-storage/async-storage', () => {

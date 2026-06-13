@@ -4,8 +4,6 @@ import QRCode from 'react-native-qrcode-svg';
 import { CheckCircle2, MessageCircle, Lock, Copy } from 'lucide-react-native';
 import { colors, radius, spacing, typography } from '../../theme/tokens';
 
-const WHATSAPP_GREEN = '#25D366';
-
 export interface TraceabilityRecord {
   qr_token: string;
   supplier_name: string | null;
@@ -236,7 +234,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    backgroundColor: WHATSAPP_GREEN,
+    backgroundColor: colors.whatsapp,
     borderRadius: radius.pillLg,
     paddingHorizontal: spacing.lg,
     minHeight: 44,

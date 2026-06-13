@@ -32,7 +32,20 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
-  const isPublicRoute = pathname.startsWith('/traceability/') || pathname === '/';
+  // /auth/callback runs the OAuth code exchange before a session cookie exists —
+  // it must pass through unauthenticated or the `?code` is lost.
+  // Auth-flow pages that a logged-out user (or one holding only a recovery
+  // session, e.g. reset-password) must be able to reach without being bounced
+  // to /login. reset-password is deliberately NOT an isAuthRoute, so a recovery
+  // session is not redirected away from it.
+  const isPublicRoute =
+    pathname.startsWith('/traceability/') ||
+    pathname.startsWith('/auth/') ||
+    pathname === '/' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/verify-email' ||
+    pathname === '/account-locked';
 
   if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();

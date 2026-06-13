@@ -13,7 +13,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 
 import { act } from 'react';
-import { useOnboardingStore } from '../../PoultryOS/stores/onboarding';
+import { useOnboardingStore } from '../../mobile-app/stores/onboarding';
 
 // ---------------------------------------------------------------------------
 // Helpers

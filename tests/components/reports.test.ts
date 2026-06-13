@@ -2,7 +2,7 @@ import {
   buildOperationalReport,
   buildFinancialReport,
   buildCsv,
-} from '../../PoultryOS/lib/reports';
+} from '../../mobile-app/lib/reports';
 
 describe('buildOperationalReport', () => {
   const base = {

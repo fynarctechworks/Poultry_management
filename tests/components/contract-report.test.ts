@@ -1,4 +1,4 @@
-import { buildSettlementReport } from '../../PoultryOS/lib/contract-report';
+import { buildSettlementReport } from '../../mobile-app/lib/contract-report';
 
 const baseInput = {
   batchCode: 'BR-2026-04-A',

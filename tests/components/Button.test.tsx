@@ -6,8 +6,8 @@
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { Button } from '../../PoultryOS/components/ui/Button';
-import { colors, radius } from '../../PoultryOS/theme/tokens';
+import { Button } from '../../mobile-app/components/ui/Button';
+import { colors, radius } from '../../mobile-app/theme/tokens';
 
 // ---------------------------------------------------------------------------
 // Render helpers

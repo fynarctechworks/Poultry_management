@@ -2,15 +2,18 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { PhoneInput } from '@/components/PhoneInput';
+import { isValidPhoneString } from '@/lib/constants/countries';
 
+const phoneField = z.string().refine((v) => isValidPhoneString(v), 'Enter a valid phone number');
 const schema = z.object({
   full_name: z.string().min(2),
-  phone: z.string().regex(/^\+?[\d\s-]{8,15}$/, 'Enter a valid phone').or(z.literal('')),
-  whatsapp_phone: z.string().regex(/^\+?[\d\s-]{8,15}$/, 'Enter a valid phone').or(z.literal('')),
+  phone: phoneField,
+  whatsapp_phone: phoneField,
   whatsapp_opt_in: z.boolean(),
 });
 type Form = z.infer<typeof schema>;
@@ -32,7 +35,7 @@ export function ProfileForm({ userId, initial }: Props) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: initial,
   });
@@ -63,10 +66,10 @@ export function ProfileForm({ userId, initial }: Props) {
       </Field>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
         <Field label="Phone" error={errors.phone?.message}>
-          <input className="input" placeholder="+91XXXXXXXXXX" {...register('phone')} />
+          <Controller control={control} name="phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
         </Field>
         <Field label="WhatsApp number" error={errors.whatsapp_phone?.message}>
-          <input className="input" placeholder="+91XXXXXXXXXX" {...register('whatsapp_phone')} />
+          <Controller control={control} name="whatsapp_phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
         </Field>
       </div>
       <label className="flex items-center gap-sm text-sm text-body">

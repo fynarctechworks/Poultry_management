@@ -36,6 +36,9 @@ export const colors = {
   whatsapp: '#25D366',
   heat: '#EA580C',
   upi: '#5B21B6',
+  // Brand aurora gradient stops (Control Center auth panel) — light purple tints
+  primaryGlow: '#a98cff',
+  primaryHaze: '#c9b6ff',
 } as const;
 
 // Motion durations (ms) — blueprint §3.3

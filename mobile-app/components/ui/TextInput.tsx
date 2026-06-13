@@ -5,8 +5,10 @@ import {
   View,
   ViewStyle,
   KeyboardTypeOptions,
+  Pressable,
   TextInput as RNTextInput,
 } from 'react-native';
+import { Eye, EyeOff } from 'lucide-react-native';
 import { colors, spacing, radius, typography, state } from '../../theme/tokens';
 import { InlineError } from './InlineError';
 
@@ -46,34 +48,54 @@ export const TextInput = forwardRef<RNTextInput, TextInputProps>(
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
+    const [reveal, setReveal] = useState(false);
 
     return (
       <View style={[styles.wrapper, style]}>
         {/* Label rendered ABOVE the field — CLAUDE.md mandate: never placeholder-only */}
         <Text style={styles.label}>{label}</Text>
-        <RNTextInput
-          ref={ref}
-          value={value}
-          onChangeText={onChangeText}
-          keyboardType={keyboardType}
-          secureTextEntry={secureTextEntry}
-          autoCapitalize={autoCapitalize}
-          autoComplete={autoComplete as any}
-          placeholder={placeholder}
-          placeholderTextColor={colors.bodySoft}
-          multiline={multiline}
-          numberOfLines={multiline ? numberOfLines : 1}
-          testID={testID}
-          accessibilityLabel={label}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          style={[
-            styles.input,
-            multiline && { minHeight: 36 + (numberOfLines - 1) * 20, textAlignVertical: 'top' as const },
-            focused && styles.inputFocused,
-            !!error && styles.inputError,
-          ]}
-        />
+        <View>
+          <RNTextInput
+            ref={ref}
+            value={value}
+            onChangeText={onChangeText}
+            keyboardType={keyboardType}
+            secureTextEntry={secureTextEntry && !reveal}
+            autoCapitalize={autoCapitalize}
+            autoComplete={autoComplete as any}
+            placeholder={placeholder}
+            placeholderTextColor={colors.bodySoft}
+            multiline={multiline}
+            numberOfLines={multiline ? numberOfLines : 1}
+            testID={testID}
+            accessibilityLabel={label}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            style={[
+              styles.input,
+              secureTextEntry && styles.inputWithToggle,
+              multiline && { minHeight: 36 + (numberOfLines - 1) * 20, textAlignVertical: 'top' as const },
+              focused && styles.inputFocused,
+              !!error && styles.inputError,
+            ]}
+          />
+          {secureTextEntry && (
+            <Pressable
+              onPress={() => setReveal((v) => !v)}
+              style={styles.toggle}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={reveal ? 'Hide password' : 'Show password'}
+              testID={testID ? `${testID}-reveal` : undefined}
+            >
+              {reveal ? (
+                <EyeOff size={18} color={colors.bodySoft} />
+              ) : (
+                <Eye size={18} color={colors.bodySoft} />
+              )}
+            </Pressable>
+          )}
+        </View>
         {!!error && <InlineError testID={testID ? `${testID}-error` : undefined}>{error}</InlineError>}
       </View>
     );
@@ -106,11 +128,23 @@ const styles = StyleSheet.create({
     fontFamily: typography.bodyMd.fontFamily,
     color: colors.ink,
   },
+  inputWithToggle: {
+    paddingRight: 44,
+  },
   inputFocused: {
     borderColor: colors.primary,
     borderWidth: state.focusRingWidth,
   },
   inputError: {
     borderColor: colors.danger,
+  },
+  toggle: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
+    width: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

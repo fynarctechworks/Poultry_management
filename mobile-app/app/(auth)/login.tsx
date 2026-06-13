@@ -125,6 +125,7 @@ export default function LoginScreen() {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     autoComplete="email"
+                    placeholder={t('auth.login.email_placeholder')}
                     error={errors.email?.message}
                   />
                 )}
@@ -138,6 +139,7 @@ export default function LoginScreen() {
                     value={value ?? ''}
                     onChangeText={onChange}
                     secureTextEntry
+                    placeholder={t('auth.login.password_placeholder')}
                     error={errors.password?.message}
                   />
                 )}

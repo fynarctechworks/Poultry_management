@@ -22,7 +22,7 @@ supabase/              the ONE shared backend (migrations + Edge Functions)
 packages/shared/       @poultryos/shared
 ```
 All three apps use the same Supabase backend. The Control Center sits above tenant RLS
-(`platform_admins`, not tenant members) — see `execution/control-center-master-plan.md`.
+(`platform_admins`, not tenant members).
 
 ---
 

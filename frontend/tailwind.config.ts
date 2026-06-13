@@ -15,6 +15,7 @@ const config: Config = {
         'primary-deep': colors.primaryDeep,
         'primary-subtle': colors.primarySubtle,
         'on-primary': colors.onPrimary,
+        'on-dark': colors.onDark,
         ink: colors.ink,
         body: colors.body,
         'body-soft': colors.bodySoft,

@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { PhoneInput } from '@/components/PhoneInput';
+import { isValidPhoneString } from '@/lib/constants/countries';
 
 const schema = z.object({
   farm_name: z.string().min(2),
   owner_name: z.string().optional(),
   state: z.string().min(2),
   district: z.string().min(2),
-  phone: z.string().optional(),
+  phone: z.string().refine((v) => isValidPhoneString(v), 'Enter a valid phone number'),
   gstin: z.string().optional(),
   farm_type: z.enum(['independent', 'contract']),
   upi_id: z.string().regex(/^[\w.\-]+@[\w.\-]+$/, 'Format: name@bank').or(z.literal('')),
@@ -43,7 +45,7 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
       farm_name: farm.farm_name ?? '',
@@ -89,7 +91,9 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
         <Field label="Owner name"><input className="input" {...register('owner_name')} /></Field>
         <Field label="State *" error={errors.state?.message}><input className="input" {...register('state')} /></Field>
         <Field label="District *" error={errors.district?.message}><input className="input" {...register('district')} /></Field>
-        <Field label="Phone"><input className="input" placeholder="+91XXXXXXXXXX" {...register('phone')} /></Field>
+        <Field label="Phone" error={errors.phone?.message}>
+          <Controller control={control} name="phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
+        </Field>
         <Field label="GSTIN"><input className="input" {...register('gstin')} /></Field>
         <Field label="Farm type">
           <select className="input" {...register('farm_type')}>

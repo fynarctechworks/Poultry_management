@@ -1,7 +1,9 @@
+import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getBillingSummary } from '@/lib/subscription';
-import { BillingActions, type PlanOption } from './BillingActions';
 import { InvoiceDownloadButton } from './InvoiceDownloadButton';
+import { CancelSubscriptionButton } from './CancelSubscriptionButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,22 +24,19 @@ export default async function BillingPage() {
   const supabase = createSupabaseServerClient();
   const summary = await getBillingSummary();
 
-  const [{ data: invoices }, { data: payments }, { data: planRows }] = await Promise.all([
+  const [{ data: invoices }, { data: payments }] = await Promise.all([
     supabase.rpc('my_invoices'),
     supabase.from('payments').select('id, amount_inr, method, status, captured_at, created_at, razorpay_payment_id').order('created_at', { ascending: false }).limit(50),
-    supabase.from('subscription_plans').select('code, name, monthly_price_inr, yearly_price_inr, sort_order').eq('is_active', true).gt('monthly_price_inr', 0).order('sort_order'),
   ]);
-
-  const plans: PlanOption[] = (planRows ?? []).map((p) => ({
-    code: p.code, name: p.name,
-    monthly_price_inr: Number(p.monthly_price_inr), yearly_price_inr: Number(p.yearly_price_inr),
-  }));
 
   const status = summary?.status ?? 'trial';
   const planName = summary?.plan?.name ?? 'Free';
   const cycle = (summary?.billing_cycle ?? 'monthly') as 'monthly' | 'yearly';
   const renewalLabel = summary?.is_trial ? 'Trial ends' : 'Renews';
   const renewalDate = summary?.is_trial ? summary?.trial_ends_at : summary?.renewal_at;
+  const planPrice = summary?.plan
+    ? (cycle === 'monthly' ? summary.plan.monthly_price_inr : summary.plan.yearly_price_inr)
+    : null;
 
   return (
     <div className="max-w-[1000px] mx-auto">
@@ -46,44 +45,43 @@ export default async function BillingPage() {
 
       {/* Current plan */}
       <div className="card mb-2xl">
-        <div className="flex items-start justify-between flex-wrap gap-md">
-          <div>
+        <div className="flex items-start justify-between flex-wrap gap-lg">
+          <div className="min-w-[240px]">
             <p className="text-xs uppercase tracking-wider text-body-soft">Current plan</p>
             <div className="flex items-center gap-sm mt-xxs">
               <h2 className="text-2xl font-bold text-ink">{planName}</h2>
               <span className={`px-sm py-xxs rounded-md text-xs font-semibold capitalize ${STATUS_STYLES[status] ?? 'bg-mute-soft text-body'}`}>
                 {status.replace('_', ' ')}
               </span>
-              {summary?.is_trial && (
-                <span className="px-sm py-xxs rounded-md text-xs font-semibold bg-primary-subtle text-primary-dark">trial</span>
-              )}
             </div>
             <p className="text-sm text-body mt-sm">
               {summary?.has_subscription ? (
-                <>Billed {cycle}. {renewalLabel} <strong>{fmtDate(renewalDate ?? null)}</strong>
-                {summary?.days_remaining !== null && summary?.days_remaining !== undefined && (
-                  <> · {summary.days_remaining} day{summary.days_remaining === 1 ? '' : 's'} left</>
-                )}</>
+                <>
+                  Billed {cycle}
+                  {planPrice ? <> · <strong>{inr(planPrice)}</strong></> : null}
+                  . {renewalLabel} <strong>{fmtDate(renewalDate ?? null)}</strong>
+                  {summary?.days_remaining !== null && summary?.days_remaining !== undefined && (
+                    <> · {summary.days_remaining} day{summary.days_remaining === 1 ? '' : 's'} left</>
+                  )}
+                </>
               ) : (
                 <>You&apos;re on the free tier. Upgrade to unlock unlimited farms, WhatsApp, contract farming and more.</>
               )}
             </p>
           </div>
+
+          {/* Plan actions — owner only */}
+          {summary?.is_owner && (
+            <div className="flex flex-col items-end gap-sm">
+              <Link href="/billing/upgrade" className="btn-primary inline-flex items-center gap-sm">
+                {summary?.has_subscription ? 'Change plan' : 'Upgrade plan'}
+                <ArrowUpRight size={16} />
+              </Link>
+              {summary?.cancellable && <CancelSubscriptionButton />}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Plan actions */}
-      {summary?.is_owner && plans.length > 0 && (
-        <div className="mb-2xl">
-          <BillingActions
-            plans={plans}
-            currentPlanCode={summary?.plan?.code ?? null}
-            currentCycle={cycle}
-            hasRazorpaySub={Boolean(summary?.razorpay_subscription_id)}
-            cancellable={Boolean(summary?.cancellable)}
-          />
-        </div>
-      )}
 
       {/* Invoice history */}
       <h2 className="text-lg font-bold text-ink mb-md">Invoices</h2>

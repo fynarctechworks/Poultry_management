@@ -4,7 +4,7 @@ import {
   type BatchPnlBatchInputs,
   type BatchPnlLogRow,
   type BatchPnlTxn,
-} from '../../PoultryOS/lib/batch-pnl';
+} from '../../mobile-app/lib/batch-pnl';
 
 const baseBatch: BatchPnlBatchInputs = {
   openingBirdCount: 1000,

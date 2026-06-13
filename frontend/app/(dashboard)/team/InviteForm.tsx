@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { PhoneInput } from '@/components/PhoneInput';
+import { isValidPhoneString } from '@/lib/constants/countries';
 
 const schema = z.object({
   farm_id: z.string().uuid(),
-  phone: z.string().regex(/^\+91[0-9]{10}$/, 'Format: +91XXXXXXXXXX'),
+  phone: z.string().refine((v) => isValidPhoneString(v, { optional: false }), 'Enter a valid phone number'),
   role: z.enum(['worker', 'vet']),
 });
 type Form = z.infer<typeof schema>;
@@ -21,9 +23,9 @@ export function InviteForm({ farms }: { farms: { id: string; farm_name: string }
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Form>({
+  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { farm_id: farms[0]?.id, role: 'worker' },
+    defaultValues: { farm_id: farms[0]?.id, role: 'worker', phone: '' },
   });
 
   async function onSubmit(data: Form) {
@@ -69,7 +71,9 @@ export function InviteForm({ farms }: { farms: { id: string; farm_name: string }
         <Field label="Farm" error={errors.farm_id?.message}>
           <select className="input" {...register('farm_id')}>{farms.map((f) => <option key={f.id} value={f.id}>{f.farm_name}</option>)}</select>
         </Field>
-        <Field label="Phone" error={errors.phone?.message}><input className="input" placeholder="+91XXXXXXXXXX" {...register('phone')} /></Field>
+        <Field label="Phone" error={errors.phone?.message}>
+          <Controller control={control} name="phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
+        </Field>
         <Field label="Role">
           <select className="input" {...register('role')}>
             <option value="worker">Worker (daily logs)</option>

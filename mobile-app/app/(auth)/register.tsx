@@ -89,7 +89,9 @@ export default function RegisterScreen() {
               <TextInput
                 label={t('auth.register.mobile')}
                 value={value ?? ''}
-                onChangeText={onChange}
+                // India (+91) is the only supported country here (MSG91 OTP) —
+                // restrict to 10 numeric digits as the user types.
+                onChangeText={(text) => onChange(text.replace(/\D/g, '').slice(0, 10))}
                 keyboardType="phone-pad"
                 autoComplete="tel"
                 placeholder={t('auth.register.mobile_placeholder')}
@@ -109,6 +111,7 @@ export default function RegisterScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
+                placeholder={t('auth.register.email_placeholder')}
                 error={errors.email?.message}
               />
             )}
@@ -123,6 +126,7 @@ export default function RegisterScreen() {
                 value={value ?? ''}
                 onChangeText={onChange}
                 secureTextEntry
+                placeholder={t('auth.register.password_placeholder')}
                 error={errors.password?.message}
               />
             )}

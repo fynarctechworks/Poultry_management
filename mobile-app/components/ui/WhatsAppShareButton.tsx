@@ -3,9 +3,6 @@ import { Linking, Pressable, StyleSheet, Text } from 'react-native';
 import { MessageCircle } from 'lucide-react-native';
 import { colors, radius, spacing, typography } from '../../theme/tokens';
 
-// WhatsApp brand green — instant-recognition only, not in design tokens.
-const WHATSAPP_GREEN = '#25D366';
-
 export interface WhatsAppShareButtonProps {
   phone: string;
   message: string;
@@ -58,7 +55,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    backgroundColor: WHATSAPP_GREEN,
+    backgroundColor: colors.whatsapp,
     borderRadius: radius.pillLg,
     paddingHorizontal: spacing.lg,
     minHeight: 44,

@@ -1,4 +1,4 @@
-import { resolveStartingLanguage } from '../../PoultryOS/lib/i18n-resolve';
+import { resolveStartingLanguage } from '../../mobile-app/lib/i18n-resolve';
 
 describe('resolveStartingLanguage', () => {
   it('prefers a persisted supported value over the device locale', () => {

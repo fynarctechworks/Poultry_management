@@ -32,11 +32,32 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
-  const isPublicRoute = pathname.startsWith('/traceability/') || pathname === '/';
+  // /auth/callback runs the recovery/OAuth code exchange before a session cookie
+  // exists, so it must pass through unauthenticated. The reset/forgot/locked
+  // pages must also be reachable without a full session.
+  const isPublicRoute =
+    pathname.startsWith('/traceability/') ||
+    pathname.startsWith('/auth/') ||
+    pathname === '/' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/account-locked';
+  const isChangePassword = pathname.startsWith('/change-password');
 
   if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
+
+  // Seeded operators (and anyone flagged) must rotate their password before
+  // doing anything else. The flag lives in admin-only app_metadata, so it
+  // can't be cleared from the client — only the change-password server action.
+  const mustChangePassword = user?.app_metadata?.force_password_change === true;
+  if (user && mustChangePassword && !isChangePassword) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/change-password';
+    url.search = '';
     return NextResponse.redirect(url);
   }
 

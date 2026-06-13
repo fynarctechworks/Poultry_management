@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { InventoryItemCard } from '../../PoultryOS/components/ui/InventoryItemCard';
+import { InventoryItemCard } from '../../mobile-app/components/ui/InventoryItemCard';
 
 const BASE_PROPS = {
   itemName: 'Grower Feed',

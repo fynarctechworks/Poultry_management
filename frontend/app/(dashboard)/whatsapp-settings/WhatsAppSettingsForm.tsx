@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
+import { PhoneInput } from '@/components/PhoneInput';
+import { isValidPhoneString } from '@/lib/constants/countries';
 
 const schema = z.object({
-  whatsapp_phone: z.string().regex(/^\+91[0-9]{10}$/, 'Format: +91XXXXXXXXXX').or(z.literal('')),
+  whatsapp_phone: z.string().refine((v) => isValidPhoneString(v), 'Enter a valid phone number'),
   whatsapp_opt_in: z.boolean(),
 });
 type Form = z.infer<typeof schema>;
@@ -22,7 +24,7 @@ export function WhatsAppSettingsForm({ initialPhone, initialOptIn }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: { whatsapp_phone: initialPhone, whatsapp_opt_in: initialOptIn },
   });
@@ -50,7 +52,7 @@ export function WhatsAppSettingsForm({ initialPhone, initialOptIn }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="card space-y-md">
       <div>
         <label className="label">WhatsApp number</label>
-        <input className="input" placeholder="+91XXXXXXXXXX" {...register('whatsapp_phone')} />
+        <Controller control={control} name="whatsapp_phone" render={({ field }) => <PhoneInput value={field.value} onChange={field.onChange} />} />
         {errors.whatsapp_phone && <p className="text-sm text-danger mt-xs">{errors.whatsapp_phone.message}</p>}
       </div>
 

@@ -3,7 +3,7 @@ import {
   findBenchmark,
   fcrAgainstBenchmark,
   mortalityAgainstBenchmark,
-} from '../../PoultryOS/lib/breed-benchmarks';
+} from '../../mobile-app/lib/breed-benchmarks';
 
 describe('BREED_BENCHMARKS', () => {
   it('includes the four big Indian broiler breeds', () => {

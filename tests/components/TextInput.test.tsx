@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { TextInput } from '../../PoultryOS/components/ui/TextInput';
+import { TextInput } from '../../mobile-app/components/ui/TextInput';
 
 // ---------------------------------------------------------------------------
 // Helper
