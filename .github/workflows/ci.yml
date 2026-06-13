@@ -77,16 +77,40 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libtap-parser-sourcehandler-pgtap-perl postgresql-client
 
+      # ---------------------------------------------------------------------------
+      # pgTAP is installed in the `extensions` schema (20260519000001_enable_pgtap).
+      # `pg_prove` spawns its OWN `psql` child process, and the Supabase Postgres
+      # image does not put `extensions` on the default search_path — so the bare
+      # pgTAP functions (plan()/ok()/is()/throws_ok()/finish()) resolve to
+      # "function does not exist" and every file dies with "No plan found".
+      #
+      # The previous fix passed PGOPTIONS=-c search_path=... as a step env var. That
+      # is unreliable here: it depends on the variable surviving into pg_prove's
+      # grandchild psql, which it did not (CI run #4 still failed). Pin the
+      # search_path on the DATABASE instead — that default is applied to EVERY new
+      # connection (pg_prove's psql included), independent of role or environment.
+      # This touches only the ephemeral CI database, never production (prod schema
+      # is driven by migrations, which intentionally do NOT alter runtime search_path).
+      # ---------------------------------------------------------------------------
+      - name: Configure pgTAP search_path + pre-flight sanity
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "ALTER DATABASE postgres SET search_path TO public, extensions;"
+          # Fail fast (with a clear signal) if pgTAP is not actually resolvable on a
+          # fresh connection. After this passes, a red suite can only be a real
+          # assertion failure — never an ambiguous infra/search_path problem again.
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "SELECT extname, extversion FROM pg_extension WHERE extname = 'pgtap';" \
+            -c "SELECT plan(1); SELECT ok(true, 'pgTAP resolves on a fresh connection'); SELECT * FROM finish();"
+
       - name: Run pgTAP suite
         env:
           PGPASSWORD: postgres
-          # pgTAP lives in the `extensions` schema (20260519000001_enable_pgtap).
-          # The postgres role pg_prove connects as does not reliably have
-          # `extensions` on its search_path in CI, so plan()/ok()/etc. resolve to
-          # "function does not exist" and every file fails with "No plan found".
-          # Force it on the connection so the assertions are visible.
-          PGOPTIONS: "-c search_path=public,extensions"
         run: |
+          set -euo pipefail
           pg_prove --verbose \
             -h 127.0.0.1 -p 54322 -U postgres -d postgres \
             tests/db/*.test.sql supabase/tests/*.test.sql
