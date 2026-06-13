@@ -1,134 +1,157 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { UpgradeButton } from './UpgradeButton';
+import { getBillingSummary } from '@/lib/subscription';
+import { BillingActions, type PlanOption } from './BillingActions';
+import { InvoiceDownloadButton } from './InvoiceDownloadButton';
 
-const LIMITS = {
-  free: { farms: 1, sheds: 3, workers: 2, buyers: 10, whatsapp: '5/month', multiFarm: false, traceability: false },
-  active: { farms: 'Unlimited', sheds: 'Unlimited', workers: 'Unlimited', buyers: 'Unlimited', whatsapp: 'Unlimited', multiFarm: true, traceability: true },
-} as const;
+export const dynamic = 'force-dynamic';
+
+const fmtDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+const inr = (n: number | string | null) =>
+  '₹' + Number(n ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const STATUS_STYLES: Record<string, string> = {
+  active: 'bg-success-soft text-success-ink',
+  trial: 'bg-primary-subtle text-primary-dark',
+  past_due: 'bg-warning-soft text-warning-ink',
+  suspended: 'bg-danger/10 text-danger',
+  cancelled: 'bg-mute-soft text-body',
+};
 
 export default async function BillingPage() {
   const supabase = createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const summary = await getBillingSummary();
 
-  const [
-    { data: profile },
-    { data: isPaidRpc },
-    { count: farmCount },
-    { count: shedCount },
-    { count: workerCount },
-    { count: buyerCount },
-  ] = await Promise.all([
-    supabase.from('profiles').select('subscription_status, subscription_id').eq('id', user!.id).maybeSingle(),
-    supabase.rpc('is_paid'),
-    supabase.from('farms').select('id', { count: 'exact', head: true }),
-    supabase.from('sheds').select('id', { count: 'exact', head: true }),
-    supabase.from('farm_users').select('id', { count: 'exact', head: true }).neq('role', 'owner'),
-    supabase.from('buyers').select('id', { count: 'exact', head: true }),
+  const [{ data: invoices }, { data: payments }, { data: planRows }] = await Promise.all([
+    supabase.rpc('my_invoices'),
+    supabase.from('payments').select('id, amount_inr, method, status, captured_at, created_at, razorpay_payment_id').order('created_at', { ascending: false }).limit(50),
+    supabase.from('subscription_plans').select('code, name, monthly_price_inr, yearly_price_inr, sort_order').eq('is_active', true).gt('monthly_price_inr', 0).order('sort_order'),
   ]);
 
-  // is_paid() honours the 7-day past_due grace; raw subscription_status does not.
-  const isPaid = isPaidRpc === true;
-  const tier = isPaid ? 'active' : 'free';
-  const limits = LIMITS[tier];
+  const plans: PlanOption[] = (planRows ?? []).map((p) => ({
+    code: p.code, name: p.name,
+    monthly_price_inr: Number(p.monthly_price_inr), yearly_price_inr: Number(p.yearly_price_inr),
+  }));
+
+  const status = summary?.status ?? 'trial';
+  const planName = summary?.plan?.name ?? 'Free';
+  const cycle = (summary?.billing_cycle ?? 'monthly') as 'monthly' | 'yearly';
+  const renewalLabel = summary?.is_trial ? 'Trial ends' : 'Renews';
+  const renewalDate = summary?.is_trial ? summary?.trial_ends_at : summary?.renewal_at;
 
   return (
     <div className="max-w-[1000px] mx-auto">
       <h1 className="text-3xl font-bold text-ink mb-xs">Billing</h1>
-      <p className="text-sm text-body mb-2xl">Manage your subscription and see freemium usage.</p>
+      <p className="text-sm text-body mb-2xl">Manage your subscription, plan and invoices.</p>
 
-      <div className={`card mb-2xl ${isPaid ? 'border-success' : ''}`}>
-        <div className="flex items-center justify-between flex-wrap gap-md">
+      {/* Current plan */}
+      <div className="card mb-2xl">
+        <div className="flex items-start justify-between flex-wrap gap-md">
           <div>
             <p className="text-xs uppercase tracking-wider text-body-soft">Current plan</p>
-            <h2 className="text-2xl font-bold text-ink">
-              {isPaid ? 'PoultryOS Pro' : 'Free'}
-            </h2>
-            <p className="text-sm text-body mt-xs">
-              {isPaid ? 'Unlimited farms, WhatsApp, contract module, multi-farm dashboard.' : 'Limited to 1 farm, 3 sheds, 2 workers, 10 buyers, 5 WhatsApp/month.'}
+            <div className="flex items-center gap-sm mt-xxs">
+              <h2 className="text-2xl font-bold text-ink">{planName}</h2>
+              <span className={`px-sm py-xxs rounded-md text-xs font-semibold capitalize ${STATUS_STYLES[status] ?? 'bg-mute-soft text-body'}`}>
+                {status.replace('_', ' ')}
+              </span>
+              {summary?.is_trial && (
+                <span className="px-sm py-xxs rounded-md text-xs font-semibold bg-primary-subtle text-primary-dark">trial</span>
+              )}
+            </div>
+            <p className="text-sm text-body mt-sm">
+              {summary?.has_subscription ? (
+                <>Billed {cycle}. {renewalLabel} <strong>{fmtDate(renewalDate ?? null)}</strong>
+                {summary?.days_remaining !== null && summary?.days_remaining !== undefined && (
+                  <> · {summary.days_remaining} day{summary.days_remaining === 1 ? '' : 's'} left</>
+                )}</>
+              ) : (
+                <>You&apos;re on the free tier. Upgrade to unlock unlimited farms, WhatsApp, contract farming and more.</>
+              )}
             </p>
           </div>
-          {!isPaid && <UpgradeButton />}
-          {isPaid && profile?.subscription_status === 'active' && (
-            <span className="px-md py-xs rounded-md text-sm font-semibold bg-success-soft text-success-ink">
-              active
-            </span>
-          )}
-          {isPaid && profile?.subscription_status === 'past_due' && (
-            <span className="px-md py-xs rounded-md text-sm font-semibold bg-warning-soft text-warning-ink">
-              past_due · grace window
-            </span>
-          )}
         </div>
       </div>
 
-      <h2 className="text-lg font-bold text-ink mb-md">Usage</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-md mb-2xl">
-        <UsageRow label="Farms" used={farmCount ?? 0} limit={limits.farms} />
-        <UsageRow label="Sheds" used={shedCount ?? 0} limit={limits.sheds} />
-        <UsageRow label="Team members" used={workerCount ?? 0} limit={limits.workers} />
-        <UsageRow label="Buyers" used={buyerCount ?? 0} limit={limits.buyers} />
+      {/* Plan actions */}
+      {summary?.is_owner && plans.length > 0 && (
+        <div className="mb-2xl">
+          <BillingActions
+            plans={plans}
+            currentPlanCode={summary?.plan?.code ?? null}
+            currentCycle={cycle}
+            hasRazorpaySub={Boolean(summary?.razorpay_subscription_id)}
+            cancellable={Boolean(summary?.cancellable)}
+          />
+        </div>
+      )}
+
+      {/* Invoice history */}
+      <h2 className="text-lg font-bold text-ink mb-md">Invoices</h2>
+      <div className="card p-0 overflow-x-auto mb-2xl">
+        <table className="w-full text-sm">
+          <thead className="bg-canvas-soft border-b border-mute">
+            <tr className="text-left text-xs uppercase tracking-wider text-body-soft">
+              <th className="px-md py-sm">Invoice</th>
+              <th className="px-md py-sm">Date</th>
+              <th className="px-md py-sm text-right">Amount</th>
+              <th className="px-md py-sm text-center">Status</th>
+              <th className="px-md py-sm text-right">PDF</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(invoices ?? []).length === 0 && (
+              <tr><td colSpan={5} className="px-md py-lg text-center text-body">No invoices yet.</td></tr>
+            )}
+            {(invoices ?? []).map((inv: Record<string, unknown>) => (
+              <tr key={inv.id as string} className="border-b border-mute last:border-0">
+                <td className="px-md py-md font-medium text-ink">{inv.invoice_number as string}</td>
+                <td className="px-md py-md text-body">{fmtDate(inv.issued_at as string)}</td>
+                <td className="px-md py-md text-right tabular-nums text-ink">{inr(inv.total_inr as number)}</td>
+                <td className="px-md py-md text-center">
+                  <span className={`px-sm py-xxs rounded-md text-xs font-semibold capitalize ${inv.status === 'paid' ? 'bg-success-soft text-success-ink' : inv.status === 'refunded' ? 'bg-mute-soft text-body' : 'bg-warning-soft text-warning-ink'}`}>
+                    {inv.status as string}
+                  </span>
+                </td>
+                <td className="px-md py-md text-right"><InvoiceDownloadButton invoiceId={inv.id as string} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      <h2 className="text-lg font-bold text-ink mb-md">Feature comparison</h2>
+      {/* Payment history */}
+      <h2 className="text-lg font-bold text-ink mb-md">Payments</h2>
       <div className="card p-0 overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-canvas-soft border-b border-mute">
             <tr className="text-left text-xs uppercase tracking-wider text-body-soft">
-              <th className="px-md py-sm">Feature</th>
-              <th className="px-md py-sm text-center">Free</th>
-              <th className="px-md py-sm text-center">Pro</th>
+              <th className="px-md py-sm">Date</th>
+              <th className="px-md py-sm">Method</th>
+              <th className="px-md py-sm text-right">Amount</th>
+              <th className="px-md py-sm text-center">Status</th>
+              <th className="px-md py-sm">Reference</th>
             </tr>
           </thead>
           <tbody>
-            <Row label="Farms" free="1" pro="Unlimited" />
-            <Row label="Sheds" free="3" pro="Unlimited" />
-            <Row label="Workers" free="2" pro="Unlimited" />
-            <Row label="Vet access" free="✗" pro="✓" />
-            <Row label="Buyers (Khata)" free="10" pro="Unlimited" />
-            <Row label="WhatsApp alerts" free="5/month" pro="Unlimited" />
-            <Row label="Contract farming module" free="✗" pro="✓" />
-            <Row label="Traceability QR & PDF" free="✗" pro="✓" />
-            <Row label="Multi-farm dashboard" free="✗" pro="✓" />
-            <Row label="Full data export" free="✗" pro="✓" />
-            <Row label="Heat-stress alerts" free="✓" pro="✓" />
-            <Row label="Daily logs + KPIs" free="✓" pro="✓" />
+            {(payments ?? []).length === 0 && (
+              <tr><td colSpan={5} className="px-md py-lg text-center text-body">No payments yet.</td></tr>
+            )}
+            {(payments ?? []).map((p) => (
+              <tr key={p.id} className="border-b border-mute last:border-0">
+                <td className="px-md py-md text-body">{fmtDate((p.captured_at ?? p.created_at) as string)}</td>
+                <td className="px-md py-md text-body uppercase">{p.method ?? '—'}</td>
+                <td className="px-md py-md text-right tabular-nums text-ink">{inr(p.amount_inr)}</td>
+                <td className="px-md py-md text-center">
+                  <span className={`px-sm py-xxs rounded-md text-xs font-semibold capitalize ${p.status === 'captured' ? 'bg-success-soft text-success-ink' : p.status === 'failed' ? 'bg-danger/10 text-danger' : 'bg-mute-soft text-body'}`}>
+                    {p.status}
+                  </span>
+                </td>
+                <td className="px-md py-md text-body-soft text-xs font-mono">{p.razorpay_payment_id ?? '—'}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     </div>
-  );
-}
-
-function UsageRow({ label, used, limit }: { label: string; used: number; limit: number | string }) {
-  const numericLimit = typeof limit === 'number' ? limit : null;
-  const pct = numericLimit ? Math.min(100, (used / numericLimit) * 100) : 0;
-  const warn = numericLimit && used >= numericLimit;
-  return (
-    <div className="card">
-      <div className="flex items-baseline justify-between mb-sm">
-        <p className="text-sm font-semibold text-ink">{label}</p>
-        <p className={`text-sm tabular-nums ${warn ? 'text-warning-ink font-semibold' : 'text-body'}`}>
-          {used} / {limit}
-        </p>
-      </div>
-      {numericLimit && (
-        <div className="h-2 bg-mute rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full ${warn ? 'bg-warning' : 'bg-primary'}`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Row({ label, free, pro }: { label: string; free: string; pro: string }) {
-  return (
-    <tr className="border-b border-mute last:border-0">
-      <td className="px-md py-md text-body">{label}</td>
-      <td className="px-md py-md text-center text-body">{free}</td>
-      <td className="px-md py-md text-center font-semibold text-success-ink">{pro}</td>
-    </tr>
   );
 }

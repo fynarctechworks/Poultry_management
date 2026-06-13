@@ -1,6 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Sidebar } from '@/components/Sidebar';
+import { getBillingSummary } from '@/lib/subscription';
+import { SubscriptionBanners } from '@/components/SubscriptionBanners';
+import { CanWriteProvider } from '@/components/CanWriteProvider';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createSupabaseServerClient();
@@ -17,10 +20,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/onboarding');
   }
 
+  // Phase D: subscription state drives the global banners + read-only gating.
+  const billing = await getBillingSummary();
+  const canWrite = billing?.can_write ?? true;
+
   return (
-    <div className="flex min-h-screen">
-      <Sidebar userName={profile?.full_name ?? user.email ?? 'Owner'} />
-      <main className="flex-1 px-2xl py-xl overflow-x-auto">{children}</main>
-    </div>
+    <CanWriteProvider canWrite={canWrite}>
+      <div className="flex min-h-screen">
+        <Sidebar userName={profile?.full_name ?? user.email ?? 'Owner'} />
+        <main className="flex-1 px-2xl py-xl overflow-x-auto">
+          {billing && (
+            <SubscriptionBanners
+              status={billing.status}
+              isPaid={billing.is_paid}
+              canWrite={billing.can_write}
+              daysRemaining={billing.days_remaining}
+              renewalAt={billing.renewal_at}
+              planName={billing.plan?.name ?? null}
+            />
+          )}
+          {children}
+        </main>
+      </div>
+    </CanWriteProvider>
   );
 }

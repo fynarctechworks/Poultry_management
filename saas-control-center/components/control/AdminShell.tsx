@@ -5,8 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
   LayoutDashboard, Building2, CreditCard, Tag, TrendingUp, Headphones,
-  HeartPulse, Bug, ScrollText, ShieldCheck, ToggleRight, Activity,
-  Search, Bell, LogOut, ChevronDown,
+  HeartPulse, Bug, ScrollText, ShieldCheck, ToggleRight, Activity, Receipt,
+  Search, Bell, LogOut, ChevronDown, ShieldCheck as ShieldCheckIcon,
 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,7 @@ const NAV: { href: string; label: string; icon: typeof Building2; perm?: string;
   { href: '/admin', label: 'Overview', icon: LayoutDashboard, ready: true },
   { href: '/admin/tenants', label: 'Tenants', icon: Building2, perm: 'tenant:read', ready: true },
   { href: '/admin/subscriptions', label: 'Plans', icon: CreditCard, perm: 'subscription:read', ready: true },
+  { href: '/admin/billing', label: 'Billing', icon: Receipt, perm: 'billing:read', ready: true },
   { href: '/admin/discounts', label: 'Discounts', icon: Tag, perm: 'discount:read', ready: true },
   { href: '/admin/revenue', label: 'Revenue', icon: TrendingUp, perm: 'revenue:read', ready: true },
   { href: '/admin/support', label: 'Support', icon: Headphones, perm: 'support:read', ready: true },
@@ -158,6 +159,14 @@ export function AdminShell({
                     <p className="text-xs text-body-soft">{roleName}</p>
                   </div>
                   <div className="border-t border-mute my-xs" />
+                  <Link
+                    href="/admin/security"
+                    onClick={() => setProfileOpen(false)}
+                    className="w-full flex items-center gap-sm px-md py-sm rounded-md text-sm font-semibold text-body hover:bg-mute-soft"
+                  >
+                    <ShieldCheckIcon size={16} />
+                    Security &amp; 2FA
+                  </Link>
                   <button
                     onClick={signOut}
                     className="w-full flex items-center gap-sm px-md py-sm rounded-md text-sm font-semibold text-body hover:bg-mute-soft"
