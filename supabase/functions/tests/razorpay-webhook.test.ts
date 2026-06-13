@@ -55,7 +55,9 @@ Deno.test("constant-time compare rejects different-length strings", () => {
 Deno.test("invoice GST math: 18% on 499 => total 588.82", () => {
   const subtotal = 499;
   const tax = Math.round(subtotal * 0.18 * 100) / 100;
-  const total = subtotal + tax;
+  // Round the sum to 2 decimals exactly as the webhook handler does — float
+  // addition of 499 + 89.82 lands on 588.8199999999999 otherwise.
+  const total = Math.round((subtotal + tax) * 100) / 100;
   assertEquals(tax, 89.82);
   assertEquals(total, 588.82);
 });
