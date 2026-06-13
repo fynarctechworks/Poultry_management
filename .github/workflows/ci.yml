@@ -115,15 +115,14 @@ jobs:
             -h 127.0.0.1 -p 54322 -U postgres -d postgres \
             tests/db/*.test.sql supabase/tests/*.test.sql 2>&1 | tee /tmp/pgtap.out
           rc=${PIPESTATUS[0]}
-          # Surface the actual failing assertions into the job summary (readable via
-          # the public check-runs API) so a red suite is diagnosable without admin
-          # log access. Does NOT suppress the failure — we re-exit with pg_prove's rc.
-          {
-            echo "### pgTAP suite rc=$rc"
-            echo '```'
-            grep -nE '^not ok|^# |ERROR:|FATAL:|does not exist|No plan|Result:|Failed [0-9]|Files=' /tmp/pgtap.out | head -120 || true
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          # Surface the actual failing assertions as a workflow ERROR annotation —
+          # readable via the public check-runs annotations API (logs are admin-only).
+          # Does NOT suppress the failure: we re-exit with pg_prove's exit code.
+          if [ "$rc" -ne 0 ]; then
+            msg=$(grep -nE '^not ok|^# |^ok [0-9]+ - .*(ERROR|fail)|Wstat|Result:|ERROR:|FATAL:|does not exist|No plan|Failed test' /tmp/pgtap.out | head -60)
+            enc=$(printf '%s' "$msg" | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error title=pgTAP failures::${enc}"
+          fi
           exit $rc
 
       - name: Stop Supabase
