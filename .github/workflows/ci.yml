@@ -80,6 +80,12 @@ jobs:
       - name: Run pgTAP suite
         env:
           PGPASSWORD: postgres
+          # pgTAP lives in the `extensions` schema (20260519000001_enable_pgtap).
+          # The postgres role pg_prove connects as does not reliably have
+          # `extensions` on its search_path in CI, so plan()/ok()/etc. resolve to
+          # "function does not exist" and every file fails with "No plan found".
+          # Force it on the connection so the assertions are visible.
+          PGOPTIONS: "-c search_path=public,extensions"
         run: |
           pg_prove --verbose \
             -h 127.0.0.1 -p 54322 -U postgres -d postgres \
