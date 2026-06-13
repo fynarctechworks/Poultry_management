@@ -118,10 +118,16 @@ jobs:
           # Surface the actual failing assertions as a workflow ERROR annotation —
           # readable via the public check-runs annotations API (logs are admin-only).
           # Does NOT suppress the failure: we re-exit with pg_prove's exit code.
+          bytes=$(wc -c < /tmp/pgtap.out | tr -d ' ')
+          # Static marker proves the annotation channel works even if the capture is empty.
+          echo "::error title=pgTAP diag::rc=${rc} bytes=${bytes}"
           if [ "$rc" -ne 0 ]; then
-            enc=$(printf '%s' "$(tail -c 9000 /tmp/pgtap.out)" \
-              | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\r//g;s/\n/%0A/g')
-            echo "::error title=pgTAP raw output (rc=$rc)::${enc}"
+            # Only the failing files + their not-ok lines, capped well under the
+            # annotation length limit (9KB silently dropped the whole annotation).
+            sel=$(grep -aE 'not ok|Failed|Wstat|Result:|ERROR:|FATAL:|does not exist|No plan' /tmp/pgtap.out | head -25)
+            [ -z "$sel" ] && sel=$(tail -c 1200 /tmp/pgtap.out)
+            enc=$(printf '%s' "$sel" | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\r//g;s/\n/%0A/g' | cut -c1-1500)
+            echo "::error title=pgTAP failing lines::${enc}"
           fi
           exit $rc
 
