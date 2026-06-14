@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Building2, CreditCard, Tag, TrendingUp, Headphones,
   HeartPulse, Bug, ScrollText, ShieldCheck, ToggleRight, Activity, Receipt,
   Search, Bell, LogOut, ChevronDown, Menu, X, ShieldCheck as ShieldCheckIcon,
+  IndianRupee, BarChart3,
 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -19,8 +20,10 @@ const NAV: { href: string; label: string; icon: typeof Building2; perm?: string;
   { href: '/admin/tenants', label: 'Tenants', icon: Building2, perm: 'tenant:read', ready: true },
   { href: '/admin/subscriptions', label: 'Plans', icon: CreditCard, perm: 'subscription:read', ready: true },
   { href: '/admin/billing', label: 'Billing', icon: Receipt, perm: 'billing:read', ready: true },
+  { href: '/admin/razorpay', label: 'Razorpay', icon: IndianRupee, perm: 'revenue:read', ready: true },
   { href: '/admin/discounts', label: 'Discounts', icon: Tag, perm: 'discount:read', ready: true },
   { href: '/admin/revenue', label: 'Revenue', icon: TrendingUp, perm: 'revenue:read', ready: true },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, perm: 'revenue:read', ready: true },
   { href: '/admin/support', label: 'Support', icon: Headphones, perm: 'support:read', ready: true },
   { href: '/admin/success', label: 'Customer Success', icon: HeartPulse, perm: 'success:read', ready: true },
   { href: '/admin/errors', label: 'Errors', icon: Bug, perm: 'error:read', ready: true },
@@ -92,11 +95,15 @@ export function AdminShell({
         )}
       >
         <div className="px-lg py-xl flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-primary">PoultryOS</h1>
-            <p className="text-xs font-semibold text-body-soft mt-xxs uppercase tracking-wide">
-              Control Center
-            </p>
+          <div className="flex items-center gap-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/poultry-mark.png" alt="" className="h-9 w-9 rounded-lg shrink-0" />
+            <div>
+              <h1 className="text-xl font-bold text-primary leading-none">PoultryOS</h1>
+              <p className="text-xs font-semibold text-body-soft mt-xxs uppercase tracking-wide">
+                Control Center
+              </p>
+            </div>
           </div>
           <button
             onClick={() => setMobileNavOpen(false)}

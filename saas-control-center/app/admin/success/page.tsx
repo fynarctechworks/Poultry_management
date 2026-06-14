@@ -38,7 +38,13 @@ export default async function SuccessPage({ searchParams }: { searchParams: { ri
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (risk) q = q.eq('risk_band', risk);
 
-  const { data, count } = await q;
+  const [{ data, count }, redRes, yellowRes, openFuRes, overdueFuRes] = await Promise.all([
+    q,
+    service.from('customer_health').select('tenant_id', { count: 'exact', head: true }).eq('risk_band', 'red'),
+    service.from('customer_health').select('tenant_id', { count: 'exact', head: true }).eq('risk_band', 'yellow'),
+    service.from('customer_followups').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+    service.from('customer_followups').select('id', { count: 'exact', head: true }).eq('status', 'open').lt('due_at', new Date().toISOString()),
+  ]);
   const rows = (data ?? []) as unknown as HealthRow[];
   const total = count ?? 0;
   const churnCount = rows.filter((r) => r.churn_risk).length;
@@ -54,6 +60,22 @@ export default async function SuccessPage({ searchParams }: { searchParams: { ri
       <p className="text-sm text-body-soft mb-lg">
         Health 0–100 from payment, usage, login &amp; setup signals. {churnCount} churn-risk tenant{churnCount === 1 ? '' : 's'} in view.
       </p>
+
+      {/* Summary KPI tiles */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-md mb-lg">
+        {([
+          { label: 'Scored', value: total, cls: '' },
+          { label: 'Red band', value: redRes.count ?? 0, cls: 'text-warning-ink' },
+          { label: 'Yellow band', value: yellowRes.count ?? 0, cls: 'text-pending-ink' },
+          { label: 'Open follow-ups', value: openFuRes.count ?? 0, cls: '' },
+          { label: 'Overdue', value: overdueFuRes.count ?? 0, cls: (overdueFuRes.count ?? 0) > 0 ? 'text-danger' : '' },
+        ] as { label: string; value: number; cls: string }[]).map(({ label, value, cls }) => (
+          <div key={label} className="bg-canvas border border-mute rounded-card p-lg">
+            <p className="text-xs font-semibold uppercase tracking-wide text-body-soft mb-sm">{label}</p>
+            <p className={`text-2xl font-bold tabular-nums ${cls || 'text-ink'}`}>{value}</p>
+          </div>
+        ))}
+      </div>
 
       <div className="flex gap-sm mb-lg">
         <Link href="/admin/success" className={chip('All')}>All</Link>
@@ -77,7 +99,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: { ri
             ) : rows.map((r) => (
               <tr key={r.tenant_id} className="border-b border-mute last:border-0 hover:bg-mute-soft">
                 <td className="px-md py-sm">
-                  <Link href={`/admin/tenants/${r.tenant_id}`} className="font-semibold text-primary hover:underline">
+                  <Link href={`/admin/success/${r.tenant_id}`} className="font-semibold text-primary hover:underline">
                     {r.tenants?.name ?? r.tenant_id.slice(0, 8)}
                   </Link>
                 </td>
