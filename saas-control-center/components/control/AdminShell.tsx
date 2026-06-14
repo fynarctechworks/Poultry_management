@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Building2, CreditCard, Tag, TrendingUp, Headphones,
   HeartPulse, Bug, ScrollText, ShieldCheck, ToggleRight, Activity, Receipt,
-  Search, Bell, LogOut, ChevronDown, ShieldCheck as ShieldCheckIcon,
+  Search, Bell, LogOut, ChevronDown, Menu, X, ShieldCheck as ShieldCheckIcon,
 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -28,15 +28,18 @@ const NAV: { href: string; label: string; icon: typeof Building2; perm?: string;
   { href: '/admin/access', label: 'Access Control', icon: ShieldCheck, perm: 'access:read', ready: true },
   { href: '/admin/flags', label: 'Feature Flags', icon: ToggleRight, perm: 'flag:read', ready: true },
   { href: '/admin/system', label: 'System', icon: Activity, perm: 'system:read', ready: true },
+  { href: '/admin/security', label: 'Security & 2FA', icon: ShieldCheckIcon, ready: true },
 ];
 
 export function AdminShell({
   operatorName,
   roleName,
+  permissions,
   children,
 }: {
   operatorName: string;
   roleName: string;
+  permissions: string[];
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -45,6 +48,17 @@ export function AdminShell({
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
+  // Only show modules the operator can actually open. Items without a `perm`
+  // (e.g. Overview) are always visible; '*' grants the full surface.
+  const isSuper = permissions.includes('*');
+  const visibleNav = NAV.filter((n) => !n.perm || isSuper || permissions.includes(n.perm));
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -59,17 +73,41 @@ export function AdminShell({
   }
 
   return (
-    <div className="flex min-h-screen bg-canvas-soft">
-      {/* Sidebar */}
-      <aside className="w-[248px] shrink-0 bg-canvas border-r border-mute flex flex-col">
-        <div className="px-lg py-xl">
-          <h1 className="text-xl font-bold text-primary">PoultryOS</h1>
-          <p className="text-xs font-semibold text-body-soft mt-xxs uppercase tracking-wide">
-            Control Center
-          </p>
+    <div className="flex h-screen overflow-hidden bg-canvas-soft">
+      {/* Mobile drawer backdrop */}
+      {mobileNavOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-ink/40 lg:hidden"
+          onClick={() => setMobileNavOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar — static column on desktop, slide-in drawer on mobile/tablet */}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-40 w-[248px] bg-canvas border-r border-mute flex flex-col transition-transform duration-200',
+          'lg:static lg:translate-x-0',
+          mobileNavOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <div className="px-lg py-xl flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-primary">PoultryOS</h1>
+            <p className="text-xs font-semibold text-body-soft mt-xxs uppercase tracking-wide">
+              Control Center
+            </p>
+          </div>
+          <button
+            onClick={() => setMobileNavOpen(false)}
+            className="grid place-items-center w-9 h-9 rounded-lg text-body hover:bg-mute-soft lg:hidden"
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
         </div>
-        <nav className="flex-1 px-sm overflow-y-auto">
-          {NAV.map(({ href, label, icon: Icon, ready }) => {
+        <nav className="flex-1 min-h-0 px-sm overflow-y-auto">
+          {visibleNav.map(({ href, label, icon: Icon, ready }) => {
             const active = pathname === href || (href !== '/admin' && pathname.startsWith(href + '/'));
             if (!ready) {
               return (
@@ -92,6 +130,7 @@ export function AdminShell({
               <Link
                 key={href}
                 href={href}
+                onClick={() => setMobileNavOpen(false)}
                 className={cn(
                   'flex items-center gap-md px-md py-sm rounded-md text-sm font-semibold mb-xxs',
                   active ? 'bg-primary-subtle text-primary' : 'text-body hover:bg-mute-soft'
@@ -106,9 +145,16 @@ export function AdminShell({
       </aside>
 
       {/* Main column */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Topbar */}
-        <header className="h-[60px] shrink-0 bg-canvas border-b border-mute flex items-center gap-lg px-xl">
+        <header className="h-[60px] shrink-0 bg-canvas border-b border-mute flex items-center gap-sm lg:gap-lg px-lg lg:px-xl">
+          <button
+            onClick={() => setMobileNavOpen(true)}
+            className="grid place-items-center w-9 h-9 rounded-lg text-body hover:bg-mute-soft lg:hidden shrink-0"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
           <form onSubmit={onSearch} className="relative flex-1 max-w-[460px]">
             <Search size={16} className="absolute left-md top-1/2 -translate-y-1/2 text-body-soft" />
             <input
@@ -132,7 +178,7 @@ export function AdminShell({
               {notifOpen && (
                 <div className="absolute right-0 mt-xs w-[300px] bg-canvas border border-mute rounded-card shadow-sm p-md z-20">
                   <p className="text-sm font-semibold text-ink mb-xs">Notifications</p>
-                  <p className="text-sm text-body-soft">You're all caught up.</p>
+                  <p className="text-sm text-body-soft">You&apos;re all caught up.</p>
                 </div>
               )}
             </div>
@@ -146,8 +192,8 @@ export function AdminShell({
                 <span className="grid place-items-center w-7 h-7 rounded-full bg-primary-subtle text-primary text-xs font-bold">
                   {operatorName.slice(0, 1).toUpperCase()}
                 </span>
-                <span className="text-left leading-tight">
-                  <span className="block text-xs font-semibold text-ink">{operatorName}</span>
+                <span className="text-left leading-tight hidden sm:block max-w-[160px]">
+                  <span className="block text-xs font-semibold text-ink truncate">{operatorName}</span>
                   <span className="block text-[10px] text-body-soft">{roleName}</span>
                 </span>
                 <ChevronDown size={14} className="text-body-soft" />
@@ -180,7 +226,7 @@ export function AdminShell({
           </div>
         </header>
 
-        <main className="flex-1 px-2xl py-xl overflow-x-auto">{children}</main>
+        <main className="flex-1 min-h-0 px-lg lg:px-2xl py-xl overflow-y-auto">{children}</main>
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
 import { requirePlatformPermission, PlatformForbiddenError } from '@/lib/control/guard';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { Forbidden } from '@/components/control/Forbidden';
+import { Pagination, parsePage } from '@/components/control/Pagination';
 import { RefundButton } from './RefundButton';
 
 export const dynamic = 'force-dynamic';
+const PAGE_SIZE = 50;
 
 const rupees = (n: number | string | null | undefined) =>
   n === null || n === undefined ? '—' : `₹${Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -21,7 +23,11 @@ interface PaymentRow {
   tenants: { name: string } | null;
 }
 
-export default async function AdminBillingPage() {
+export default async function AdminBillingPage({
+  searchParams,
+}: {
+  searchParams: { ip?: string; pp?: string };
+}) {
   let service;
   try {
     ({ service } = await requirePlatformPermission('billing:read'));
@@ -30,29 +36,32 @@ export default async function AdminBillingPage() {
     throw e;
   }
 
+  const invPage = parsePage(searchParams.ip);
+  const payPage = parsePage(searchParams.pp);
+
   // Can this operator issue refunds?
   const supabase = createSupabaseServerClient();
   const { data: canManage } = await supabase.rpc('platform_has_permission', { p_perm: 'billing:manage' });
 
-  const [{ data: invoices }, { data: payments }] = await Promise.all([
-    service.from('invoices').select('id, invoice_number, status, total_inr, billing_cycle, issued_at, tenant_id, tenants(name)').order('issued_at', { ascending: false }).limit(100),
-    service.from('payments').select('id, amount_inr, refunded_amount_inr, method, status, captured_at, created_at, razorpay_payment_id, tenant_id, tenants(name)').order('created_at', { ascending: false }).limit(100),
+  const [{ data: invoices, count: invCount }, { data: payments, count: payCount }, { data: summaryRaw }] = await Promise.all([
+    service.from('invoices').select('id, invoice_number, status, total_inr, billing_cycle, issued_at, tenant_id, tenants(name)', { count: 'exact' }).order('issued_at', { ascending: false }).range((invPage - 1) * PAGE_SIZE, invPage * PAGE_SIZE - 1),
+    service.from('payments').select('id, amount_inr, refunded_amount_inr, method, status, captured_at, created_at, razorpay_payment_id, tenant_id, tenants(name)', { count: 'exact' }).order('created_at', { ascending: false }).range((payPage - 1) * PAGE_SIZE, payPage * PAGE_SIZE - 1),
+    service.rpc('cc_billing_summary'),
   ]);
 
   const invRows = (invoices ?? []) as unknown as InvoiceRow[];
   const payRows = (payments ?? []) as unknown as PaymentRow[];
+  const invTotal = invCount ?? 0;
+  const payTotal = payCount ?? 0;
 
-  // Summary tiles from real ledger rows.
-  const collected = payRows.filter((p) => p.status === 'captured').reduce((s, p) => s + Number(p.amount_inr) - Number(p.refunded_amount_inr ?? 0), 0);
-  const refunded = payRows.reduce((s, p) => s + Number(p.refunded_amount_inr ?? 0), 0);
-  const failedCount = payRows.filter((p) => p.status === 'failed').length;
-  const outstanding = invRows.filter((i) => ['issued', 'failed'].includes(i.status)).reduce((s, i) => s + Number(i.total_inr), 0);
+  // Summary tiles aggregate across the WHOLE ledger (not the current page).
+  const summary = (summaryRaw ?? {}) as { collected_net?: number; outstanding?: number; refunded?: number; failed_count?: number };
 
   const tiles: [string, string][] = [
-    ['Collected (net)', rupees(collected)],
-    ['Outstanding', rupees(outstanding)],
-    ['Refunded', rupees(refunded)],
-    ['Failed payments', String(failedCount)],
+    ['Collected (net)', rupees(summary.collected_net ?? 0)],
+    ['Outstanding', rupees(summary.outstanding ?? 0)],
+    ['Refunded', rupees(summary.refunded ?? 0)],
+    ['Failed payments', String(summary.failed_count ?? 0)],
   ];
 
   const badge = (status: string) => {
@@ -108,6 +117,7 @@ export default async function AdminBillingPage() {
           </tbody>
         </table>
       </div>
+      <Pagination page={invPage} pageSize={PAGE_SIZE} total={invTotal} basePath="/admin/billing" params={{ pp: searchParams.pp }} pageKey="ip" />
 
       {/* Payments */}
       <h3 className="text-sm font-bold text-ink mb-md">Payments</h3>
@@ -143,6 +153,7 @@ export default async function AdminBillingPage() {
           </tbody>
         </table>
       </div>
+      <Pagination page={payPage} pageSize={PAGE_SIZE} total={payTotal} basePath="/admin/billing" params={{ ip: searchParams.ip }} pageKey="pp" />
     </div>
   );
 }

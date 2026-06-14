@@ -19,6 +19,8 @@ export interface PlatformContext {
   email: string | null;
   roleCode: string;
   roleName: string;
+  /** Permission codes the operator holds. Contains '*' for super admins. */
+  permissions: string[];
   service: SupabaseClient;
 }
 
@@ -55,6 +57,19 @@ export async function getPlatformContext(): Promise<PlatformContext | null> {
 
   const role = (admin?.platform_roles ?? null) as { code?: string; name?: string } | null;
 
+  // Resolve the operator's permission codes so the UI (e.g. nav) can hide
+  // surfaces they cannot use. Server pages still enforce via requirePlatformPermission.
+  let permissions: string[] = [];
+  if (admin?.role_id) {
+    const { data: perms } = await service
+      .from('platform_role_permissions')
+      .select('platform_permissions(code)')
+      .eq('role_id', admin.role_id);
+    permissions = (perms ?? [])
+      .map((r) => (r.platform_permissions as { code?: string } | null)?.code)
+      .filter((c): c is string => !!c);
+  }
+
   // Best-effort last-active stamp (non-blocking).
   void service
     .from('platform_admins')
@@ -66,6 +81,7 @@ export async function getPlatformContext(): Promise<PlatformContext | null> {
     email: user.email ?? null,
     roleCode: role?.code ?? 'unknown',
     roleName: role?.name ?? 'Operator',
+    permissions,
     service,
   };
 }

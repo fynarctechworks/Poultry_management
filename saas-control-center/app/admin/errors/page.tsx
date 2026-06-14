@@ -1,15 +1,18 @@
 import Link from 'next/link';
 import { requirePlatformPermission, PlatformForbiddenError } from '@/lib/control/guard';
 import { Forbidden } from '@/components/control/Forbidden';
+import { Pagination, parsePage } from '@/components/control/Pagination';
+
+const PAGE_SIZE = 50;
 
 export const dynamic = 'force-dynamic';
 
 const SEV: Record<string, string> = {
   info: 'bg-info-soft text-info', warning: 'bg-pending-soft text-pending-ink',
-  error: 'bg-warning-soft text-warning-ink', critical: 'bg-warning-soft text-warning-ink',
+  error: 'bg-warning-soft text-warning-ink', critical: 'bg-danger/10 text-danger',
 };
 
-export default async function ErrorsPage({ searchParams }: { searchParams: { status?: string; severity?: string } }) {
+export default async function ErrorsPage({ searchParams }: { searchParams: { status?: string; severity?: string; page?: string } }) {
   let service;
   try {
     ({ service } = await requirePlatformPermission('error:read'));
@@ -19,17 +22,19 @@ export default async function ErrorsPage({ searchParams }: { searchParams: { sta
   }
 
   const status = ['open', 'investigating', 'resolved', 'ignored'].includes(searchParams.status ?? '') ? searchParams.status : 'open';
+  const page = parsePage(searchParams.page);
 
   let q = service
     .from('platform_errors')
-    .select('id, source, module, route, message, severity, status, occurrence_count, last_seen_at, tenant_id')
+    .select('id, source, module, route, message, severity, status, occurrence_count, last_seen_at, tenant_id', { count: 'exact' })
     .order('last_seen_at', { ascending: false })
-    .limit(200);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (status) q = q.eq('status', status);
   if (searchParams.severity) q = q.eq('severity', searchParams.severity);
 
-  const { data } = await q;
+  const { data, count } = await q;
   const errors = data ?? [];
+  const total = count ?? 0;
 
   const tab = (label: string, value: string) =>
     `px-md py-xs rounded-lg text-sm font-semibold border ${
@@ -74,6 +79,14 @@ export default async function ErrorsPage({ searchParams }: { searchParams: { sta
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        basePath="/admin/errors"
+        params={{ status: status || undefined, severity: searchParams.severity }}
+      />
     </div>
   );
 }

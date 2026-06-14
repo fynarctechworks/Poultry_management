@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import { AuthHeader, AuthField, AuthButton, AuthFooter, AuthError } from '@/components/auth';
+import { AuthHeader, AuthField, AuthButton, AuthError } from '@/components/auth';
 
 const emailSchema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -26,16 +26,35 @@ export default function LoginPage() {
   async function onEmail(data: EmailForm) {
     setError(null);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword(data);
+    const { error: signInError } = await supabase.auth.signInWithPassword(data);
+    if (signInError) {
+      setLoading(false);
+      return setError(signInError.message);
+    }
+
+    // Operator-only boundary: the Control Center shares Supabase Auth with the
+    // tenant app, so a valid tenant credential WILL authenticate here. Before
+    // letting the session stand, confirm the user is an active platform
+    // operator. If not, tear the session down immediately so no Control Center
+    // session ever exists for a tenant. (The /admin layout re-checks server-side
+    // as the authoritative gate; this is the entry-point enforcement + UX.)
+    const { data: isOperator, error: rpcError } = await supabase.rpc('is_platform_admin');
+    if (rpcError || !isOperator) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      return setError(
+        'This account is not authorized for the Control Center. Operator access is granted by a platform administrator.'
+      );
+    }
+
     setLoading(false);
-    if (error) return setError(error.message);
-    router.push('/multi-farm');
+    router.push('/admin');
     router.refresh();
   }
 
   return (
     <div>
-      <AuthHeader title="Welcome back" subtitle="Sign in to your PoultryOS account" />
+      <AuthHeader title="Operator sign in" subtitle="Restricted to PoultryOS Control Center operators" />
 
       <form onSubmit={emailForm.handleSubmit(onEmail)} className="space-y-md">
         <AuthField
@@ -61,8 +80,6 @@ export default function LoginPage() {
       </form>
 
       <AuthError message={error} />
-
-      <AuthFooter prompt="New to PoultryOS?" linkLabel="Create account" href="/register" />
     </div>
   );
 }

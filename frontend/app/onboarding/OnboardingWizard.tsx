@@ -10,6 +10,7 @@ import { isValidPhone, parsePhone } from '@/lib/constants/countries';
 import { Country, State, City } from 'country-state-city';
 import { SignupProgress, SIGNUP_STEPS, type SignupStepIndex } from '@/components/signup/SignupProgress';
 import { PaymentReceipt, type ReceiptData } from './PaymentReceipt';
+import { openSubscriptionCheckout } from '@/lib/razorpay';
 import { colors } from '@/lib/theme/tokens';
 
 // ---------------------------------------------------------------------------
@@ -51,6 +52,7 @@ export function OnboardingWizard() {
 
   const [step, setStep] = useState<StepKey>('farm');
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const [tenantId, setTenantId] = useState<string | null>(null);
@@ -72,8 +74,6 @@ export function OnboardingWizard() {
     billing_name: '', company_name: '', gstin: '', email: '', phone: '',
     address_line1: '', city: '', state: '', postal_code: '', country: 'IN',
   });
-  // Sandbox card entry (dummy gateway — see payNow).
-  const [card, setCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
 
   // Load plans + any pre-existing tenant (resume) + prefill billing email.
   useEffect(() => {
@@ -172,22 +172,34 @@ export function OnboardingWizard() {
     } catch (e) { setError(e instanceof Error ? e.message : 'Failed.'); } finally { setBusy(false); }
   }
 
-  // ---- Step 3: Billing + payment (one page) -------------------------------
-  // Card-expiry validator: MM/YY in the future.
-  function validExpiry(v: string): boolean {
-    const m = v.match(/^(\d{2})\s*\/\s*(\d{2})$/);
-    if (!m) return false;
-    const mm = Number(m[1]);
-    if (mm < 1 || mm > 12) return false;
-    const exp = new Date(2000 + Number(m[2]), mm, 1); // first of the month AFTER expiry
-    return exp > new Date();
+
+  // Build the success receipt for the Complete step. The plan price is the actual
+  // amount Razorpay charges, so GST (18%) is shown INCLUSIVE — total == plan price,
+  // never plan + GST. The first real charge fires after the 7-day trial.
+  function buildReceipt(plan: Plan, method: string, firstChargeISO: string) {
+    const total = Number(priceFor(plan));
+    const subtotal = Math.round((total / 1.18) * 100) / 100;
+    const tax = Math.round((total - subtotal) * 100) / 100;
+    setReceipt({
+      invoiceNumber: `INV-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderTimeISO: new Date().toISOString(),
+      method,
+      billingName: billing.billing_name,
+      planName: plan.name,
+      cycle,
+      subtotal,
+      tax,
+      total,
+      firstChargeISO,
+    });
   }
 
-  // Mandatory billing + sandbox card → upsert profile, record the plan, start trial.
-  // NOTE: this is a DUMMY gateway for now (no real charge). When live Razorpay
-  // keys are configured the in-app modal in /billing/upgrade captures real cards.
+  // Mandatory billing → upsert profile, then create a real Razorpay subscription
+  // (card-upfront, 7-day trial) and open the in-app Razorpay Checkout modal. The
+  // first charge auto-fires on day 7; the razorpay-webhook flips status to active.
   async function payNow() {
     setError(null);
+    setNotice(null);
     const required: [keyof BillingForm, string][] = [
       ['billing_name', 'Billing name'], ['email', 'Email'], ['phone', 'Phone'],
       ['address_line1', 'Address'], ['city', 'City'], ['state', 'State'], ['postal_code', 'Postal code'],
@@ -195,17 +207,12 @@ export function OnboardingWizard() {
     for (const [k, label] of required) if (!String(billing[k] ?? '').trim()) return setError(`${label} is required.`);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(billing.email)) return setError('Enter a valid email address.');
 
-    const cardDigits = card.number.replace(/\s+/g, '');
-    if (!/^\d{13,19}$/.test(cardDigits)) return setError('Enter a valid card number.');
-    if (!card.name.trim()) return setError('Enter the name on the card.');
-    if (!validExpiry(card.expiry)) return setError('Enter a valid expiry date (MM/YY).');
-    if (!/^\d{3,4}$/.test(card.cvv)) return setError('Enter a valid CVV.');
-
     if (!tenantId) return setError('Missing tenant. Please restart.');
     if (!selectedPlan) return setError('Pick a plan first.');
 
     setBusy(true);
     try {
+      // 1. Persist the billing profile — the Razorpay customer is built from it.
       const { error: upErr } = await supabase.from('billing_profiles').upsert({
         tenant_id: tenantId, billing_name: billing.billing_name, company_name: billing.company_name || null,
         gstin: billing.gstin || null, email: billing.email, phone: billing.phone || null,
@@ -214,35 +221,63 @@ export function OnboardingWizard() {
       }, { onConflict: 'tenant_id' });
       if (upErr) throw upErr;
 
-      const ends = new Date(Date.now() + 7 * 86400000).toISOString();
-      const { error: subErr } = await supabase.from('tenant_subscriptions')
-        .update({ plan_id: selectedPlan.id, billing_cycle: cycle })
-        .eq('tenant_id', tenantId);
-      if (subErr) throw subErr;
-
-      // Build the success receipt (sandbox — amounts mirror the chosen plan + 18% GST).
-      const subtotal = Number(priceFor(selectedPlan));
-      const tax = Math.round(subtotal * 0.18 * 100) / 100;
-      setReceipt({
-        invoiceNumber: `INV-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
-        orderTimeISO: new Date().toISOString(),
-        method: `Card •••• ${cardDigits.slice(-4)}`,
-        billingName: billing.billing_name,
-        planName: selectedPlan.name,
-        cycle,
-        subtotal,
-        tax,
-        total: Math.round((subtotal + tax) * 100) / 100,
-        firstChargeISO: ends,
+      // 2. Create the Razorpay subscription (server-side; uses the test keys set
+      //    as edge-function secrets). It also attaches the trial to the tenant.
+      const { data, error: fnErr } = await supabase.functions.invoke('create-razorpay-subscription', {
+        body: { plan_code: selectedPlan.code, billing_cycle: cycle, trial_days: 7 },
       });
-      setTrialEndsAt(ends);
-      setStep('complete');
+      if (fnErr) throw fnErr;
+
+      // Gateway not configured yet -> record the plan and finish gracefully.
+      if (!data?.ok) {
+        if (data?.reason === 'plan_not_configured' || data?.reason === 'not_configured') {
+          await supabase.from('tenant_subscriptions')
+            .update({ plan_id: selectedPlan.id, billing_cycle: cycle })
+            .eq('tenant_id', tenantId);
+          const ends = new Date(Date.now() + 7 * 86400000).toISOString();
+          setTrialEndsAt(ends);
+          setNotice('Card payments are not fully configured yet — your plan is recorded and you can add a card later from Billing.');
+          setBusy(false);
+          setStep('complete');
+          return;
+        }
+        throw new Error(data?.details || data?.reason || 'Could not start payment.');
+      }
+
+      // 3. Open the in-app Razorpay Checkout modal to authorize the mandate.
+      const ends: string = data.trial_ends_at ?? new Date(Date.now() + 7 * 86400000).toISOString();
+      const plan = selectedPlan;
+      await openSubscriptionCheckout({
+        keyId: data.key_id,
+        subscriptionId: data.subscription_id,
+        description: `${plan.name} — ${cycle}, 7-day free trial`,
+        themeColor: colors.primary,
+        prefill: { name: billing.billing_name, email: billing.email, contact: billing.phone },
+        onSuccess: (resp) => {
+          buildReceipt(plan, resp.razorpay_payment_id ? `Razorpay · ${resp.razorpay_payment_id}` : 'Razorpay subscription', ends);
+          setTrialEndsAt(ends);
+          setBusy(false);
+          setStep('complete');
+        },
+        onDismiss: () => { setBusy(false); setError('Payment was cancelled. You can try again any time.'); },
+        onFailed: (msg) => { setBusy(false); setError(msg); },
+      });
+      // Modal is open; keep busy=true until a handler above fires.
+      return;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Payment could not be completed.');
-    } finally { setBusy(false); }
+      setBusy(false);
+    }
   }
 
   const priceFor = (p: Plan) => (cycle === 'monthly' ? p.monthly_price_inr : p.yearly_price_inr);
+  // Order-summary amounts. The plan price is what Razorpay actually charges, so GST
+  // (18%) is shown INCLUSIVE — base + GST == plan price, never plan + GST.
+  const inr2 = (n: number) => n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const billTotal = selectedPlan ? Number(priceFor(selectedPlan)) : 0;
+  const billBase = Math.round((billTotal / 1.18) * 100) / 100;
+  const billGst = Math.round((billTotal - billBase) * 100) / 100;
+  const billPer = cycle === 'monthly' ? 'month' : 'year';
   const currentIdx = STEP_TO_PROGRESS[step];
   // The plan, billing/payment + complete steps need room — go full-width (hide the rail).
   const isWide = step === 'plan' || step === 'billing' || step === 'complete';
@@ -453,71 +488,40 @@ export function OnboardingWizard() {
               <div className="lg:col-span-3">
                 <h3 className="mb-md text-xs font-bold uppercase tracking-wide text-body-soft">Billing information</h3>
                 <div className="grid grid-cols-1 gap-md sm:grid-cols-2">
-                  <Field label="Billing name *"><input className="input" value={billing.billing_name} onChange={(e) => bset('billing_name', e.target.value)} /></Field>
-                  <Field label="Company name"><input className="input" value={billing.company_name} onChange={(e) => bset('company_name', e.target.value)} /></Field>
-                  <Field label="Email *"><input className="input" type="email" value={billing.email} onChange={(e) => bset('email', e.target.value)} /></Field>
+                  <Field label="Billing name *"><input className="input" value={billing.billing_name} onChange={(e) => bset('billing_name', e.target.value)} placeholder="Name on the invoice" /></Field>
+                  <Field label="Company name"><input className="input" value={billing.company_name} onChange={(e) => bset('company_name', e.target.value)} placeholder="Optional" /></Field>
+                  <Field label="Email *"><input className="input" type="email" value={billing.email} onChange={(e) => bset('email', e.target.value)} placeholder="you@example.com" /></Field>
                   <Field label="Phone *"><PhoneInput value={billing.phone} onChange={(v) => bset('phone', v)} /></Field>
-                  <Field label="GSTIN"><input className="input" value={billing.gstin} onChange={(e) => bset('gstin', e.target.value)} placeholder="Optional" /></Field>
-                  <Field label="Address *"><input className="input" value={billing.address_line1} onChange={(e) => bset('address_line1', e.target.value)} /></Field>
-                  <Field label="City *"><input className="input" value={billing.city} onChange={(e) => bset('city', e.target.value)} /></Field>
-                  <Field label="State *"><input className="input" value={billing.state} onChange={(e) => bset('state', e.target.value)} /></Field>
-                  <Field label="Postal code *"><input className="input" value={billing.postal_code} onChange={(e) => bset('postal_code', e.target.value)} /></Field>
+                  <Field label="GSTIN"><input className="input" value={billing.gstin} onChange={(e) => bset('gstin', e.target.value)} placeholder="15-digit GSTIN (optional)" /></Field>
+                  <Field label="Address *"><input className="input" value={billing.address_line1} onChange={(e) => bset('address_line1', e.target.value)} placeholder="House / street / area" /></Field>
+                  <Field label="City *"><input className="input" value={billing.city} onChange={(e) => bset('city', e.target.value)} placeholder="e.g. Hyderabad" /></Field>
+                  <Field label="State *"><input className="input" value={billing.state} onChange={(e) => bset('state', e.target.value)} placeholder="e.g. Andhra Pradesh" /></Field>
+                  <Field label="Postal code *"><input className="input" value={billing.postal_code} onChange={(e) => bset('postal_code', e.target.value)} placeholder="6-digit PIN code" /></Field>
                 </div>
               </div>
 
-              {/* Order summary + sandbox card */}
+              {/* Order summary + secure Razorpay checkout */}
               <div className="lg:col-span-2">
                 <div className="card lg:sticky lg:top-6">
                   <h3 className="mb-md text-xs font-bold uppercase tracking-wide text-body-soft">Order summary</h3>
                   <Row k="Plan" v={`${selectedPlan?.name ?? ''} (${cycle})`} />
                   <Row k="Free trial" v="7 days" />
-                  <Row k="Then" v={`₹${selectedPlan ? Number(priceFor(selectedPlan)).toLocaleString('en-IN') : ''} / ${cycle === 'monthly' ? 'month' : 'year'}`} />
+                  <Row k="Base price" v={selectedPlan ? `₹${inr2(billBase)}` : '—'} />
+                  <Row k="GST (18%)" v={selectedPlan ? `₹${inr2(billGst)}` : '—'} />
+                  <div className="my-sm border-t border-mute" />
+                  <Row k={`Then / ${billPer}`} v={selectedPlan ? `₹${inr2(billTotal)} (incl. GST)` : '—'} />
 
                   <div className="my-md border-t border-mute" />
 
                   <h3 className="mb-sm flex items-center gap-sm text-xs font-bold uppercase tracking-wide text-body-soft">
-                    <CreditCard size={14} /> Card details
+                    <CreditCard size={14} /> Payment
                   </h3>
-                  <p className="mb-md rounded-md bg-warning-soft px-sm py-xs text-xs text-warning-ink">
-                    Test mode — use <strong>4111 1111 1111 1111</strong>, any future date, any CVV.
+                  <p className="text-sm text-body">
+                    Continue to securely save your card with <strong className="text-ink">Razorpay</strong>. The first charge happens only after the 7-day trial — cancel any time before then.
                   </p>
-                  <div className="grid grid-cols-1 gap-md">
-                    <Field label="Card number">
-                      <input
-                        className="input"
-                        inputMode="numeric"
-                        autoComplete="cc-number"
-                        placeholder="4111 1111 1111 1111"
-                        value={card.number}
-                        onChange={(e) => setCard((c) => ({ ...c, number: e.target.value.replace(/\D/g, '').slice(0, 19).replace(/(\d{4})(?=\d)/g, '$1 ') }))}
-                      />
-                    </Field>
-                    <Field label="Name on card">
-                      <input className="input" autoComplete="cc-name" value={card.name} onChange={(e) => setCard((c) => ({ ...c, name: e.target.value }))} />
-                    </Field>
-                    <div className="grid grid-cols-2 gap-md">
-                      <Field label="Expiry (MM/YY)">
-                        <input
-                          className="input"
-                          inputMode="numeric"
-                          autoComplete="cc-exp"
-                          placeholder="08/29"
-                          value={card.expiry}
-                          onChange={(e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 4); setCard((c) => ({ ...c, expiry: d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d })); }}
-                        />
-                      </Field>
-                      <Field label="CVV">
-                        <input
-                          className="input"
-                          inputMode="numeric"
-                          autoComplete="cc-csc"
-                          placeholder="123"
-                          value={card.cvv}
-                          onChange={(e) => setCard((c) => ({ ...c, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
-                        />
-                      </Field>
-                    </div>
-                  </div>
+                  <p className="mt-md rounded-md bg-warning-soft px-sm py-xs text-xs text-warning-ink">
+                    Test mode — use card <strong>4111 1111 1111 1111</strong>, any future expiry, any CVV.
+                  </p>
 
                   {error && <p className="mt-md text-sm text-danger">{error}</p>}
 
@@ -527,7 +531,7 @@ export function OnboardingWizard() {
                   </button>
                   <button onClick={() => { setError(null); setStep('plan'); }} disabled={busy} className="btn-subtle mt-sm w-full">Back</button>
                   <p className="mt-md flex items-center justify-center gap-xs text-xs text-body-soft">
-                    <Lock size={12} /> Payments are secured &amp; encrypted
+                    <Lock size={12} /> Payments are secured &amp; encrypted by Razorpay
                   </p>
                 </div>
               </div>
@@ -543,6 +547,7 @@ export function OnboardingWizard() {
               {selectedPlan ? <>Your <strong>{selectedPlan.name}</strong> plan is active on a 7-day free trial.</> : 'Your account is ready.'}
               {trialEndsAt && <> First charge on <strong>{new Date(trialEndsAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>.</>}
             </p>
+            {notice && <p className="mx-auto mt-sm max-w-md text-sm text-warning-ink">{notice}</p>}
 
             {receipt && <div className="mt-xl"><PaymentReceipt data={receipt} /></div>}
 

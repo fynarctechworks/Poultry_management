@@ -1,12 +1,12 @@
-import { redirect } from 'next/navigation';
 import { getPlatformContext } from '@/lib/control/guard';
+import { NoAccess } from '@/components/control/NoAccess';
 import { Building2, ShieldCheck, ScrollText, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminOverviewPage() {
   const ctx = await getPlatformContext();
-  if (!ctx) redirect('/multi-farm');
+  if (!ctx) return <NoAccess />;
   const { service } = ctx;
 
   // Robust, certain counts only (Increment 1). Revenue/health land later.

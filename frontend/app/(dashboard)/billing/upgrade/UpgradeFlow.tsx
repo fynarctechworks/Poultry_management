@@ -332,14 +332,14 @@ export function UpgradeFlow({ plans, currentPlanCode, currentCycle, hasRazorpayS
           </div>
           <div className="grid grid-cols-1 gap-md md:grid-cols-2">
             <Field label="Billing name *"><input className="input" value={form.billing_name} onChange={(e) => set('billing_name', e.target.value)} placeholder="Name on the invoice" /></Field>
-            <Field label="Company name"><input className="input" value={form.company_name} onChange={(e) => set('company_name', e.target.value)} /></Field>
-            <Field label="Email *"><input className="input" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} /></Field>
+            <Field label="Company name"><input className="input" value={form.company_name} onChange={(e) => set('company_name', e.target.value)} placeholder="Optional" /></Field>
+            <Field label="Email *"><input className="input" type="email" value={form.email} onChange={(e) => set('email', e.target.value)} placeholder="you@example.com" /></Field>
             <Field label="Phone"><PhoneInput value={form.phone} onChange={(v) => set('phone', v)} /></Field>
             <Field label="GSTIN"><input className="input" value={form.gstin} onChange={(e) => set('gstin', e.target.value)} placeholder="Optional — for input credit" /></Field>
-            <Field label="Address"><input className="input" value={form.address_line1} onChange={(e) => set('address_line1', e.target.value)} /></Field>
-            <Field label="City"><input className="input" value={form.city} onChange={(e) => set('city', e.target.value)} /></Field>
-            <Field label="State"><input className="input" value={form.state} onChange={(e) => set('state', e.target.value)} /></Field>
-            <Field label="Postal code"><input className="input" value={form.postal_code} onChange={(e) => set('postal_code', e.target.value)} /></Field>
+            <Field label="Address"><input className="input" value={form.address_line1} onChange={(e) => set('address_line1', e.target.value)} placeholder="House / street / area" /></Field>
+            <Field label="City"><input className="input" value={form.city} onChange={(e) => set('city', e.target.value)} placeholder="e.g. Hyderabad" /></Field>
+            <Field label="State"><input className="input" value={form.state} onChange={(e) => set('state', e.target.value)} placeholder="e.g. Andhra Pradesh" /></Field>
+            <Field label="Postal code"><input className="input" value={form.postal_code} onChange={(e) => set('postal_code', e.target.value)} placeholder="6-digit PIN code" /></Field>
           </div>
           {error && <p className="mt-md text-sm text-danger">{error}</p>}
           <div className="mt-xl flex items-center gap-md">

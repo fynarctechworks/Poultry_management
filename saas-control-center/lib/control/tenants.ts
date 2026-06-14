@@ -56,22 +56,38 @@ export async function restoreTenant(tenantId: string): Promise<ActionResult> {
   return runRpc('cc_restore_tenant', { p_tenant: tenantId }, tenantId);
 }
 
-export async function extendTrial(tenantId: string, days: number): Promise<ActionResult> {
+export async function extendTrial(
+  tenantId: string,
+  days: number,
+  reason?: string
+): Promise<ActionResult> {
   if (!days || days <= 0) return { ok: false, error: 'Enter a positive number of days.' };
-  return runRpc('cc_extend_trial', { p_tenant: tenantId, p_days: days }, tenantId);
+  return runRpc(
+    'cc_extend_trial',
+    { p_tenant: tenantId, p_days: days, p_reason: reason?.trim() || null },
+    tenantId
+  );
 }
 
 export async function changePlan(
   tenantId: string,
   planCode: string,
-  cycle: 'monthly' | 'yearly'
+  cycle: 'monthly' | 'yearly',
+  reason?: string
 ): Promise<ActionResult> {
   if (!planCode) return { ok: false, error: 'Select a plan.' };
-  return runRpc('cc_change_plan', { p_tenant: tenantId, p_plan_code: planCode, p_cycle: cycle }, tenantId);
+  return runRpc(
+    'cc_change_tenant_plan',
+    { p_tenant: tenantId, p_plan_code: planCode, p_cycle: cycle, p_reason: reason?.trim() || null },
+    tenantId
+  );
 }
 
-export async function resetSubscription(tenantId: string): Promise<ActionResult> {
-  return runRpc('cc_reset_subscription', { p_tenant: tenantId }, tenantId);
+// Destructive: wipes the subscription back to a fresh 7-day trial and clears the
+// Razorpay link. A reason is required and recorded in the audit log.
+export async function resetSubscription(tenantId: string, reason: string): Promise<ActionResult> {
+  if (!reason?.trim()) return { ok: false, error: 'A reason is required to reset a subscription.' };
+  return runRpc('cc_reset_subscription', { p_tenant: tenantId, p_reason: reason.trim() }, tenantId);
 }
 
 /**

@@ -2,8 +2,11 @@ import Link from 'next/link';
 import { requirePlatformPermission, PlatformForbiddenError } from '@/lib/control/guard';
 import { Forbidden } from '@/components/control/Forbidden';
 import { TenantStatusBadge } from '@/components/control/TenantStatusBadge';
+import { Pagination, parsePage } from '@/components/control/Pagination';
+import { Download } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
+const PAGE_SIZE = 50;
 
 interface PlanRow { name: string; monthly_price_inr: number | null; yearly_price_inr: number | null }
 interface SubRow { status: string; billing_cycle: string; subscription_plans: PlanRow | null }
@@ -29,7 +32,7 @@ function mrrInr(sub: SubRow | null): number {
 export default async function TenantsPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: { q?: string; page?: string };
 }) {
   let service;
   try {
@@ -40,20 +43,30 @@ export default async function TenantsPage({
   }
 
   const q = (searchParams.q ?? '').trim();
+  const page = parsePage(searchParams.page);
 
   let query = service
     .from('tenants')
-    .select(`
+    .select(
+      `
       id, name, status, created_at, deleted_at, owner_id,
       tenant_subscriptions ( status, billing_cycle,
         subscription_plans ( name, monthly_price_inr, yearly_price_inr ) )
-    `)
+    `,
+      { count: 'exact' }
+    )
     .order('created_at', { ascending: false })
-    .limit(200);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (q) query = query.ilike('name', `%${q}%`);
 
-  const { data } = await query;
+  // MRR is computed server-side across ALL matching tenants (not just the loaded
+  // page) so the headline figure is correct even when the list is paginated.
+  const [{ data, count }, { data: mrrData }] = await Promise.all([
+    query,
+    service.rpc('cc_tenants_mrr', { p_search: q || null }),
+  ]);
   const tenants = (data ?? []) as unknown as TenantRow[];
+  const total = count ?? 0;
 
   // Resolve owner names in one batch (no FK path tenants→profiles).
   const ownerIds = Array.from(new Set(tenants.map((t) => t.owner_id))).filter(Boolean);
@@ -66,7 +79,7 @@ export default async function TenantsPage({
     for (const p of profiles ?? []) ownerName.set(p.id as string, (p.full_name as string) ?? '');
   }
 
-  const totalMrr = tenants.reduce((sum, t) => sum + mrrInr(firstSub(t.tenant_subscriptions)), 0);
+  const totalMrr = Number(mrrData ?? 0);
 
   return (
     <div className="max-w-[1200px]">
@@ -74,17 +87,26 @@ export default async function TenantsPage({
         <div>
           <h2 className="text-2xl font-bold text-ink mb-xs">Tenants</h2>
           <p className="text-sm text-body-soft">
-            {tenants.length} shown{q ? ` for “${q}”` : ''} · MRR ₹{totalMrr.toLocaleString('en-IN')}
+            {total.toLocaleString('en-IN')} tenant{total === 1 ? '' : 's'}{q ? ` for “${q}”` : ''} · MRR ₹{totalMrr.toLocaleString('en-IN')}
           </p>
         </div>
-        <form className="relative" action="/admin/tenants" method="get">
-          <input
-            name="q"
-            defaultValue={q}
-            placeholder="Search by tenant name…"
-            className="h-9 w-[280px] px-md rounded-lg border border-mute bg-canvas text-sm text-ink placeholder:text-body-soft focus:outline-none focus:border-primary-dark"
-          />
-        </form>
+        <div className="flex items-center gap-sm">
+          <form className="relative" action="/admin/tenants" method="get">
+            <input
+              name="q"
+              defaultValue={q}
+              placeholder="Search by tenant name…"
+              className="h-9 w-[220px] sm:w-[280px] px-md rounded-lg border border-mute bg-canvas text-sm text-ink placeholder:text-body-soft focus:outline-none focus:border-primary-dark"
+            />
+          </form>
+          <a
+            href={`/admin/tenants/export${q ? `?q=${encodeURIComponent(q)}` : ''}`}
+            className="inline-flex items-center gap-xs h-9 px-md rounded-lg text-sm font-semibold border border-mute text-body hover:bg-mute-soft whitespace-nowrap"
+            title="Export the matching tenants as CSV"
+          >
+            <Download size={16} /> Export
+          </a>
+        </div>
       </div>
 
       <div className="bg-canvas border border-mute rounded-card overflow-hidden">
@@ -134,6 +156,14 @@ export default async function TenantsPage({
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        basePath="/admin/tenants"
+        params={{ q: q || undefined }}
+      />
     </div>
   );
 }

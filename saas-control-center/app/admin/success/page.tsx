@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { requirePlatformPermission, PlatformForbiddenError } from '@/lib/control/guard';
 import { Forbidden } from '@/components/control/Forbidden';
+import { Pagination, parsePage } from '@/components/control/Pagination';
+
+const PAGE_SIZE = 50;
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +19,7 @@ interface HealthRow {
   computed_at: string; tenants: { name: string; status: string } | null;
 }
 
-export default async function SuccessPage({ searchParams }: { searchParams: { risk?: string } }) {
+export default async function SuccessPage({ searchParams }: { searchParams: { risk?: string; page?: string } }) {
   let service;
   try {
     ({ service } = await requirePlatformPermission('success:read'));
@@ -26,16 +29,18 @@ export default async function SuccessPage({ searchParams }: { searchParams: { ri
   }
 
   const risk = ['green', 'yellow', 'red'].includes(searchParams.risk ?? '') ? searchParams.risk : undefined;
+  const page = parsePage(searchParams.page);
 
   let q = service
     .from('customer_health')
-    .select('tenant_id, score, risk_band, churn_risk, payment_score, usage_score, login_score, setup_score, computed_at, tenants(name, status)')
+    .select('tenant_id, score, risk_band, churn_risk, payment_score, usage_score, login_score, setup_score, computed_at, tenants(name, status)', { count: 'exact' })
     .order('score', { ascending: true })
-    .limit(300);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (risk) q = q.eq('risk_band', risk);
 
-  const { data } = await q;
+  const { data, count } = await q;
   const rows = (data ?? []) as unknown as HealthRow[];
+  const total = count ?? 0;
   const churnCount = rows.filter((r) => r.churn_risk).length;
 
   const chip = (label: string, value?: string) =>
@@ -91,6 +96,14 @@ export default async function SuccessPage({ searchParams }: { searchParams: { ri
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        basePath="/admin/success"
+        params={{ risk: risk || undefined }}
+      />
     </div>
   );
 }

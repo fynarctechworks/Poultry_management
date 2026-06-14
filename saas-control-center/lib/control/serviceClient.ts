@@ -21,6 +21,26 @@ if (typeof window !== 'undefined') {
 
 let cached: SupabaseClient | null = null;
 
+/**
+ * Returns true only when SUPABASE_SERVICE_ROLE_KEY is a real service_role JWT.
+ * A common failure mode is leaving a placeholder string in .env.local — that
+ * value is non-empty (so createServiceClient does NOT throw) yet every query
+ * 401s, which the data layer would otherwise swallow into fake zeros. Pages use
+ * this to render an explicit "key not configured" banner instead of empty data.
+ */
+export function serviceRoleKeyConfigured(): boolean {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) return false;
+  const parts = key.split('.');
+  if (parts.length !== 3 || !key.startsWith('eyJ')) return false;
+  try {
+    const claims = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+    return claims.role === 'service_role';
+  } catch {
+    return false;
+  }
+}
+
 /** Returns a singleton service-role client. Server-only. */
 export function createServiceClient(): SupabaseClient {
   if (cached) return cached;

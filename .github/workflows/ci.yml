@@ -1,9 +1,10 @@
 name: CI
 
 # Runs the existing test suites on every push and PR:
-#   • jest   — React Native component/logic tests (mobile-app + tests/components)
-#   • deno   — Edge Function pure-logic tests (tests/functions + supabase/functions/tests)
-#   • pgtap  — Postgres RLS / trigger / tenant-isolation tests (tests/db + supabase/tests)
+#   • jest           — React Native component/logic tests (mobile-app + tests/components)
+#   • deno           — Edge Function pure-logic tests (tests/functions + supabase/functions/tests)
+#   • pgtap          — Postgres RLS / trigger / tenant-isolation tests (tests/db + supabase/tests)
+#   • control-center — Control Center typecheck + lint (saas-control-center)
 # Jobs run in parallel and are independent; a red job blocks the merge.
 
 on:
@@ -118,3 +119,27 @@ jobs:
       - name: Stop Supabase
         if: always()
         run: supabase stop --no-backup
+
+  # ---------------------------------------------------------------------------
+  # Control Center static checks: TypeScript typecheck + ESLint. Catches broken
+  # types/imports and lint regressions in the operator console before merge.
+  # ---------------------------------------------------------------------------
+  control-center:
+    name: control-center (typecheck + lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: saas-control-center/package-lock.json
+      - name: Install dependencies
+        working-directory: saas-control-center
+        run: npm ci
+      - name: Typecheck
+        working-directory: saas-control-center
+        run: npm run typecheck
+      - name: Lint
+        working-directory: saas-control-center
+        run: npm run lint

@@ -1,5 +1,5 @@
 import { getPlatformContext } from '@/lib/control/guard';
-import { redirect } from 'next/navigation';
+import { NoAccess } from '@/components/control/NoAccess';
 import { MfaEnrollment } from '@/components/control/MfaEnrollment';
 import { ChangePassword } from '@/components/control/ChangePassword';
 
@@ -8,7 +8,7 @@ import { ChangePassword } from '@/components/control/ChangePassword';
 // operator's own session — no service-role needed.)
 export default async function SecurityPage() {
   const ctx = await getPlatformContext();
-  if (!ctx) redirect('/multi-farm');
+  if (!ctx) return <NoAccess />;
 
   return (
     <div className="max-w-[640px]">

@@ -31,7 +31,9 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
+  // The Control Center has NO self-service registration: operators are created
+  // only by a platform administrator. /login is the sole auth entry point.
+  const isAuthRoute = pathname.startsWith('/login');
   // /auth/callback runs the recovery/OAuth code exchange before a session cookie
   // exists, so it must pass through unauthenticated. The reset/forgot/locked
   // pages must also be reachable without a full session.

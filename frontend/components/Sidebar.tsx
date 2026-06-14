@@ -41,7 +41,7 @@ export function Sidebar({ userName }: { userName: string }) {
   }
 
   return (
-    <aside className="w-[240px] shrink-0 bg-canvas border-r border-mute flex flex-col">
+    <aside className="w-[240px] shrink-0 bg-canvas border-r border-mute flex flex-col h-screen">
       <div className="px-lg py-xl">
         <h1 className="text-xl font-bold text-primary">PoultryOS</h1>
         <p className="text-xs text-body-soft mt-xxs">{userName}</p>
@@ -53,7 +53,7 @@ export function Sidebar({ userName }: { userName: string }) {
         <PlusCircle size={16} />
         Log entry
       </Link>
-      <nav className="flex-1 px-sm overflow-y-auto">
+      <nav className="flex-1 min-h-0 px-sm overflow-y-auto">
         {NAV.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + '/');
           return (

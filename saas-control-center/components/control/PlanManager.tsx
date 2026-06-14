@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
-import { Plus, Power, Archive, Copy } from 'lucide-react';
+import { Plus, Power, Archive, Copy, Check, ArrowRight } from 'lucide-react';
 import { createPlan, setPlanActive, duplicatePlan } from '@/lib/control/plans';
 
 export interface PlanListItem {
@@ -15,9 +15,48 @@ export interface PlanListItem {
   max_farms: number | null;
   max_users: number | null;
   is_active: boolean;
+  recommended: boolean | null;
+  is_contactable: boolean | null;
+  features_json: Record<string, unknown> | null;
 }
 
-export function PlanManager({ plans, canManage }: { plans: PlanListItem[]; canManage: boolean }) {
+export interface FeatureCatalogItem {
+  code: string;
+  name: string;
+  value_type: string;
+  category: string;
+  sort_order: number;
+}
+
+const rupee = (n: number | null | undefined) => `₹${(n ?? 0).toLocaleString('en-IN')}`;
+
+/** Human-readable list of what a plan includes, derived from features_json + catalog. */
+function summarize(plan: PlanListItem, features: FeatureCatalogItem[]): string[] {
+  const fj = plan.features_json ?? {};
+  const out: string[] = [];
+  for (const f of features) {
+    const v = fj[f.code];
+    if (f.value_type === 'boolean') {
+      if (v === true) out.push(f.name);
+    } else if (f.value_type === 'numeric') {
+      if (v === null) out.push(`${f.name}: Unlimited`);
+      else if (v !== undefined) out.push(`${f.name}: ${Number(v).toLocaleString('en-IN')}`);
+    } else if (v !== undefined && v !== null && v !== '') {
+      out.push(`${f.name}: ${String(v)}`);
+    }
+  }
+  return out;
+}
+
+export function PlanManager({
+  plans,
+  features,
+  canManage,
+}: {
+  plans: PlanListItem[];
+  features: FeatureCatalogItem[];
+  canManage: boolean;
+}) {
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -35,13 +74,17 @@ export function PlanManager({ plans, canManage }: { plans: PlanListItem[]; canMa
     });
   }
 
-  const btn = 'inline-flex items-center gap-xs h-8 px-sm rounded-md text-xs font-semibold border border-mute text-body hover:bg-mute-soft disabled:opacity-50';
+  const footBtn =
+    'inline-flex items-center justify-center gap-xs h-8 px-sm rounded-md text-xs font-semibold border border-mute text-body hover:bg-mute-soft disabled:opacity-50';
 
   return (
     <div>
       {canManage && (
-        <div className="mb-lg">
-          <button onClick={() => setShowCreate((v) => !v)} className="inline-flex items-center gap-sm h-9 px-md rounded-lg text-sm font-semibold bg-primary text-on-primary hover:bg-primary-dark">
+        <div className="mb-xl">
+          <button
+            onClick={() => setShowCreate((v) => !v)}
+            className="inline-flex items-center gap-sm h-9 px-md rounded-lg text-sm font-semibold bg-primary text-on-primary hover:bg-primary-dark"
+          >
             <Plus size={16} /> New plan
           </button>
 
@@ -82,52 +125,103 @@ export function PlanManager({ plans, canManage }: { plans: PlanListItem[]; canMa
 
       {msg && <p className={`mb-md text-sm ${msg.ok ? 'text-success-ink' : 'text-warning-ink'}`}>{msg.text}</p>}
 
-      <div className="bg-canvas border border-mute rounded-card overflow-hidden">
-        <table className="w-full text-sm">
-          <thead><tr className="text-left text-body-soft border-b border-mute">
-            <th className="px-md py-sm font-semibold">Plan</th>
-            <th className="px-md py-sm font-semibold">Tier</th>
-            <th className="px-md py-sm font-semibold text-right">Monthly</th>
-            <th className="px-md py-sm font-semibold text-right">Yearly</th>
-            <th className="px-md py-sm font-semibold">Limits</th>
-            <th className="px-md py-sm font-semibold">State</th>
-            {canManage && <th className="px-md py-sm font-semibold text-right">Actions</th>}
-          </tr></thead>
-          <tbody>
-            {plans.map((p) => (
-              <tr key={p.id} className="border-b border-mute last:border-0">
-                <td className="px-md py-sm">
-                  <Link href={`/admin/subscriptions/${p.id}`} className="font-semibold text-primary hover:underline">{p.name}</Link>
-                  <span className="block text-xs font-mono text-body-soft">{p.code}</span>
-                </td>
-                <td className="px-md py-sm text-body">{p.tier ?? '—'}</td>
-                <td className="px-md py-sm text-right tabular-nums text-ink">₹{(p.monthly_price_inr ?? 0).toLocaleString('en-IN')}</td>
-                <td className="px-md py-sm text-right tabular-nums text-ink">₹{(p.yearly_price_inr ?? 0).toLocaleString('en-IN')}</td>
-                <td className="px-md py-sm text-body-soft">{p.max_farms ?? '∞'} farms · {p.max_users ?? '∞'} users</td>
-                <td className="px-md py-sm">
-                  <span className={`text-[11px] font-bold uppercase rounded-sm px-xs py-px ${p.is_active ? 'bg-success-soft text-success-ink' : 'bg-mute-soft text-body'}`}>
-                    {p.is_active ? 'active' : 'archived'}
+      {plans.length === 0 ? (
+        <div className="bg-canvas border border-mute rounded-card p-2xl text-center text-body-soft text-sm">
+          No plans yet. {canManage ? 'Create one to get started.' : ''}
+        </div>
+      ) : (
+        <div className="grid gap-lg sm:grid-cols-2 lg:grid-cols-3">
+          {plans.map((p) => {
+            const included = summarize(p, features);
+            const preview = included.slice(0, 5);
+            const extra = included.length - preview.length;
+            return (
+              <div
+                key={p.id}
+                className={`relative flex flex-col bg-canvas border rounded-card overflow-hidden transition-shadow hover:shadow-[rgba(0,0,0,0.03)_0_4px_24px] ${
+                  p.recommended ? 'border-primary' : 'border-mute'
+                } ${p.is_active ? '' : 'opacity-70'}`}
+              >
+                {p.recommended && (
+                  <span className="absolute right-0 top-0 rounded-bl-card bg-primary px-sm py-xxs text-[11px] font-bold uppercase tracking-wide text-on-primary">
+                    Recommended
                   </span>
-                </td>
-                {canManage && (
-                  <td className="px-md py-sm">
-                    <div className="flex justify-end gap-xs">
-                      <button className={btn} disabled={pending} onClick={() => act(() => setPlanActive(p.id, !p.is_active))}>
-                        {p.is_active ? <Archive size={14} /> : <Power size={14} />}
-                        {p.is_active ? 'Archive' : 'Activate'}
-                      </button>
-                      <button className={btn} disabled={pending}
-                        onClick={() => act(() => duplicatePlan(p.id, `${p.code}_copy`, `${p.name} (copy)`))}>
-                        <Copy size={14} /> Duplicate
-                      </button>
-                    </div>
-                  </td>
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+                {/* Clickable body → feature detail */}
+                <Link href={`/admin/subscriptions/${p.id}`} className="group block p-lg flex-1">
+                  <div className="flex items-center gap-sm mb-xs">
+                    <h3 className="text-lg font-bold text-ink group-hover:text-primary">{p.name}</h3>
+                    <span
+                      className={`text-[10px] font-bold uppercase rounded-sm px-xs py-px ${
+                        p.is_active ? 'bg-success-soft text-success-ink' : 'bg-mute-soft text-body'
+                      }`}
+                    >
+                      {p.is_active ? 'active' : 'archived'}
+                    </span>
+                  </div>
+                  <p className="font-mono text-xs text-body-soft mb-md">{p.code} · {p.tier ?? '—'}</p>
+
+                  <div className="mb-md">
+                    {p.is_contactable ? (
+                      <span className="text-2xl font-bold text-ink">Contact us</span>
+                    ) : (
+                      <>
+                        <span className="text-2xl font-bold text-ink tabular-nums">{rupee(p.monthly_price_inr)}</span>
+                        <span className="text-sm text-body-soft">/mo</span>
+                        <span className="block text-xs text-body-soft tabular-nums">{rupee(p.yearly_price_inr)}/yr</span>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="mb-md flex gap-md text-xs text-body-soft">
+                    <span>{p.max_farms ?? '∞'} farms</span>
+                    <span>·</span>
+                    <span>{p.max_users ?? '∞'} users</span>
+                  </div>
+
+                  <ul className="space-y-xs">
+                    {preview.map((line) => (
+                      <li key={line} className="flex items-start gap-xs text-xs text-body">
+                        <Check size={14} className="mt-px shrink-0 text-success" />
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                    {included.length === 0 && (
+                      <li className="text-xs text-body-soft">No features enabled.</li>
+                    )}
+                  </ul>
+
+                  <span className="mt-md inline-flex items-center gap-xs text-xs font-semibold text-primary">
+                    {extra > 0 ? `View all features (+${extra} more)` : 'View all features'}
+                    <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
+
+                {canManage && (
+                  <div className="flex gap-xs border-t border-mute px-lg py-sm">
+                    <button
+                      className={footBtn}
+                      disabled={pending}
+                      onClick={() => act(() => setPlanActive(p.id, !p.is_active))}
+                    >
+                      {p.is_active ? <Archive size={14} /> : <Power size={14} />}
+                      {p.is_active ? 'Archive' : 'Activate'}
+                    </button>
+                    <button
+                      className={footBtn}
+                      disabled={pending}
+                      onClick={() => act(() => duplicatePlan(p.id, `${p.code}_copy`, `${p.name} (copy)`))}
+                    >
+                      <Copy size={14} /> Duplicate
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

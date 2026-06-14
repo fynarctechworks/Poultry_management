@@ -24,7 +24,7 @@ export function TenantActions({
 }) {
   const [pending, startTransition] = useTransition();
   const [msg, setMsg] = useState<{ ok: boolean; text: string; link?: string } | null>(null);
-  const [modal, setModal] = useState<null | 'suspend' | 'delete' | 'impersonate'>(null);
+  const [modal, setModal] = useState<null | 'suspend' | 'delete' | 'impersonate' | 'reset'>(null);
   const [reason, setReason] = useState('');
   const [days, setDays] = useState(7);
   const [planCode, setPlanCode] = useState(plans[0]?.code ?? '');
@@ -77,7 +77,7 @@ export function TenantActions({
             </button>
           </>
         )}
-        <button className={btn} disabled={pending} onClick={() => run(() => resetSubscription(tenantId))}>
+        <button className={danger} disabled={pending} onClick={() => setModal('reset')}>
           <RefreshCw size={16} /> Reset subscription
         </button>
       </div>
@@ -138,12 +138,20 @@ export function TenantActions({
         <div className="fixed inset-0 bg-ink/40 grid place-items-center z-30 p-lg">
           <div className="bg-canvas border border-mute rounded-card p-xl w-full max-w-[420px]">
             <h4 className="text-base font-bold text-ink mb-xs">
-              {modal === 'suspend' ? 'Suspend tenant' : modal === 'delete' ? 'Soft delete tenant' : 'Impersonate owner'}
+              {modal === 'suspend'
+                ? 'Suspend tenant'
+                : modal === 'delete'
+                  ? 'Soft delete tenant'
+                  : modal === 'reset'
+                    ? 'Reset subscription'
+                    : 'Impersonate owner'}
             </h4>
             <p className="text-sm text-body-soft mb-md">
               {modal === 'impersonate'
                 ? 'This generates an audited sign-in link for the owner. A reason is required.'
-                : 'This is reversible but high-impact. A reason is required and will be audited.'}
+                : modal === 'reset'
+                  ? 'This wipes the subscription back to a fresh 7-day trial and clears the Razorpay link. A reason is required and will be audited.'
+                  : 'This is reversible but high-impact. A reason is required and will be audited.'}
             </p>
             <textarea
               value={reason} onChange={(e) => setReason(e.target.value)}
@@ -163,7 +171,9 @@ export function TenantActions({
                       ? suspendTenant(tenantId, reason)
                       : modal === 'delete'
                         ? softDeleteTenant(tenantId, reason)
-                        : impersonateTenant(tenantId, reason)
+                        : modal === 'reset'
+                          ? resetSubscription(tenantId, reason)
+                          : impersonateTenant(tenantId, reason)
                   )
                 }
               >

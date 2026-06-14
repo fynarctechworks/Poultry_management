@@ -1,9 +1,11 @@
 import { requirePlatformPermission, PlatformForbiddenError } from '@/lib/control/guard';
 import { Forbidden } from '@/components/control/Forbidden';
+import { Pagination, parsePage } from '@/components/control/Pagination';
 
 export const dynamic = 'force-dynamic';
+const PAGE_SIZE = 50;
 
-export default async function AuditPage() {
+export default async function AuditPage({ searchParams }: { searchParams: { page?: string } }) {
   let service;
   try {
     ({ service } = await requirePlatformPermission('audit:read'));
@@ -12,17 +14,19 @@ export default async function AuditPage() {
     throw e;
   }
 
-  const { data: events } = await service
+  const page = parsePage(searchParams.page);
+  const { data: events, count } = await service
     .from('platform_audit_events')
-    .select('id, action, actor_email, permission, target_type, target_tenant_id, status, reason, created_at')
+    .select('id, action, actor_email, permission, target_type, target_tenant_id, status, reason, created_at', { count: 'exact' })
     .order('created_at', { ascending: false })
-    .limit(200);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+  const total = count ?? 0;
 
   return (
     <div className="max-w-[1100px]">
       <h2 className="text-2xl font-bold text-ink mb-xs">Audit Log</h2>
       <p className="text-sm text-body-soft mb-xl">
-        Immutable, append-only record of every operator action. Showing the latest 200.
+        Immutable, append-only record of every operator action. {total.toLocaleString('en-IN')} total.
       </p>
 
       <div className="bg-canvas border border-mute rounded-card overflow-hidden">
@@ -69,6 +73,8 @@ export default async function AuditPage() {
           </tbody>
         </table>
       </div>
+
+      <Pagination page={page} pageSize={PAGE_SIZE} total={total} basePath="/admin/audit" params={{}} />
     </div>
   );
 }

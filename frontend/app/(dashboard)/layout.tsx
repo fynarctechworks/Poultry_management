@@ -26,9 +26,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <CanWriteProvider canWrite={canWrite}>
-      <div className="flex min-h-screen">
+      <div className="flex h-screen overflow-hidden">
         <Sidebar userName={profile?.full_name ?? user.email ?? 'Owner'} />
-        <main className="flex-1 px-2xl py-xl overflow-x-auto">
+        <main className="flex-1 min-h-0 px-2xl py-xl overflow-y-auto">
           {billing && (
             <SubscriptionBanners
               status={billing.status}

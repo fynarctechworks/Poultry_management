@@ -7,7 +7,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 type Factor = { id: string; friendly_name?: string | null; status: string };
 type Enrolling = { factorId: string; qr: string; secret: string };
 
-export function MfaEnrollment() {
+export function MfaEnrollment({ onVerified }: { onVerified?: () => void } = {}) {
   const supabase = createSupabaseBrowserClient();
   const [factors, setFactors] = useState<Factor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +59,7 @@ export function MfaEnrollment() {
     setEnrolling(null);
     setCode('');
     await refresh();
+    onVerified?.();
   }
 
   async function cancelEnroll() {
