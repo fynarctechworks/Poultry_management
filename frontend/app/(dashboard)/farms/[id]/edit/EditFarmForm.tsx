@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { PhoneInput } from '@/components/PhoneInput';
 import { isValidPhoneString } from '@/lib/constants/countries';
+import { NECC_ZONES } from '@poultryos/shared';
 
 const schema = z.object({
   farm_name: z.string().min(2),
@@ -22,6 +23,7 @@ const schema = z.object({
   longitude: z.coerce.number().optional().or(z.literal('')),
   heat_stress_threshold_celsius: z.coerce.number().min(20).max(50).optional(),
   mortality_alert_threshold_pct: z.coerce.number().min(0.1).max(100).optional(),
+  necc_zone: z.string().optional(),
 });
 type Form = z.infer<typeof schema>;
 
@@ -39,6 +41,7 @@ interface FarmRow {
   longitude: number | null;
   heat_stress_threshold_celsius: number | null;
   mortality_alert_threshold_pct: number | null;
+  necc_zone: string | null;
 }
 
 export function EditFarmForm({ farm }: { farm: FarmRow }) {
@@ -62,6 +65,7 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
       longitude: (farm.longitude as any) ?? '',
       heat_stress_threshold_celsius: farm.heat_stress_threshold_celsius ?? 35,
       mortality_alert_threshold_pct: farm.mortality_alert_threshold_pct ?? 1,
+      necc_zone: farm.necc_zone ?? '',
     },
   });
 
@@ -81,6 +85,7 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
       longitude: data.longitude === '' ? null : data.longitude,
       heat_stress_threshold_celsius: data.heat_stress_threshold_celsius || 35,
       mortality_alert_threshold_pct: data.mortality_alert_threshold_pct || 1,
+      necc_zone: data.necc_zone || null,
     }).eq('id', farm.id);
     setLoading(false);
     if (error) return setError(error.message);
@@ -110,6 +115,12 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
         <Field label="Longitude"><input type="number" step="any" className="input" {...register('longitude')} /></Field>
         <Field label="Heat-stress threshold (°C)"><input type="number" step="0.1" className="input" {...register('heat_stress_threshold_celsius')} /></Field>
         <Field label="Mortality alert threshold (%/day)" error={errors.mortality_alert_threshold_pct?.message}><input type="number" step="0.1" className="input" {...register('mortality_alert_threshold_pct')} /></Field>
+        <Field label="NECC egg-price zone">
+          <select className="input" {...register('necc_zone')}>
+            <option value="">— Use state default —</option>
+            {NECC_ZONES.map((z) => <option key={z} value={z}>{z}</option>)}
+          </select>
+        </Field>
       </div>
       <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? 'Saving…' : 'Save changes'}</button>
       {error && <p className="text-sm text-danger">{error}</p>}

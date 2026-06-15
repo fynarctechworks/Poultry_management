@@ -1113,6 +1113,16 @@
       "date_format": "YYYY-MM-DD",
       "non_negative": "गैर-ऋणात्मक संख्या होनी चाहिए",
       "either_price": "ब्रॉयलर या अंडे में से कोई भाव सेट करें"
+    },
+    "necc": {
+      "title": "NECC अंडा दर",
+      "zone_label": "NECC ज़ोन",
+      "zone_placeholder": "अपना ज़ोन चुनें",
+      "per_100": "/ 100 अंडे",
+      "per_piece": "{{value}} / अंडा",
+      "per_tray": "{{value}} / ट्रे (30)",
+      "as_of": "{{date}} तक",
+      "unavailable": "दर अनुपलब्ध — अपना ज़ोन चुनें या सुबह 8 बजे बाद देखें।"
     }
   },
   "flocks": {

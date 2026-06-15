@@ -9,3 +9,4 @@ export * from './feed-intelligence';
 export * from './hdep';
 export * from './sell-timing';
 export * from './contract-reconciliation';
+export * from './necc-zones';

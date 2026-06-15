@@ -1288,6 +1288,16 @@
       "date_format": "YYYY-MM-DD",
       "non_negative": "Must be a non-negative number",
       "either_price": "Set either broiler or eggs price"
+    },
+    "necc": {
+      "title": "NECC egg rate",
+      "zone_label": "NECC zone",
+      "zone_placeholder": "Select your zone",
+      "per_100": "/ 100 eggs",
+      "per_piece": "{{value}} / egg",
+      "per_tray": "{{value}} / tray (30)",
+      "as_of": "As of {{date}}",
+      "unavailable": "Rate unavailable — pick your zone or check back after 8 AM."
     }
   },
   "flocks": {

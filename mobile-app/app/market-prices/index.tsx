@@ -16,9 +16,16 @@ import { z } from 'zod';
 import Svg, { Line, Polyline, Circle, Text as SvgText } from 'react-native-svg';
 import { supabase } from '../../lib/supabase';
 import { useFarmStore } from '../../stores/farm';
-import { Button, Card, EmptyState, TextInput } from '../../components/ui';
+import { Button, Card, EmptyState, Select, TextInput } from '../../components/ui';
 import { colors, radius, spacing, typography } from '../../theme/tokens';
-import { todayISO } from '../../lib/format-date';
+import { todayISO, formatDDMMMYYYY } from '../../lib/format-date';
+import {
+  NECC_ZONES,
+  stateDefaultZone,
+  eggRatePerPiece,
+  eggRatePerTray,
+  formatINR as sharedINR,
+} from '@poultryos/shared';
 
 interface PriceRow {
   price_date: string;
@@ -63,7 +70,10 @@ export default function MarketPricesScreen() {
   const [rows, setRows] = useState<PriceRow[]>([]);
   const [snackbar, setSnackbar] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [neccZone, setNeccZone] = useState<string | null>(null);
+  const [neccRate, setNeccRate] = useState<{ rate_per_100: number; price_date: string } | null>(null);
   const schema = useMemo(() => makeSchema(t), [t]);
+  const farmId = currentFarm?.id ?? null;
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormFields>({
     resolver: zodResolver(schema),
@@ -94,7 +104,46 @@ export default function MarketPricesScreen() {
     setRows((data ?? []) as PriceRow[]);
   }, [state]);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  const fetchRateForZone = useCallback(async (zone: string | null) => {
+    if (!zone) {
+      setNeccRate(null);
+      return;
+    }
+    const { data } = await supabase
+      .from('necc_egg_rates')
+      .select('rate_per_100, price_date')
+      .eq('zone', zone)
+      .order('price_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setNeccRate((data as { rate_per_100: number; price_date: string } | null) ?? null);
+  }, []);
+
+  const loadNecc = useCallback(async () => {
+    if (!farmId) return;
+    const { data: farm } = await supabase
+      .from('farms')
+      .select('necc_zone')
+      .eq('id', farmId)
+      .maybeSingle();
+    const zone = (farm as { necc_zone: string | null } | null)?.necc_zone ?? stateDefaultZone(state);
+    setNeccZone(zone);
+    await fetchRateForZone(zone);
+  }, [farmId, state, fetchRateForZone]);
+
+  const changeNeccZone = useCallback(
+    async (zone: string) => {
+      setNeccZone(zone);
+      await fetchRateForZone(zone);
+      if (farmId) {
+        const { error } = await supabase.from('farms').update({ necc_zone: zone }).eq('id', farmId);
+        if (error) setSnackbar(error.message);
+      }
+    },
+    [farmId, fetchRateForZone],
+  );
+
+  useFocusEffect(useCallback(() => { load(); loadNecc(); }, [load, loadNecc]));
 
   const onSubmit = async (values: FormFields) => {
     if (!state) return;
@@ -140,6 +189,39 @@ export default function MarketPricesScreen() {
     <View style={styles.root}>
       <Stack.Screen options={{ title: t('market_prices.state_title', { state }) }} />
       <ScrollView contentContainerStyle={styles.content}>
+        <Card>
+          <Text style={styles.sectionTitle}>{t('market_prices.necc.title')}</Text>
+          <Select
+            label={t('market_prices.necc.zone_label')}
+            value={neccZone}
+            onChange={changeNeccZone}
+            options={NECC_ZONES.map((z) => ({ label: z, value: z }))}
+            placeholder={t('market_prices.necc.zone_placeholder')}
+          />
+          {neccRate ? (
+            <View style={styles.neccRateWrap}>
+              <Text style={styles.neccRate}>
+                {sharedINR(neccRate.rate_per_100, { decimals: 0 })}
+                <Text style={styles.neccUnit}> {t('market_prices.necc.per_100')}</Text>
+              </Text>
+              <Text style={styles.neccSub}>
+                {t('market_prices.necc.per_piece', {
+                  value: sharedINR(eggRatePerPiece(neccRate.rate_per_100) ?? 0, { decimals: 2 }),
+                })}
+                {'  ·  '}
+                {t('market_prices.necc.per_tray', {
+                  value: sharedINR(eggRatePerTray(neccRate.rate_per_100) ?? 0, { decimals: 0 }),
+                })}
+              </Text>
+              <Text style={styles.neccDate}>
+                {t('market_prices.necc.as_of', { date: formatDDMMMYYYY(neccRate.price_date) })}
+              </Text>
+            </View>
+          ) : (
+            <Text style={styles.muted}>{t('market_prices.necc.unavailable')}</Text>
+          )}
+        </Card>
+
         <Card>
           <Text style={styles.sectionTitle}>{t('market_prices.trend_14d')}</Text>
           {rows.length === 0 ? (
@@ -376,6 +458,11 @@ const styles = StyleSheet.create({
   content: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing['3xl'] },
   sectionTitle: { ...typography.bodyMdStrong, color: colors.ink, marginBottom: spacing.sm },
   muted: { ...typography.bodySm, color: colors.body },
+  neccRateWrap: { marginTop: spacing.md },
+  neccRate: { ...typography.displaySm, color: colors.ink },
+  neccUnit: { ...typography.bodySm, color: colors.body },
+  neccSub: { ...typography.bodySm, color: colors.body, marginTop: spacing.xxs },
+  neccDate: { ...typography.caption, color: colors.bodySoft, marginTop: spacing.xxs },
   chartWrap: { alignItems: 'center', gap: spacing.sm },
   legendRow: { flexDirection: 'row', gap: spacing.lg },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },

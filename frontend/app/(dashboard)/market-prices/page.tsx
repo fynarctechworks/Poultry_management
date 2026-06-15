@@ -2,12 +2,33 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { PriceTrend } from './PriceTrend';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
+import { stateDefaultZone, eggRatePerPiece, eggRatePerTray } from '@poultryos/shared';
 
 export default async function MarketPricesPage() {
   const supabase = createSupabaseServerClient();
 
-  const { data: farms } = await supabase.from('farms').select('state').not('state', 'is', null);
+  const { data: farms } = await supabase.from('farms').select('state, necc_zone').not('state', 'is', null);
   const states = Array.from(new Set((farms ?? []).map((f) => f.state))).filter(Boolean) as string[];
+
+  // NECC zonal egg rates: the zone each farm tracks (explicit, else state default).
+  const zones = Array.from(
+    new Set(
+      (farms ?? [])
+        .map((f) => (f as any).necc_zone ?? stateDefaultZone(f.state))
+        .filter(Boolean) as string[],
+    ),
+  );
+  const { data: neccRows } = zones.length
+    ? await supabase
+        .from('necc_egg_rates')
+        .select('zone, rate_per_100, price_date')
+        .in('zone', zones)
+        .order('price_date', { ascending: false })
+    : { data: [] };
+  const latestByZone = new Map<string, { rate_per_100: number; price_date: string }>();
+  for (const r of (neccRows ?? []) as any[]) {
+    if (!latestByZone.has(r.zone)) latestByZone.set(r.zone, r);
+  }
 
   const since = new Date();
   since.setDate(since.getDate() - 30);
@@ -33,7 +54,39 @@ export default async function MarketPricesPage() {
         <h1 className="text-3xl font-bold text-ink">Market Prices</h1>
         <Link href="/market-prices/new" className="btn-outline">Manual entry</Link>
       </div>
-      <p className="text-sm text-body mb-2xl">14-day broiler + egg price trend by state. Source: Agmarknet / NAFED.</p>
+      <p className="text-sm text-body mb-2xl">NECC zonal egg rates + 14-day broiler/egg trend by state. Set a farm&apos;s NECC zone in farm settings.</p>
+
+      {zones.length > 0 && (
+        <section className="mb-2xl">
+          <h2 className="text-lg font-bold text-ink mb-md">NECC egg rates</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {zones.map((zone) => {
+              const r = latestByZone.get(zone);
+              return (
+                <div key={zone} className="card">
+                  <p className="text-sm font-semibold text-ink">{zone}</p>
+                  {r ? (
+                    <>
+                      <p className="text-2xl font-bold text-primary mt-xs">
+                        {formatCurrencyINR(Number(r.rate_per_100))}
+                        <span className="text-sm font-normal text-body"> / 100 eggs</span>
+                      </p>
+                      <p className="text-sm text-body mt-xxs">
+                        {formatCurrencyINR(eggRatePerPiece(Number(r.rate_per_100)) ?? 0)} / egg
+                        {'  ·  '}
+                        {formatCurrencyINR(eggRatePerTray(Number(r.rate_per_100)) ?? 0)} / tray (30)
+                      </p>
+                      <p className="text-xs text-body-soft mt-xxs">As of {formatDateDDMonYYYY(r.price_date)}</p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-body mt-xs">Rate unavailable — updates daily after 8 AM IST.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {byState.size === 0 && (
         <div className="card text-center py-2xl">

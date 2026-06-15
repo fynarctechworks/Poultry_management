@@ -1113,6 +1113,16 @@
       "date_format": "YYYY-MM-DD",
       "non_negative": "ఋణాత్మకం కాని సంఖ్య ఉండాలి",
       "either_price": "బ్రాయిలర్ లేదా గుడ్ల ధరలో ఒకటి సెట్ చేయండి"
+    },
+    "necc": {
+      "title": "NECC గుడ్డు ధర",
+      "zone_label": "NECC జోన్",
+      "zone_placeholder": "మీ జోన్‌ను ఎంచుకోండి",
+      "per_100": "/ 100 గుడ్లు",
+      "per_piece": "{{value}} / గుడ్డు",
+      "per_tray": "{{value}} / ట్రే (30)",
+      "as_of": "{{date}} నాటికి",
+      "unavailable": "ధర అందుబాటులో లేదు — మీ జోన్ ఎంచుకోండి లేదా ఉదయం 8 తర్వాత చూడండి."
     }
   },
   "flocks": {
