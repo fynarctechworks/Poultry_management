@@ -21,6 +21,7 @@ const schema = z.object({
   latitude: z.coerce.number().optional().or(z.literal('')),
   longitude: z.coerce.number().optional().or(z.literal('')),
   heat_stress_threshold_celsius: z.coerce.number().min(20).max(50).optional(),
+  mortality_alert_threshold_pct: z.coerce.number().min(0.1).max(100).optional(),
 });
 type Form = z.infer<typeof schema>;
 
@@ -37,6 +38,7 @@ interface FarmRow {
   latitude: number | null;
   longitude: number | null;
   heat_stress_threshold_celsius: number | null;
+  mortality_alert_threshold_pct: number | null;
 }
 
 export function EditFarmForm({ farm }: { farm: FarmRow }) {
@@ -59,6 +61,7 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
       latitude: (farm.latitude as any) ?? '',
       longitude: (farm.longitude as any) ?? '',
       heat_stress_threshold_celsius: farm.heat_stress_threshold_celsius ?? 35,
+      mortality_alert_threshold_pct: farm.mortality_alert_threshold_pct ?? 1,
     },
   });
 
@@ -77,6 +80,7 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
       latitude: data.latitude === '' ? null : data.latitude,
       longitude: data.longitude === '' ? null : data.longitude,
       heat_stress_threshold_celsius: data.heat_stress_threshold_celsius || 35,
+      mortality_alert_threshold_pct: data.mortality_alert_threshold_pct || 1,
     }).eq('id', farm.id);
     setLoading(false);
     if (error) return setError(error.message);
@@ -105,6 +109,7 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
         <Field label="Latitude"><input type="number" step="any" className="input" {...register('latitude')} /></Field>
         <Field label="Longitude"><input type="number" step="any" className="input" {...register('longitude')} /></Field>
         <Field label="Heat-stress threshold (°C)"><input type="number" step="0.1" className="input" {...register('heat_stress_threshold_celsius')} /></Field>
+        <Field label="Mortality alert threshold (%/day)" error={errors.mortality_alert_threshold_pct?.message}><input type="number" step="0.1" className="input" {...register('mortality_alert_threshold_pct')} /></Field>
       </div>
       <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? 'Saving…' : 'Save changes'}</button>
       {error && <p className="text-sm text-danger">{error}</p>}

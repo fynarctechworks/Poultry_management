@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bird, Check, CheckCircle2, CreditCard, Handshake, Loader2, Lock, Warehouse } from 'lucide-react';
+import { Check, CheckCircle2, CreditCard, Handshake, Loader2, Lock, Warehouse } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import Silk from '@/components/Silk';
 import { PhoneInput } from '@/components/PhoneInput';
@@ -304,11 +304,9 @@ export function OnboardingWizard() {
           <Silk color={colors.primary} speed={5} scale={1} noiseIntensity={1.5} rotation={0} />
         </div>
 
-        <div className="relative z-10 flex items-center gap-sm">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/20 backdrop-blur">
-            <Bird size={20} className="text-on-dark" />
-          </span>
-          <span className="text-lg font-semibold tracking-tight">PoultryOS</span>
+        <div className="relative z-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/poultry-logo-white.png" alt="PoultryOS" className="h-10 w-auto" />
         </div>
 
         <div className="relative z-10">
@@ -321,11 +319,9 @@ export function OnboardingWizard() {
       <section className="flex flex-1 items-start justify-center overflow-y-auto px-6 py-10 sm:px-10">
         <div className={`w-full ${isWide ? 'max-w-6xl' : 'max-w-2xl'}`}>
           {/* Compact logo for mobile (panel is hidden) */}
-          <div className="mb-xl flex items-center gap-sm lg:hidden">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-on-primary">
-              <Bird size={20} />
-            </span>
-            <span className="text-lg font-semibold tracking-tight text-ink">PoultryOS</span>
+          <div className="mb-xl lg:hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/poultry-logo-color.png" alt="PoultryOS" className="h-9 w-auto" />
           </div>
 
           {/* compact progress — always on mobile; also on the full-width plan step */}

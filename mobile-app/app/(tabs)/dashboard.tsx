@@ -7,7 +7,6 @@ import { useAuthStore } from '../../stores/auth';
 import { useFarmStore } from '../../stores/farm';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import {
-  Card,
   KpiTile,
   MarketPriceStrip,
   WeatherWidget,
@@ -15,10 +14,13 @@ import {
   DailyLogFab,
   EmptyState,
   HeatStressBanner,
+  InsightsCard,
   SetupProgressCard,
+  ShedMap,
   Snackbar,
   type KpiTone,
   type SetupStep,
+  type ShedCell,
 } from '../../components/ui';
 import { colors, spacing, typography, radius } from '../../theme/tokens';
 import {
@@ -29,6 +31,12 @@ import {
   type BatchSnapshot,
   type DailyLogRow,
 } from '../../lib/kpis';
+import {
+  computeInsights,
+  type Insight,
+  type InsightBatchInput,
+  type InsightLogRow,
+} from '@poultryos/shared';
 
 const DEFAULT_HEAT_THRESHOLD = 35;
 
@@ -39,6 +47,8 @@ interface ActiveBatch {
   poultry_type: string;
   current_bird_count: number;
   opening_bird_count: number;
+  placement_date: string;
+  shed_id: string;
 }
 
 interface WeatherRow {
@@ -82,12 +92,14 @@ export default function DashboardScreen() {
 
   const [firstName, setFirstName] = useState('');
   const [batches, setBatches] = useState<ActiveBatch[]>([]);
+  const [shedCells, setShedCells] = useState<ShedCell[]>([]);
   const [weather, setWeather] = useState<WeatherRow | null>(null);
   const [alert, setAlert] = useState<AlertRow | null>(null);
   const [mortality7d, setMortality7d] = useState<number | null>(null);
   const [fcr, setFcr] = useState<number | null>(null);
   const [livability, setLivability] = useState<number | null>(null);
   const [eggsToday, setEggsToday] = useState<number>(0);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [marketPrice, setMarketPrice] = useState<MarketPriceRow | null>(null);
   const [shedCount, setShedCount] = useState<number | null>(null);
   const [hasDailyLog, setHasDailyLog] = useState<boolean | null>(null);
@@ -113,7 +125,7 @@ export default function DashboardScreen() {
         supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle(),
         supabase
           .from('batches')
-          .select('id, batch_code, breed_name, poultry_type, current_bird_count, opening_bird_count')
+          .select('id, batch_code, breed_name, poultry_type, current_bird_count, opening_bird_count, placement_date, shed_id')
           .eq('farm_id', farmId)
           .eq('status', 'active')
           .order('placement_date', { ascending: false }),
@@ -136,11 +148,17 @@ export default function DashboardScreen() {
               .limit(1)
               .maybeSingle()
           : Promise.resolve({ data: null, error: null }),
-        supabase.from('sheds').select('id', { count: 'exact', head: true }).eq('farm_id', farmId),
+        supabase.from('sheds').select('id, shed_name, capacity, status').eq('farm_id', farmId).order('shed_name'),
         supabase.from('daily_logs').select('id', { count: 'exact', head: true }).eq('farm_id', farmId).limit(1),
       ]);
 
-      setShedCount(shedRes.count ?? 0);
+      const shedRows = (shedRes.data ?? []) as {
+        id: string;
+        shed_name: string;
+        capacity: number | null;
+        status: string;
+      }[];
+      setShedCount(shedRows.length);
       setHasDailyLog((anyLogRes.count ?? 0) > 0);
 
       const fullName = profileRes.data?.full_name ?? '';
@@ -148,6 +166,22 @@ export default function DashboardScreen() {
 
       const batchRows = (batchRes.data ?? []) as ActiveBatch[];
       setBatches(batchRows);
+
+      // Build the farm-map cells: each active shed + its live occupancy.
+      const cells: ShedCell[] = shedRows
+        .filter((s) => s.status === 'active')
+        .map((s) => {
+          const inShed = batchRows.filter((b) => b.shed_id === s.id);
+          return {
+            id: s.id,
+            shedName: s.shed_name,
+            capacity: s.capacity,
+            birdCount: inShed.reduce((sum, b) => sum + (b.current_bird_count ?? 0), 0),
+            batchCode: inShed[0]?.batch_code ?? null,
+            extraBatches: Math.max(0, inShed.length - 1),
+          };
+        });
+      setShedCells(cells);
 
       setWeather((weatherRes.data as WeatherRow) ?? null);
       setAlert((alertRes.data as AlertRow) ?? null);
@@ -167,7 +201,7 @@ export default function DashboardScreen() {
 
       setMarketPrice((marketRes.data as MarketPriceRow) ?? null);
 
-      // FCR + Livability — only meaningful when there are active batches.
+      // FCR + Livability + Smart Insights — only meaningful with active batches.
       if (batchRows.length > 0) {
         const activeBatchIds = batchRows.map((b) => b.id);
         const snapshots: BatchSnapshot[] = batchRows.map((b) => ({
@@ -175,15 +209,33 @@ export default function DashboardScreen() {
           currentBirdCount: b.current_bird_count ?? 0,
           openingBirdCount: b.opening_bird_count ?? 0,
         }));
-        const { data: logsForFcr } = await supabase
+        // One query feeds both cumulative FCR (whole batch life) and the
+        // insights engine (which self-windows to the last 2 weeks internally).
+        const { data: logRows } = await supabase
           .from('daily_logs')
-          .select('batch_id, log_date, feed_consumed_kg, avg_bird_weight_g')
+          .select(
+            'batch_id, log_date, birds_dead, feed_consumed_kg, feed_cost_per_kg, eggs_collected, avg_bird_weight_g',
+          )
           .in('batch_id', activeBatchIds);
-        setFcr(aggregateFcr(snapshots, (logsForFcr ?? []) as DailyLogRow[]));
+        const allLogs = logRows ?? [];
+        setFcr(aggregateFcr(snapshots, allLogs as DailyLogRow[]));
         setLivability(aggregateLivability(snapshots));
+
+        const insightInputs: InsightBatchInput[] = batchRows.map((b) => ({
+          batchId: b.id,
+          batchCode: b.batch_code,
+          breedName: b.breed_name ?? null,
+          poultryType: (b.poultry_type as InsightBatchInput['poultryType']) ?? 'broiler',
+          openingBirdCount: b.opening_bird_count ?? 0,
+          currentBirdCount: b.current_bird_count ?? 0,
+          placementDate: b.placement_date,
+          logs: allLogs.filter((l) => l.batch_id === b.id) as InsightLogRow[],
+        }));
+        setInsights(computeInsights(insightInputs));
       } else {
         setFcr(null);
         setLivability(null);
+        setInsights([]);
       }
     } catch {
       // best-effort dashboard; leave whatever loaded
@@ -372,9 +424,18 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {/* Active batches */}
-        <Text style={styles.sectionLabel}>{t('dashboard.active_batches_section')}</Text>
-        {batches.length === 0 ? (
+        {/* Smart Insights — rule-based week-over-week deltas with ₹ impact */}
+        {insights.length > 0 && (
+          <InsightsCard
+            insights={insights}
+            onPressInsight={(i) => router.push(`/batches/${i.batchId}`)}
+            style={styles.insightsCard}
+          />
+        )}
+
+        {/* Farm map — shed-occupancy grid (incl. empty sheds) */}
+        <Text style={styles.sectionLabel}>{t('dashboard.farm_map_section')}</Text>
+        {shedCells.length === 0 ? (
           <EmptyState
             title={t('dashboard.empty_batches.title')}
             description={t('dashboard.empty_batches.description')}
@@ -382,25 +443,19 @@ export default function DashboardScreen() {
             onAction={() => router.push('/setup/sheds')}
           />
         ) : (
-          batches.map((b) => (
-            <Card
-              key={b.id}
-              onPress={() => router.push(`/batches/${b.id}`)}
-              style={styles.batchCard}
-            >
-              <View style={styles.batchRow}>
-                <View style={styles.batchInfo}>
-                  <Text style={styles.batchCode}>{b.batch_code}</Text>
-                  <Text style={styles.batchMeta}>
-                    {b.breed_name} · {b.poultry_type}
-                  </Text>
-                </View>
-                <Text style={styles.batchCount}>
-                  {(b.current_bird_count ?? 0).toLocaleString('en-IN')}
-                </Text>
-              </View>
-            </Card>
-          ))
+          <View style={styles.shedMapWrap}>
+            <ShedMap
+              sheds={shedCells}
+              emptyLabel={t('dashboard.shed_empty')}
+              birdsLabel={t('dashboard.shed_birds')}
+              moreLabel={(n) => t('dashboard.shed_more', { count: n })}
+              onPressShed={(shed) => {
+                const b = batches.find((x) => x.shed_id === shed.id);
+                if (b) router.push(`/batches/${b.id}`);
+                else router.push('/setup/sheds');
+              }}
+            />
+          </View>
         )}
       </ScrollView>
 
@@ -462,6 +517,12 @@ const styles = StyleSheet.create({
     ...typography.captionUppercase,
     color: colors.body,
     paddingHorizontal: spacing.lg,
+  },
+  shedMapWrap: {
+    marginHorizontal: spacing.lg,
+  },
+  insightsCard: {
+    marginHorizontal: spacing.lg,
   },
   batchCard: {
     marginHorizontal: spacing.lg,

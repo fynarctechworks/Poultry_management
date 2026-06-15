@@ -12,6 +12,11 @@ import {
   EmptyState,
 } from '../../components/ui';
 import { colors, spacing } from '../../theme/tokens';
+import {
+  dailyBurnByFeedType,
+  feedStockStatus,
+  type FeedConsumptionLog,
+} from '@poultryos/shared';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,6 +46,12 @@ const CATEGORY_FILTER_VALUES: CategoryFilter[] = [
   'equipment',
 ];
 
+function daysAgoISO(n: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
@@ -56,6 +67,7 @@ export default function InventoryScreen() {
   }));
 
   const [items, setItems] = useState<InventoryItem[] | null>(null);
+  const [burnByType, setBurnByType] = useState<Record<string, number>>({});
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [snackbar, setSnackbar] = useState<string | null>(null);
@@ -66,17 +78,28 @@ export default function InventoryScreen() {
 
   const loadItems = useCallback(async () => {
     if (!currentFarm) return;
-    const { data, error } = await supabase
-      .from('inventory_items')
-      .select('id, item_name, category, unit, current_stock, low_stock_threshold')
-      .eq('farm_id', currentFarm.id)
-      .order('item_name');
-    if (!error) {
-      setItems((data ?? []) as InventoryItem[]);
+    const [itemsRes, feedLogsRes] = await Promise.all([
+      supabase
+        .from('inventory_items')
+        .select('id, item_name, category, unit, current_stock, low_stock_threshold')
+        .eq('farm_id', currentFarm.id)
+        .order('item_name'),
+      // Recent feed consumption → days-of-stock burn rate (last 7 days).
+      supabase
+        .from('daily_logs')
+        .select('log_date, feed_type, feed_consumed_kg')
+        .eq('farm_id', currentFarm.id)
+        .gte('log_date', daysAgoISO(7)),
+    ]);
+    if (!itemsRes.error) {
+      setItems((itemsRes.data ?? []) as InventoryItem[]);
     } else {
-      setSnackbar(t('inventory.load_failed', { reason: error.message }));
+      setSnackbar(t('inventory.load_failed', { reason: itemsRes.error.message }));
       setItems([]);
     }
+    setBurnByType(
+      dailyBurnByFeedType((feedLogsRes.data ?? []) as FeedConsumptionLog[], 7),
+    );
   }, [currentFarm, t]);
 
   useFocusEffect(
@@ -177,18 +200,44 @@ export default function InventoryScreen() {
           />
         ) : (
           !isLoading &&
-          filteredItems.map((item) => (
-            <InventoryItemCard
-              key={item.id}
-              itemName={item.item_name}
-              category={item.category}
-              unit={item.unit}
-              currentStock={item.current_stock}
-              lowStockThreshold={item.low_stock_threshold}
-              style={styles.card}
-              testID={`inv-card-${item.id}`}
-            />
-          ))
+          filteredItems.map((item) => {
+            // Feed intelligence: estimate days-of-stock-left + reorder urgency.
+            const status =
+              item.category === 'feed'
+                ? feedStockStatus(
+                    {
+                      id: item.id,
+                      itemName: item.item_name,
+                      currentStock: item.current_stock,
+                      lowStockThreshold: item.low_stock_threshold,
+                    },
+                    burnByType,
+                  )
+                : null;
+            const daysLeftText =
+              status?.daysLeft != null
+                ? t('inventory.days_left', { count: Math.floor(status.daysLeft) })
+                : null;
+            const reorderText =
+              status && (status.severity === 'critical' || status.severity === 'warning')
+                ? t('inventory.reorder')
+                : null;
+            return (
+              <InventoryItemCard
+                key={item.id}
+                itemName={item.item_name}
+                category={item.category}
+                unit={item.unit}
+                currentStock={item.current_stock}
+                lowStockThreshold={item.low_stock_threshold}
+                daysLeftText={daysLeftText}
+                reorderText={reorderText}
+                reorderTone={status?.severity === 'critical' ? 'critical' : 'warning'}
+                style={styles.card}
+                testID={`inv-card-${item.id}`}
+              />
+            );
+          })
         )}
       </ScrollView>
 

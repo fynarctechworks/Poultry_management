@@ -82,6 +82,7 @@ export default function DailyLogScreen() {
       feed_type: values.feed_type,
       feed_cost_per_kg: values.feed_cost_per_kg ?? null,
       eggs_collected: values.eggs_collected ?? null,
+      broken_eggs: values.broken_eggs ?? null,
       avg_bird_weight_g: values.avg_bird_weight_g ?? null,
       notes: values.notes ?? null,
       is_synced: isOnline,
@@ -98,7 +99,21 @@ export default function DailyLogScreen() {
           }
           return;
         }
-        setSnackbar(t('daily_log.save_success'));
+        // If feed was logged, confirm a matching feed item exists so the user
+        // knows whether stock was deducted (never fail silently).
+        let successMsg = t('daily_log.save_success');
+        if (values.feed_consumed_kg > 0 && values.feed_type) {
+          const { data: feedItem } = await supabase
+            .from('inventory_items')
+            .select('id')
+            .eq('farm_id', currentFarm.id)
+            .eq('category', 'feed')
+            .ilike('item_name', `${values.feed_type}%`)
+            .limit(1)
+            .maybeSingle();
+          if (!feedItem) successMsg = t('daily_log.feed_stock_not_updated');
+        }
+        setSnackbar(successMsg);
         void track(FUNNEL.FIRST_DAILY_ENTRY, { batch_id: selectedBatchId });
         setFormKey((k) => k + 1);
       } else {
@@ -126,18 +141,20 @@ export default function DailyLogScreen() {
         </View>
       ) : (
         <>
-          <View style={styles.selectorWrap}>
-            <Select
-              label={t('daily_log.batch')}
-              options={batches.map((b) => ({
-                value: b.id,
-                label: `${b.batch_code} · ${b.breed_name}`,
-              }))}
-              value={selectedBatchId}
-              onChange={setSelectedBatchId}
-              placeholder={t('daily_log.select_batch')}
-            />
-          </View>
+          {batches.length > 1 && (
+            <View style={styles.selectorWrap}>
+              <Select
+                label={t('daily_log.batch')}
+                options={batches.map((b) => ({
+                  value: b.id,
+                  label: `${b.batch_code} · ${b.breed_name}`,
+                }))}
+                value={selectedBatchId}
+                onChange={setSelectedBatchId}
+                placeholder={t('daily_log.select_batch')}
+              />
+            </View>
+          )}
 
           {selectedBatchId && (
             <DailyLogForm
@@ -145,6 +162,7 @@ export default function DailyLogScreen() {
               batchId={selectedBatchId}
               farmId={currentFarm?.id ?? ''}
               loggedByUserId={user?.id ?? ''}
+              poultryType={batches.find((b) => b.id === selectedBatchId)?.poultry_type as 'broiler' | 'layer' | 'breeder' | undefined}
               onSubmit={handleSubmit}
               submitting={submitting}
             />

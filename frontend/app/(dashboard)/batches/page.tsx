@@ -1,6 +1,13 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY, formatCurrencyINR } from '@/lib/utils';
+import { InsightsPanel } from '@/components/InsightsPanel';
+import {
+  computeInsights,
+  type Insight,
+  type InsightBatchInput,
+  type InsightLogRow,
+} from '@poultryos/shared';
 
 export default async function BatchesPage({
   searchParams,
@@ -24,6 +31,38 @@ export default async function BatchesPage({
   if (farmFilter) q = q.eq('farm_id', farmFilter);
 
   const { data: batches } = await q;
+
+  // Smart Insights — always computed over ACTIVE batches in the current farm
+  // scope (insights only make sense for live flocks, regardless of the table's
+  // status filter). The engine self-windows to the last 2 weeks internally.
+  let activeQ = supabase
+    .from('batches')
+    .select('id, batch_code, breed_name, poultry_type, opening_bird_count, current_bird_count, placement_date')
+    .eq('status', 'active')
+    .limit(200);
+  if (farmFilter) activeQ = activeQ.eq('farm_id', farmFilter);
+  const { data: activeBatches } = await activeQ;
+
+  let insights: Insight[] = [];
+  if (activeBatches && activeBatches.length > 0) {
+    const ids = activeBatches.map((b) => b.id);
+    const { data: logRows } = await supabase
+      .from('daily_logs')
+      .select('batch_id, log_date, birds_dead, feed_consumed_kg, feed_cost_per_kg, eggs_collected, avg_bird_weight_g')
+      .in('batch_id', ids);
+    const logs = (logRows ?? []) as (InsightLogRow & { batch_id: string })[];
+    const inputs: InsightBatchInput[] = activeBatches.map((b: any) => ({
+      batchId: b.id,
+      batchCode: b.batch_code,
+      breedName: b.breed_name ?? null,
+      poultryType: b.poultry_type,
+      openingBirdCount: b.opening_bird_count ?? 0,
+      currentBirdCount: b.current_bird_count ?? 0,
+      placementDate: b.placement_date,
+      logs: logs.filter((l) => l.batch_id === b.id),
+    }));
+    insights = computeInsights(inputs);
+  }
 
   return (
     <div className="max-w-[1400px] mx-auto">
@@ -51,6 +90,8 @@ export default async function BatchesPage({
         </div>
         <button type="submit" className="btn-outline">Apply</button>
       </form>
+
+      <InsightsPanel insights={insights} />
 
       <div className="card p-0 overflow-x-auto">
         <table className="w-full text-sm">

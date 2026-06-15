@@ -19,9 +19,13 @@ const schema = z.object({
   batch_id: z.string().uuid().optional().or(z.literal('')),
   transaction_date: z.string().min(1, 'Pick a date'),
   payment_status: z.enum(['paid', 'pending', 'partial']),
+  amount_paid: z.coerce.number().optional(),
   due_date: z.string().optional(),
   notes: z.string().optional(),
-});
+}).refine(
+  (d) => d.payment_status !== 'partial' || (d.amount_paid != null && d.amount_paid > 0 && d.amount_paid < d.amount),
+  { message: 'For a partial payment, enter an amount paid between 0 and the total', path: ['amount_paid'] },
+);
 type Form = z.infer<typeof schema>;
 
 interface Props {
@@ -68,6 +72,9 @@ export function TransactionForm({ farms, buyers, batches }: Props) {
       batch_id: data.batch_id || null,
       transaction_date: data.transaction_date,
       payment_status: data.payment_status,
+      // amount_paid only refines a partial; 'paid'/'pending' derive outstanding
+      // from status server-side, so leave it null for them.
+      amount_paid: data.payment_status === 'partial' ? (data.amount_paid ?? null) : null,
       due_date: data.due_date || null,
       notes: data.notes || null,
     };
@@ -133,6 +140,11 @@ export function TransactionForm({ farms, buyers, batches }: Props) {
             <option value="partial">Partial</option>
           </select>
         </Field>
+        {paymentStatus === 'partial' && (
+          <Field label="Amount paid so far (₹)" error={errors.amount_paid?.message}>
+            <input type="number" step="0.01" className="input" {...register('amount_paid')} />
+          </Field>
+        )}
         {paymentStatus !== 'paid' && (
           <Field label="Due date">
             <input type="date" className="input" {...register('due_date')} />

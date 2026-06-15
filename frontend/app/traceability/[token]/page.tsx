@@ -5,15 +5,33 @@ import { DownloadCertificate } from './DownloadCertificate';
 
 export const dynamic = 'force-dynamic';
 
+// Shape returned by the get_traceability_by_token() RPC. The generated client
+// types the SECURITY DEFINER RPC result as `{}`, so we narrow it here.
+interface TraceRecord {
+  qr_token: string;
+  supplier_name: string;
+  breed_name: string;
+  placement_date: string;
+  harvest_date: string | null;
+  total_vaccinations: number | null;
+  health_incidents_count: number | null;
+  withdrawal_cleared: boolean;
+  buyer_name: string | null;
+  is_locked: boolean;
+  certificate_pdf_url: string | null;
+}
+
 export default async function TraceabilityPage({ params }: { params: { token: string } }) {
   const supabase = createSupabaseServerClient();
 
-  const { data: rec } = await supabase
-    .from('traceability_records')
-    .select('batch_id, supplier_name, placement_date, breed_name, total_vaccinations, health_incidents_count, withdrawal_cleared, harvest_date, buyer_name, certificate_pdf_url, is_locked, qr_token')
-    .eq('qr_token', params.token)
+  // Token-scoped accessor (SECURITY DEFINER). The anon role has no direct read
+  // on traceability_records — this RPC returns at most one row for an exact
+  // token, so records cannot be enumerated.
+  const { data } = await supabase
+    .rpc('get_traceability_by_token', { p_token: params.token })
     .maybeSingle();
 
+  const rec = data as TraceRecord | null;
   if (!rec) notFound();
 
   return (

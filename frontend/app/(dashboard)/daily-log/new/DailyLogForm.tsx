@@ -15,7 +15,11 @@ const schema = z.object({
   feed_consumed_kg: z.coerce.number().min(0),
   feed_type: z.enum(['starter', 'grower', 'finisher', 'layer', 'custom']).optional(),
   feed_cost_per_kg: z.coerce.number().optional(),
-  eggs_collected: z.coerce.number().int().min(0).optional(),
+  // Layer egg entry: up to 3 collections/day that sum into eggs_collected.
+  eggs_morning: z.coerce.number().int().min(0).optional(),
+  eggs_afternoon: z.coerce.number().int().min(0).optional(),
+  eggs_evening: z.coerce.number().int().min(0).optional(),
+  broken_eggs: z.coerce.number().int().min(0).optional(),
   avg_bird_weight_g: z.coerce.number().min(0).optional(),
   notes: z.string().optional(),
 });
@@ -28,6 +32,9 @@ export function DailyLogForm({ batches }: { batches: Batch[] }) {
   const supabase = createSupabaseBrowserClient();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Non-blocking notice when feed was logged but no matching feed item exists,
+  // so stock wasn't deducted. Holds the saved batch id for a follow-on link.
+  const [feedNotice, setFeedNotice] = useState<string | null>(null);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
@@ -41,6 +48,11 @@ export function DailyLogForm({ batches }: { batches: Batch[] }) {
 
   const selectedBatch = batches.find((b) => b.id === watch('batch_id'));
   const isLayer = selectedBatch?.poultry_type === 'layer' || selectedBatch?.poultry_type === 'breeder';
+
+  const eggsTotal =
+    (Number(watch('eggs_morning')) || 0) +
+    (Number(watch('eggs_afternoon')) || 0) +
+    (Number(watch('eggs_evening')) || 0);
 
   async function onSubmit(data: Form) {
     setError(null);
@@ -60,16 +72,54 @@ export function DailyLogForm({ batches }: { batches: Batch[] }) {
       feed_consumed_kg: data.feed_consumed_kg,
       feed_type: data.feed_type || null,
       feed_cost_per_kg: data.feed_cost_per_kg || null,
-      eggs_collected: data.eggs_collected || null,
+      eggs_collected: isLayer
+        ? ((data.eggs_morning || 0) + (data.eggs_afternoon || 0) + (data.eggs_evening || 0)) || null
+        : null,
+      broken_eggs: isLayer ? (data.broken_eggs || null) : null,
       avg_bird_weight_g: data.avg_bird_weight_g || null,
       notes: data.notes || null,
       is_synced: true,
     };
     const { error } = await supabase.from('daily_logs').insert(payload);
+    if (error) { setLoading(false); return setError(error.message); }
+
+    // If feed was logged, check a matching feed inventory item exists; if not,
+    // the trigger couldn't deduct — tell the user instead of silently drifting.
+    if (data.feed_consumed_kg > 0 && data.feed_type) {
+      const { data: feedItem } = await supabase
+        .from('inventory_items')
+        .select('id')
+        .eq('farm_id', batch.farm_id)
+        .eq('category', 'feed')
+        .ilike('item_name', `${data.feed_type}%`)
+        .limit(1)
+        .maybeSingle();
+      if (!feedItem) {
+        setLoading(false);
+        setFeedNotice(data.batch_id);
+        return;
+      }
+    }
+
     setLoading(false);
-    if (error) return setError(error.message);
     router.push(`/batches/${data.batch_id}`);
     router.refresh();
+  }
+
+  if (feedNotice) {
+    return (
+      <div className="card space-y-md">
+        <p className="text-base font-semibold text-ink">Daily log saved ✓</p>
+        <p className="text-sm text-warning-ink bg-warning-soft rounded-md px-md py-sm">
+          Feed stock was <strong>not updated</strong> — this farm has no matching feed
+          inventory item for that feed type. Add one under Inventory to track stock.
+        </p>
+        <div className="flex gap-md">
+          <button onClick={() => router.push(`/batches/${feedNotice}`)} className="btn-primary">View batch</button>
+          <button onClick={() => router.push('/inventory')} className="text-sm text-primary-dark font-semibold self-center">Set up feed inventory →</button>
+        </div>
+      </div>
+    );
   }
 
   if (batches.length === 0) {
@@ -125,8 +175,17 @@ export function DailyLogForm({ batches }: { batches: Batch[] }) {
           <input type="number" step="0.01" className="input" {...register('feed_cost_per_kg')} />
         </Field>
         {isLayer && (
-          <Field label="Eggs collected">
-            <input type="number" min={0} className="input" {...register('eggs_collected')} />
+          <Field label={`Eggs collected — total ${eggsTotal.toLocaleString('en-IN')}`}>
+            <div className="grid grid-cols-3 gap-sm">
+              <input type="number" min={0} placeholder="Morning" aria-label="Eggs collected — morning" className="input" {...register('eggs_morning')} />
+              <input type="number" min={0} placeholder="Afternoon" aria-label="Eggs collected — afternoon" className="input" {...register('eggs_afternoon')} />
+              <input type="number" min={0} placeholder="Evening" aria-label="Eggs collected — evening" className="input" {...register('eggs_evening')} />
+            </div>
+          </Field>
+        )}
+        {isLayer && (
+          <Field label="Broken eggs">
+            <input type="number" min={0} className="input" {...register('broken_eggs')} />
           </Field>
         )}
         <Field label="Avg bird weight (g)">

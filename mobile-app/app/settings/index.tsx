@@ -64,6 +64,13 @@ function makeSchema(t: TFunction) {
         (v) => !Number.isNaN(parseFloat(v)) && parseFloat(v) >= 20 && parseFloat(v) <= 50,
         t('settings.form.errors.heat_range'),
       ),
+    mortality_alert_threshold_pct: z
+      .string()
+      .trim()
+      .refine(
+        (v) => !Number.isNaN(parseFloat(v)) && parseFloat(v) > 0 && parseFloat(v) <= 100,
+        t('settings.form.errors.mortality_range'),
+      ),
     whatsapp_phone: z
       .string()
       .trim()
@@ -108,6 +115,7 @@ export default function SettingsScreen() {
       integrator_id: '',
       upi_id: '',
       heat_stress_threshold_celsius: '35.0',
+      mortality_alert_threshold_pct: '1.0',
       whatsapp_phone: '',
       whatsapp_opt_in: false,
     },
@@ -129,7 +137,7 @@ export default function SettingsScreen() {
       supabase
         .from('farms')
         .select(
-          'farm_name, owner_name, state, district, phone, gstin, farm_type, integrator_id, upi_id, heat_stress_threshold_celsius',
+          'farm_name, owner_name, state, district, phone, gstin, farm_type, integrator_id, upi_id, heat_stress_threshold_celsius, mortality_alert_threshold_pct',
         )
         .eq('id', currentFarm.id)
         .maybeSingle(),
@@ -157,6 +165,10 @@ export default function SettingsScreen() {
           f.heat_stress_threshold_celsius != null
             ? String(f.heat_stress_threshold_celsius)
             : '35.0',
+        mortality_alert_threshold_pct:
+          f.mortality_alert_threshold_pct != null
+            ? String(f.mortality_alert_threshold_pct)
+            : '1.0',
         whatsapp_phone: p?.whatsapp_phone ?? '',
         whatsapp_opt_in: p?.whatsapp_opt_in ?? false,
       });
@@ -187,6 +199,9 @@ export default function SettingsScreen() {
         upi_id: values.upi_id || null,
         heat_stress_threshold_celsius: parseFloat(
           values.heat_stress_threshold_celsius,
+        ),
+        mortality_alert_threshold_pct: parseFloat(
+          values.mortality_alert_threshold_pct,
         ),
         updated_at: new Date().toISOString(),
       };
@@ -403,6 +418,22 @@ export default function SettingsScreen() {
             />
             <Text style={styles.helperText}>
               {t('settings.form.heat_helper')}
+            </Text>
+            <Controller
+              control={control}
+              name="mortality_alert_threshold_pct"
+              render={({ field: { value, onChange } }) => (
+                <TextInput
+                  label={`${t('settings.form.mortality_threshold')} *`}
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="decimal-pad"
+                  error={errors.mortality_alert_threshold_pct?.message}
+                />
+              )}
+            />
+            <Text style={styles.helperText}>
+              {t('settings.form.mortality_helper')}
             </Text>
           </View>
         </Card>

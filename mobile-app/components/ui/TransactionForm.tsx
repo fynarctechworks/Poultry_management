@@ -25,6 +25,7 @@ export type TransactionFormValues = {
   counterparty?: string;
   transactionDate: string;
   paymentStatus: PaymentStatus;
+  amountPaid?: number;
   dueDate?: string;
   notes?: string;
 };
@@ -95,6 +96,7 @@ function makeSchema(t: TFunction) {
         .string()
         .regex(ISO_DATE_RE, t('transaction_form.errors.date_format')),
       paymentStatus: z.enum(['paid', 'pending', 'partial']),
+      amountPaid: numericOptional,
       dueDate: z
         .string()
         .optional()
@@ -109,6 +111,18 @@ function makeSchema(t: TFunction) {
       {
         message: t('transaction_form.errors.due_date_required'),
         path: ['dueDate'],
+      },
+    )
+    .refine(
+      (data) => {
+        if (data.paymentStatus !== 'partial') return true;
+        const paid = parseFloat(data.amountPaid ?? '');
+        const total = parseFloat(data.amount);
+        return !Number.isNaN(paid) && paid > 0 && !Number.isNaN(total) && paid < total;
+      },
+      {
+        message: t('transaction_form.errors.amount_paid_range'),
+        path: ['amountPaid'],
       },
     );
 }
@@ -145,6 +159,7 @@ export function TransactionForm({
       counterparty: '',
       transactionDate: todayISO(),
       paymentStatus: 'paid',
+      amountPaid: '',
       dueDate: '',
       notes: '',
     },
@@ -196,6 +211,10 @@ export function TransactionForm({
       counterparty: data.counterparty || undefined,
       transactionDate: data.transactionDate,
       paymentStatus: data.paymentStatus,
+      amountPaid:
+        data.paymentStatus === 'partial' && data.amountPaid && data.amountPaid !== ''
+          ? parseFloat(data.amountPaid)
+          : undefined,
       dueDate: data.dueDate && data.dueDate !== '' ? data.dueDate : undefined,
       notes: data.notes || undefined,
     };
@@ -355,6 +374,23 @@ export function TransactionForm({
           />
         )}
       />
+
+      {paymentStatus === 'partial' ? (
+        <Controller
+          control={control}
+          name="amountPaid"
+          render={({ field: { value, onChange } }) => (
+            <TextInput
+              label={`${t('transaction_form.amount_paid_label')} *`}
+              value={value ?? ''}
+              onChangeText={onChange}
+              keyboardType="decimal-pad"
+              error={errors.amountPaid?.message}
+              testID="tx-amount-paid"
+            />
+          )}
+        />
+      ) : null}
 
       {paymentStatus !== 'paid' ? (
         <Controller

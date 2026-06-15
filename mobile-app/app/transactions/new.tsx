@@ -68,6 +68,7 @@ export default function NewTransactionScreen() {
         buyer_or_supplier: values.counterparty ?? null,
         transaction_date: values.transactionDate,
         payment_status: values.paymentStatus,
+        amount_paid: values.paymentStatus === 'partial' ? (values.amountPaid ?? null) : null,
         due_date: values.dueDate ?? null,
         notes: values.notes ?? null,
       });

@@ -17,7 +17,7 @@ export default async function ReceivablesAgingPage() {
 
   const { data: txns } = await supabase
     .from('financial_transactions')
-    .select('id, amount, transaction_date, due_date, payment_status, buyer_or_supplier, buyer_id, buyers(buyer_name, phone, whatsapp_phone), farms(farm_name, upi_id)')
+    .select('id, amount, amount_paid, transaction_date, due_date, payment_status, buyer_or_supplier, buyer_id, buyers(buyer_name, phone, whatsapp_phone), farms(farm_name, upi_id)')
     .eq('transaction_type', 'income')
     .in('payment_status', ['pending', 'partial'])
     .order('due_date', { ascending: true });
@@ -26,6 +26,13 @@ export default async function ReceivablesAgingPage() {
   const rows = (txns ?? []).map((t: any) => {
     const ref = t.due_date ?? t.transaction_date;
     const days = ref ? Math.max(0, Math.floor((today.getTime() - new Date(ref).getTime()) / 86400000)) : 0;
+    // Age the OUTSTANDING amount, not the gross. Mirrors the DB legacy fallback:
+    // amount_paid when recorded, else partial→50%, pending→0.
+    const gross = Number(t.amount ?? 0);
+    const paid = t.amount_paid != null
+      ? Number(t.amount_paid)
+      : (t.payment_status === 'partial' ? gross * 0.5 : 0);
+    const outstanding = Math.max(0, gross - paid);
     return {
       id: t.id,
       party: t.buyers?.buyer_name ?? t.buyer_or_supplier ?? '—',
@@ -33,7 +40,7 @@ export default async function ReceivablesAgingPage() {
       phone: (t.buyers?.whatsapp_phone ?? t.buyers?.phone ?? null) as string | null,
       farmName: (t.farms?.farm_name ?? 'PoultryOS') as string,
       farmUpi: (t.farms?.upi_id ?? null) as string | null,
-      amount: Number(t.amount ?? 0),
+      amount: outstanding,
       dueDate: t.due_date ?? t.transaction_date,
       days,
       bucket: bucketFor(days),

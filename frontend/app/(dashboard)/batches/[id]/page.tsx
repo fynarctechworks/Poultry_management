@@ -4,14 +4,26 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { ProfitCalculator } from './ProfitCalculator';
 import { CloseBatchForm } from './CloseBatchForm';
+import { TransferBatchForm } from './TransferBatchForm';
+import { HarvestForm } from './HarvestForm';
+import { HdepCurve } from './HdepCurve';
+import { SellTimingCard } from './SellTimingCard';
 import { DeleteButton } from '@/components/DeleteButton';
+import {
+  computeHdepSeries,
+  computeSellTiming,
+  deriveSellTimingInput,
+  findBenchmark,
+  type SellTimingResult,
+  type SellTimingLogRow,
+} from '@poultryos/shared';
 
 export default async function BatchDetailPage({ params }: { params: { id: string } }) {
   const supabase = createSupabaseServerClient();
 
   const { data: batch } = await supabase
     .from('batches')
-    .select('id, batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, source_supplier, cost_per_bird, status, harvest_date, birds_sold, sale_weight_kg, sale_price_per_kg, total_sale_revenue, farm_id, sheds(shed_name, farm_id)')
+    .select('id, batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, source_supplier, cost_per_bird, status, harvest_date, birds_sold, sale_weight_kg, sale_price_per_kg, total_sale_revenue, farm_id, shed_id, sheds(shed_name, farm_id)')
     .eq('id', params.id)
     .maybeSingle();
 
@@ -37,6 +49,33 @@ export default async function BatchDetailPage({ params }: { params: { id: string
       .limit(10),
   ]);
 
+  // Sheds on this farm (for the transfer picker) + move history + harvest lots + buyers.
+  const [{ data: farmSheds }, { data: transfers }, { data: harvests }, { data: buyers }] = await Promise.all([
+    supabase
+      .from('sheds')
+      .select('id, shed_name, capacity, poultry_type, status')
+      .eq('farm_id', batch.farm_id)
+      .order('shed_name'),
+    supabase
+      .from('batch_transfers')
+      .select('id, transfer_date, bird_count, notes, from_shed:sheds!from_shed_id(shed_name), to_shed:sheds!to_shed_id(shed_name)')
+      .eq('batch_id', params.id)
+      .order('transfer_date', { ascending: false }),
+    supabase
+      .from('batch_harvests')
+      .select('id, harvest_date, birds_harvested, avg_weight_kg, price_per_kg, revenue, notes, buyers(buyer_name)')
+      .eq('batch_id', params.id)
+      .order('harvest_date', { ascending: false }),
+    supabase
+      .from('buyers')
+      .select('id, buyer_name')
+      .eq('farm_id', batch.farm_id)
+      .order('buyer_name'),
+  ]);
+
+  const harvestedBirds = (harvests ?? []).reduce((s, h) => s + (h.birds_harvested ?? 0), 0);
+  const harvestRevenue = (harvests ?? []).reduce((s, h) => s + Number(h.revenue ?? 0), 0);
+
   const totalDeaths = (logs ?? []).reduce((s, l) => s + (l.birds_dead ?? 0), 0);
   const totalFeed = (logs ?? []).reduce((s, l) => s + Number(l.feed_consumed_kg ?? 0), 0);
 
@@ -53,6 +92,61 @@ export default async function BatchDetailPage({ params }: { params: { id: string
     ? ((batch.current_bird_count / batch.opening_bird_count) * 100).toFixed(1)
     : '—';
   const ageDays = Math.max(0, Math.floor((Date.now() - new Date(batch.placement_date).getTime()) / 86400000));
+
+  // ---- Phase 3 operational intelligence -------------------------------------
+  const bench = findBenchmark(batch.breed_name, batch.poultry_type);
+  const isLayer = batch.poultry_type === 'layer' || batch.poultry_type === 'breeder';
+  const isBroiler = batch.poultry_type === 'broiler' || batch.poultry_type === 'breeder';
+
+  let hdepData: { week: number; hdep: number }[] = [];
+  if (isLayer) {
+    const { data: eggLogs } = await supabase
+      .from('daily_logs')
+      .select('log_date, eggs_collected')
+      .eq('batch_id', params.id)
+      .order('log_date');
+    hdepData = computeHdepSeries(
+      (eggLogs ?? []).map((l) => ({ log_date: l.log_date, eggs_collected: l.eggs_collected })),
+      batch.current_bird_count,
+      batch.placement_date,
+    ).map((p) => ({ week: p.weekIndex, hdep: Math.round(p.hdep) }));
+  }
+
+  let sellTiming: SellTimingResult | null = null;
+  if (isBroiler && batch.status === 'active') {
+    const [{ data: stLogs }, { data: farm }] = await Promise.all([
+      supabase
+        .from('daily_logs')
+        .select('log_date, feed_consumed_kg, feed_cost_per_kg, avg_bird_weight_g')
+        .eq('batch_id', params.id)
+        .order('log_date'),
+      supabase
+        .from('farms')
+        .select('state, market_price_override_broiler')
+        .eq('id', batch.farm_id)
+        .maybeSingle(),
+    ]);
+    let pricePerKg = 0;
+    if (farm?.state) {
+      const { data: mp } = await supabase
+        .from('market_prices')
+        .select('broiler_price_per_kg')
+        .eq('state', farm.state)
+        .order('price_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      pricePerKg = Number(mp?.broiler_price_per_kg ?? 0);
+    }
+    if (!pricePerKg) pricePerKg = Number(farm?.market_price_override_broiler ?? 0);
+
+    sellTiming = computeSellTiming(
+      deriveSellTimingInput((stLogs ?? []) as SellTimingLogRow[], {
+        birds: batch.current_bird_count,
+        pricePerKg,
+        targetWeightKg: bench?.targetWeightKg ?? null,
+      }),
+    );
+  }
 
   return (
     <div className="max-w-[1200px] mx-auto">
@@ -78,8 +172,19 @@ export default async function BatchDetailPage({ params }: { params: { id: string
       </div>
 
       {batch.status === 'active' && (
-        <div className="mt-md">
+        <div className="mt-md flex flex-wrap gap-md">
           <CloseBatchForm batchId={batch.id} />
+          <TransferBatchForm
+            batchId={batch.id}
+            currentShedId={batch.shed_id}
+            poultryType={batch.poultry_type}
+            sheds={farmSheds ?? []}
+          />
+          <HarvestForm
+            batchId={batch.id}
+            currentBirdCount={batch.current_bird_count}
+            buyers={buyers ?? []}
+          />
         </div>
       )}
 
@@ -101,6 +206,23 @@ export default async function BatchDetailPage({ params }: { params: { id: string
           totalCostSoFar={totalCostSoFar}
           defaultPricePerKg={120}
         />
+      )}
+
+      {sellTiming && (
+        <div className="mt-2xl">
+          <SellTimingCard result={sellTiming} />
+        </div>
+      )}
+
+      {hdepData.length > 0 && (
+        <section className="mt-2xl">
+          <h2 className="text-lg font-bold text-ink mb-md">
+            Egg production curve (HDEP){bench?.peakHdepPct ? ` · peak ~${bench.peakHdepPct}%` : ''}
+          </h2>
+          <div className="card">
+            <HdepCurve data={hdepData} peakHdepPct={bench?.peakHdepPct ?? null} />
+          </div>
+        </section>
       )}
 
       <section className="mt-2xl">
@@ -133,6 +255,71 @@ export default async function BatchDetailPage({ params }: { params: { id: string
           </table>
         </div>
       </section>
+
+      <section className="mt-2xl">
+        <h2 className="text-lg font-bold text-ink mb-md">Location history</h2>
+        <div className="card space-y-md">
+          <div className="flex items-start gap-md">
+            <span className="mt-xxs h-2.5 w-2.5 rounded-full bg-primary shrink-0" />
+            <div className="text-sm">
+              <p className="font-semibold text-ink">Placed in {(batch.sheds as any)?.shed_name ?? 'shed'}</p>
+              <p className="text-xs text-body-soft">{formatDateDDMonYYYY(batch.placement_date)} · {batch.opening_bird_count.toLocaleString('en-IN')} birds</p>
+            </div>
+          </div>
+          {(transfers ?? []).map((t) => (
+            <div key={t.id} className="flex items-start gap-md">
+              <span className="mt-xxs h-2.5 w-2.5 rounded-full bg-success shrink-0" />
+              <div className="text-sm">
+                <p className="font-semibold text-ink">
+                  {(t.from_shed as any)?.shed_name ?? '—'} &rarr; {(t.to_shed as any)?.shed_name ?? '—'}
+                </p>
+                <p className="text-xs text-body-soft">
+                  {formatDateDDMonYYYY(t.transfer_date)} · {Number(t.bird_count).toLocaleString('en-IN')} birds moved
+                  {t.notes ? ` · ${t.notes}` : ''}
+                </p>
+              </div>
+            </div>
+          ))}
+          {(!transfers || transfers.length === 0) && (
+            <p className="text-sm text-body">No shed transfers yet — this batch has stayed in its placement shed.</p>
+          )}
+        </div>
+      </section>
+
+      {(harvests ?? []).length > 0 && (
+        <section className="mt-2xl">
+          <div className="flex items-baseline justify-between mb-md">
+            <h2 className="text-lg font-bold text-ink">Harvests</h2>
+            <p className="text-sm text-body">{harvestedBirds.toLocaleString('en-IN')} birds · {formatCurrencyINR(harvestRevenue)} revenue</p>
+          </div>
+          <div className="card overflow-x-auto p-0">
+            <table className="w-full text-sm">
+              <thead className="bg-canvas-soft border-b border-mute">
+                <tr className="text-left text-xs uppercase tracking-wider text-body-soft">
+                  <th className="px-md py-sm">Date</th>
+                  <th className="px-md py-sm text-right">Birds</th>
+                  <th className="px-md py-sm text-right">Avg wt (kg)</th>
+                  <th className="px-md py-sm text-right">₹/kg</th>
+                  <th className="px-md py-sm text-right">Revenue</th>
+                  <th className="px-md py-sm">Buyer</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(harvests ?? []).map((h) => (
+                  <tr key={h.id} className="border-b border-mute last:border-0">
+                    <td className="px-md py-md">{formatDateDDMonYYYY(h.harvest_date)}</td>
+                    <td className="px-md py-md text-right tabular-nums">{h.birds_harvested}</td>
+                    <td className="px-md py-md text-right tabular-nums">{Number(h.avg_weight_kg)}</td>
+                    <td className="px-md py-md text-right tabular-nums">{Number(h.price_per_kg)}</td>
+                    <td className="px-md py-md text-right tabular-nums font-semibold">{formatCurrencyINR(Number(h.revenue ?? 0))}</td>
+                    <td className="px-md py-md text-body">{(h.buyers as any)?.buyer_name ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section className="mt-2xl grid grid-cols-1 lg:grid-cols-2 gap-lg">
         <div>

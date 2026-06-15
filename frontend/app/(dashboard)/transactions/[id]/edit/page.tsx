@@ -9,7 +9,7 @@ export default async function EditTransactionPage({ params }: { params: { id: st
   const [{ data: txn }, { data: farms }, { data: buyers }, { data: batches }] = await Promise.all([
     supabase
       .from('financial_transactions')
-      .select('id, farm_id, transaction_type, category, amount, quantity, price_per_unit, buyer_id, buyer_or_supplier, batch_id, transaction_date, payment_status, due_date, notes')
+      .select('id, farm_id, transaction_type, category, amount, quantity, price_per_unit, buyer_id, buyer_or_supplier, batch_id, transaction_date, payment_status, amount_paid, due_date, notes')
       .eq('id', params.id)
       .maybeSingle(),
     supabase.from('farms').select('id, farm_name').order('farm_name'),

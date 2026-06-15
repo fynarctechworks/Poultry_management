@@ -8,7 +8,7 @@ export default async function EditFarmPage({ params }: { params: { id: string } 
 
   const { data: farm } = await supabase
     .from('farms')
-    .select('id, farm_name, owner_name, state, district, phone, gstin, farm_type, upi_id, latitude, longitude, heat_stress_threshold_celsius')
+    .select('id, farm_name, owner_name, state, district, phone, gstin, farm_type, upi_id, latitude, longitude, heat_stress_threshold_celsius, mortality_alert_threshold_pct')
     .eq('id', params.id)
     .maybeSingle();
 

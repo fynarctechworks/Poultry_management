@@ -22,11 +22,21 @@ export default async function FarmDetailPage({ params }: { params: { id: string 
       .order('shed_name'),
     supabase
       .from('batches')
-      .select('id, batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, status, sheds(shed_name)')
+      .select('id, batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, status, shed_id, sheds(shed_name)')
       .eq('farm_id', params.id)
       .order('placement_date', { ascending: false })
       .limit(50),
   ]);
+
+  // Farm-map occupancy: sum live birds of active batches per shed.
+  const occByShed = new Map<string, { birds: number; codes: string[] }>();
+  for (const b of (batches ?? []) as any[]) {
+    if (b.status !== 'active' || !b.shed_id) continue;
+    const e = occByShed.get(b.shed_id) ?? { birds: 0, codes: [] };
+    e.birds += b.current_bird_count ?? 0;
+    e.codes.push(b.batch_code);
+    occByShed.set(b.shed_id, e);
+  }
 
   return (
     <div className="max-w-[1200px] mx-auto">
@@ -55,19 +65,35 @@ export default async function FarmDetailPage({ params }: { params: { id: string 
           <h2 className="text-lg font-bold text-ink">Sheds</h2>
           <Link href="/sheds/new" className="btn-subtle text-sm">+ Add shed</Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-          {(sheds ?? []).map((s) => (
-            <div key={s.id} className="card">
-              <div className="flex items-start justify-between">
-                <p className="font-semibold text-ink">{s.shed_name}</p>
-                <Link href={`/sheds/${s.id}/edit`} className="text-xs text-primary-dark font-semibold">Edit</Link>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+          {(sheds ?? []).map((s) => {
+            const occ = occByShed.get(s.id);
+            const occupied = !!occ && occ.birds > 0;
+            const pct = s.capacity && s.capacity > 0 && occ ? Math.min(100, Math.round((occ.birds / s.capacity) * 100)) : null;
+            return (
+              <div key={s.id} className="card">
+                <div className="flex items-start justify-between">
+                  <p className="text-xs uppercase tracking-wider text-body-soft">{s.shed_name}</p>
+                  <Link href={`/sheds/${s.id}/edit`} className="text-xs text-primary-dark font-semibold">Edit</Link>
+                </div>
+                {occupied ? (
+                  <>
+                    <p className="text-2xl font-bold text-primary mt-xs">{occ!.birds.toLocaleString('en-IN')}</p>
+                    <p className="text-xs text-body-soft -mt-xxs">birds</p>
+                    <p className="text-xs font-semibold text-ink mt-xs truncate">{occ!.codes.join(', ')}</p>
+                    {pct != null && (
+                      <div className="h-1 rounded-full bg-mute mt-sm overflow-hidden">
+                        <div className="h-1 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-base text-body-soft mt-md">Empty</p>
+                )}
+                <p className="text-xs text-body-soft mt-sm">{s.poultry_type} · {s.capacity} cap{s.status !== 'active' ? ` · ${s.status}` : ''}</p>
               </div>
-              <p className="text-xs text-body-soft mt-xxs">{s.poultry_type} · {s.capacity} cap</p>
-              <span className={`inline-block mt-sm px-sm py-xxs rounded-md text-xs font-semibold ${s.status === 'active' ? 'bg-success-soft text-success-ink' : 'bg-mute-soft text-body'}`}>
-                {s.status}
-              </span>
-            </div>
-          ))}
+            );
+          })}
           {(!sheds || sheds.length === 0) && (
             <p className="text-sm text-body">No sheds yet.</p>
           )}

@@ -12,6 +12,12 @@ export interface InventoryItemCardProps {
   unit: 'kg' | 'litres' | 'units';
   currentStock: number;
   lowStockThreshold: number;
+  /** Feed intelligence: pre-formatted "~5 days left" caption (caller i18n's it). */
+  daysLeftText?: string | null;
+  /** When set, shows a reorder pill (takes precedence over the low-stock pill). */
+  reorderText?: string | null;
+  /** Reorder urgency colour. critical = danger, warning = amber. Default warning. */
+  reorderTone?: 'warning' | 'critical';
   onPress?: () => void;
   style?: ViewStyle;
   testID?: string;
@@ -38,11 +44,15 @@ export function InventoryItemCard({
   unit,
   currentStock,
   lowStockThreshold,
+  daysLeftText,
+  reorderText,
+  reorderTone = 'warning',
   onPress,
   style,
   testID,
 }: InventoryItemCardProps) {
   const isLowStock = lowStockThreshold > 0 && currentStock <= lowStockThreshold;
+  const isCritical = reorderTone === 'critical';
 
   const inner = (
     <View style={styles.inner}>
@@ -58,16 +68,25 @@ export function InventoryItemCard({
         </View>
       </View>
 
-      {/* Bottom row: stock amount + optional low-stock pill */}
+      {/* Bottom row: stock amount + days-left + reorder / low-stock pill */}
       <View style={styles.bottomRow}>
         <Text style={styles.stockText}>
           {currentStock} {unit}
         </Text>
-        {isLowStock && (
+        {daysLeftText ? (
+          <Text style={styles.daysLeftText}>· {daysLeftText}</Text>
+        ) : null}
+        {reorderText ? (
+          <View style={[styles.lowStockPill, isCritical && styles.criticalPill]}>
+            <Text style={[styles.lowStockLabel, isCritical && styles.criticalLabel]}>
+              {reorderText}
+            </Text>
+          </View>
+        ) : isLowStock ? (
           <View style={styles.lowStockPill}>
             <Text style={styles.lowStockLabel}>Low stock</Text>
           </View>
-        )}
+        ) : null}
       </View>
     </View>
   );
@@ -155,6 +174,14 @@ const styles = StyleSheet.create({
     fontFamily: typography.bodySm.fontFamily,
     color: colors.ink,
   },
+  daysLeftText: {
+    fontSize: typography.bodySm.fontSize,
+    lineHeight: typography.bodySm.lineHeight,
+    fontWeight: typography.bodySm.fontWeight,
+    fontFamily: typography.bodySm.fontFamily,
+    color: colors.body,
+    flex: 1,
+  },
   lowStockPill: {
     backgroundColor: colors.warningSoft,
     borderRadius: radius.pillMd,
@@ -167,5 +194,11 @@ const styles = StyleSheet.create({
     fontWeight: typography.captionStrong.fontWeight,
     fontFamily: typography.captionStrong.fontFamily,
     color: colors.warningInk,
+  },
+  criticalPill: {
+    backgroundColor: colors.warningSoft,
+  },
+  criticalLabel: {
+    color: colors.danger,
   },
 });

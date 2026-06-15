@@ -92,6 +92,10 @@
     "title": "डैशबोर्ड",
     "hello": "नमस्ते",
     "active_batches_section": "सक्रिय बैच",
+    "farm_map_section": "फार्म नक्शा",
+    "shed_empty": "खाली",
+    "shed_birds": "पक्षी",
+    "shed_more": "+{{count}} और",
     "empty_batches": {
       "title": "कोई सक्रिय बैच नहीं",
       "description": "ट्रैक करने के लिए शेड और बैच जोड़ें।",
@@ -124,6 +128,34 @@
     },
     "log_today_cta": "आज का डेटा दर्ज करें"
   },
+  "insights": {
+    "section_title": "स्मार्ट सुझाव",
+    "costing": "लागत ~{{amount}}/सप्ताह",
+    "saving": "बचत ~{{amount}}/सप्ताह",
+    "more": "+{{count}} और सुझाव",
+    "fcr": {
+      "up_title": "FCR बढ़ रहा है",
+      "down_title": "FCR सुधर रहा है",
+      "detail": "FCR {{from}} → {{to}} सप्ताह-दर-सप्ताह बदला।",
+      "detail_bench": "FCR {{from}} → {{to}} सप्ताह-दर-सप्ताह बदला (लक्ष्य {{target}})।"
+    },
+    "mortality": {
+      "up_title": "मृत्यु दर बढ़ रही है",
+      "down_title": "मृत्यु दर घट रही है",
+      "detail": "इस सप्ताह {{deaths_recent}} मौतें बनाम पिछले सप्ताह {{deaths_prior}} (झुंड का {{pct_recent}}% बनाम {{pct_prior}}%)।",
+      "above_suffix": " — नस्ल मानक से अधिक।"
+    },
+    "feed": {
+      "title": "चारा बढ़ा पर वजन स्थिर",
+      "detail": "चारा {{pct}}% बढ़ा ({{from}} → {{to}} किग्रा) पर पक्षियों का वजन नहीं बढ़ा — बर्बादी, चोरी या बीमारी जांचें।"
+    },
+    "production": {
+      "down_title": "अंडा उत्पादन गिरा",
+      "up_title": "अंडा उत्पादन बढ़ा",
+      "detail": "HDEP {{from}}% → {{to}}% — पिछले सप्ताह की तुलना में {{eggs}} अंडे/सप्ताह।",
+      "detail_bench": "HDEP {{from}}% → {{to}}% (शिखर ~{{peak}}%) — पिछले सप्ताह की तुलना में {{eggs}} अंडे/सप्ताह।"
+    }
+  },
   "daily_log": {
     "title": "दैनिक लॉग",
     "fields": {
@@ -134,6 +166,7 @@
       "feed_type": "दाने का प्रकार",
       "feed_cost_per_kg": "दाने की कीमत प्रति किलो",
       "eggs_collected": "एकत्रित अंडे",
+      "broken_eggs": "टूटे अंडे",
       "avg_bird_weight_g": "औसत पक्षी वजन (ग्राम)",
       "notes": "नोट्स"
     },
@@ -143,6 +176,12 @@
       "injury": "चोट",
       "heat_stress": "गर्मी",
       "unknown": "अज्ञात"
+    },
+    "egg_slots": {
+      "morning": "सुबह",
+      "afternoon": "दोपहर",
+      "evening": "शाम",
+      "total": "आज कुल: {{count}}"
     },
     "feed_type": {
       "starter": "स्टार्टर",
@@ -160,6 +199,8 @@
     "select_batch_hint": "लॉग शुरू करने के लिए ऊपर से बैच चुनें।",
     "feed_cost_per_kg_inr": "दाने की कीमत प्रति किलो (₹)",
     "log_date": "लॉग की तारीख",
+    "date_today": "आज",
+    "date_yesterday": "कल",
     "date_placeholder": "YYYY-MM-DD",
     "no_active_batches": {
       "title": "कोई सक्रिय बैच नहीं",
@@ -167,7 +208,8 @@
     },
     "duplicate_error": "इस बैच के लिए {{date}} का लॉग पहले से है",
     "save_failed": "सहेजने में विफल",
-    "save_success": "सहेजा गया — पक्षी गणना और अलर्ट अपडेट हो रहे हैं"
+    "save_success": "सहेजा गया — पक्षी गणना और अलर्ट अपडेट हो रहे हैं",
+    "feed_stock_not_updated": "सहेजा गया — लेकिन फ़ीड स्टॉक अपडेट नहीं हुआ (कोई मेल खाता फ़ीड आइटम नहीं)"
   },
   "settings": {
     "title": "सेटिंग्स",
@@ -201,6 +243,8 @@
       "upi_helper": "खाता मॉड्यूल में खरीदारों के साथ साझा UPI QR कोड के लिए।",
       "heat_threshold": "गर्मी अलर्ट सीमा (°C)",
       "heat_helper": "पूर्वानुमान अधिकतम इस मान से अधिक होने पर गर्मी अलर्ट ट्रिगर करता है। डिफ़ॉल्ट 35 °C।",
+      "mortality_threshold": "मृत्यु अलर्ट सीमा (% / दिन)",
+      "mortality_helper": "जब किसी दिन की मृत्यु प्रारंभिक पक्षियों के इस % से अधिक हो जाती है तो मृत्यु अलर्ट भेजता है। डिफ़ॉल्ट 1%।",
       "whatsapp_phone": "WhatsApp फ़ोन",
       "wa_toggle": "WhatsApp अलर्ट प्राप्त करें",
       "wa_toggle_desc": "दैनिक सारांश, मृत्यु अलर्ट, गर्मी अलर्ट, भुगतान रिमाइंडर।",
@@ -210,7 +254,8 @@
         "phone_invalid": "अमान्य फ़ोन",
         "whatsapp_phone_invalid": "अमान्य WhatsApp नंबर",
         "upi_invalid": "UPI ID name@bank प्रारूप में होना चाहिए",
-        "heat_range": "20–50 °C के बीच होना चाहिए"
+        "heat_range": "20–50 °C के बीच होना चाहिए",
+        "mortality_range": "0 और 100 के बीच होना चाहिए"
       }
     }
   },
@@ -580,6 +625,12 @@
     "view_vaccinations": "टीकाकरण देखें",
     "view_health": "स्वास्थ्य घटनाएं देखें",
     "close_batch": "बैच बंद करें (कटाई)",
+    "record_harvest": "कटाई / बिक्री दर्ज करें",
+    "transfer_batch": "दूसरे शेड में स्थानांतरित करें",
+    "batch_transferred": "बैच नए शेड में स्थानांतरित किया गया।",
+    "location_history": "स्थान इतिहास",
+    "placed_in": "शेड में रखा गया · {{date}}",
+    "no_transfers": "अभी तक कोई शेड स्थानांतरण नहीं — यह बैच अपने प्रारंभिक शेड में ही रहा है।",
     "view_certificate": "ट्रेसेबिलिटी सर्टिफिकेट देखें",
     "generating": "बना रहा है…",
     "generate_certificate": "ट्रेसेबिलिटी सर्टिफिकेट बनाएं",
@@ -589,6 +640,53 @@
       "generate_failed": "सर्टिफिकेट बनाने में विफल"
     },
     "batch_closed": "बैच बंद — लाभ-हानि लॉक।"
+  },
+  "hdep": {
+    "title": "अंडा उत्पादन वक्र (HDEP)",
+    "current": "वर्तमान",
+    "peak": "शिखर ~{{pct}}%",
+    "weeks_axis": "रखे जाने के बाद के सप्ताह"
+  },
+  "sell_timing": {
+    "title": "बिक्री का समय",
+    "sell_now": "अभी बेचें",
+    "keep_growing": "बढ़ने दें",
+    "unknown": "बिक्री-बनाम-वृद्धि सुझाव देखने के लिए हाल का वजन, चारा लागत और आज का ब्रॉयलर भाव जोड़ें।",
+    "explain_sell": "अब हर अतिरिक्त दिन में चारे की लागत बढ़े हुए वजन के मूल्य से अधिक है।",
+    "explain_grow": "हर अतिरिक्त दिन अभी भी चारे की लागत से अधिक मूल्य जोड़ता है।",
+    "extra_revenue": "अतिरिक्त आय",
+    "extra_feed_cost": "अतिरिक्त चारा लागत",
+    "net_per_day": "प्रति दिन शुद्ध",
+    "days_to_target": "लक्ष्य वजन तक दिन",
+    "day": "दिन",
+    "days_one": "{{count}} दिन",
+    "days_other": "{{count}} दिन"
+  },
+  "harvest": {
+    "title": "कटाई दर्ज करें — {{code}}",
+    "subtitle": "अभी {{count}} पक्षी जीवित हैं। झुंड का कुछ हिस्सा बेचने से बैच बंद किए बिना घनत्व कम होता है।",
+    "birds": "कटाई किए गए पक्षी *",
+    "avg_weight": "औसत वजन (किग्रा) *",
+    "price_per_kg": "मूल्य / किग्रा (₹) *",
+    "date": "तारीख *",
+    "buyer": "खरीदार (खाता, वैकल्पिक)",
+    "buyer_none": "— कोई नहीं —",
+    "payment_status": "भुगतान स्थिति",
+    "status": { "paid": "भुगतान हुआ", "pending": "बाकी", "partial": "आंशिक" },
+    "notes": "नोट्स (वैकल्पिक)",
+    "revenue_booked": "दर्ज आय",
+    "revenue_formula": "{{birds}} पक्षी × {{weight}} किग्रा × {{price}}/किग्रा",
+    "submit": "कटाई दर्ज करें",
+    "success": "कटाई दर्ज — लाभ-हानि अपडेट हुई।",
+    "errors": {
+      "birds_range": "पक्षी 1 और {{max}} के बीच होने चाहिए",
+      "weight_positive": "मान्य औसत वजन दर्ज करें",
+      "price_non_negative": "मान्य प्रति किग्रा मूल्य दर्ज करें",
+      "date_format": "तारीख YYYY-MM-DD होनी चाहिए",
+      "date_after_placement": "रखे जाने की तारीख या उसके बाद होनी चाहिए",
+      "date_future": "भविष्य की तारीख नहीं हो सकती",
+      "failed": "कटाई दर्ज करने में विफल"
+    }
   },
   "contract": {
     "title": "कॉन्ट्रैक्ट फार्मिंग",
@@ -891,6 +989,9 @@
     },
     "record_purchase": "खरीद दर्ज करें",
     "record_new_purchase": "नई खरीद दर्ज करें",
+    "days_left_one": "~{{count}} दिन शेष",
+    "days_left_other": "~{{count}} दिन शेष",
+    "reorder": "पुनः ऑर्डर करें",
     "load_failed": "इन्वेंटरी लोड नहीं हो सकी: {{reason}}",
     "empty_all": {
       "title": "कोई इन्वेंटरी आइटम नहीं",
@@ -1025,6 +1126,7 @@
       "other_expense": "अन्य व्यय"
     },
     "amount_label": "राशि (₹)",
+    "amount_paid_label": "अब तक भुगतान की गई राशि (₹)",
     "quantity_label": "मात्रा",
     "price_per_unit_label": "प्रति इकाई मूल्य (₹)",
     "buyer_label": "खरीदार (वैकल्पिक)",
@@ -1053,7 +1155,8 @@
       "pick_category": "श्रेणी चुनें",
       "date_format": "तिथि YYYY-MM-DD होनी चाहिए",
       "due_date_format": "देय तिथि YYYY-MM-DD होनी चाहिए",
-      "due_date_required": "भुगतान बकाया या आंशिक होने पर देय तिथि आवश्यक है"
+      "due_date_required": "भुगतान बकाया या आंशिक होने पर देय तिथि आवश्यक है",
+      "amount_paid_range": "0 और कुल राशि के बीच भुगतान की गई राशि दर्ज करें"
     }
   },
   "common": {

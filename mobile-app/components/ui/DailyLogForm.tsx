@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
-import { spacing } from '../../theme/tokens';
+import { colors, spacing, typography } from '../../theme/tokens';
 import { Button } from './Button';
 import { RadioGroup } from './RadioGroup';
 import { Select, SelectOption } from './Select';
@@ -27,6 +27,7 @@ export type DailyLogValues = {
   feed_type: 'starter' | 'grower' | 'finisher' | 'layer' | 'custom';
   feed_cost_per_kg?: number;
   eggs_collected?: number;
+  broken_eggs?: number;
   avg_bird_weight_g?: number;
   notes?: string;
 };
@@ -35,6 +36,8 @@ export interface DailyLogFormProps {
   batchId: string;
   farmId: string;
   loggedByUserId: string;
+  /** Drives type-aware fields: eggs + broken eggs show only for layer/breeder. */
+  poultryType?: 'broiler' | 'layer' | 'breeder';
   defaultDate?: string;
   onSubmit: (values: DailyLogValues) => Promise<void>;
   onCancel?: () => void;
@@ -71,7 +74,12 @@ const schema = z
       }),
     feed_type: z.string().min(1, 'Feed type is required'),
     feed_cost_per_kg: z.string().optional(),
-    eggs_collected: z.string().optional(),
+    // Layer egg entry is captured as up to 3 daily collections that sum into
+    // the stored eggs_collected total (one daily_logs row/day, no schema change).
+    eggs_morning: z.string().optional(),
+    eggs_afternoon: z.string().optional(),
+    eggs_evening: z.string().optional(),
+    broken_eggs: z.string().optional(),
     avg_bird_weight_g: z.string().optional(),
     notes: z.string().optional(),
   })
@@ -113,12 +121,21 @@ const FEED_TYPE_OPTIONS = [
 // Helper — today's date as YYYY-MM-DD in local time
 // ---------------------------------------------------------------------------
 
-function todayISO(): string {
-  const d = new Date();
+function toISO(d: Date): string {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
+}
+
+function todayISO(): string {
+  return toISO(new Date());
+}
+
+function yesterdayISO(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return toISO(d);
 }
 
 // ---------------------------------------------------------------------------
@@ -126,6 +143,7 @@ function todayISO(): string {
 // ---------------------------------------------------------------------------
 
 export function DailyLogForm({
+  poultryType,
   defaultDate,
   onSubmit,
   onCancel,
@@ -136,6 +154,8 @@ export function DailyLogForm({
 }: DailyLogFormProps) {
   const { t } = useTranslation();
   const dateDefault = defaultDate ?? initialValues?.log_date ?? todayISO();
+  // Type-aware: eggs + broken eggs only matter for layer/breeder flocks.
+  const isLayer = poultryType === 'layer' || poultryType === 'breeder';
 
   const deathCauseOptions: SelectOption[] = DEATH_CAUSE_OPTIONS.map((o) => ({
     value: o.value,
@@ -160,7 +180,11 @@ export function DailyLogForm({
       feed_consumed_kg: initialValues?.feed_consumed_kg?.toString() ?? '',
       feed_type: initialValues?.feed_type ?? 'grower',
       feed_cost_per_kg: initialValues?.feed_cost_per_kg?.toString() ?? '',
-      eggs_collected: initialValues?.eggs_collected?.toString() ?? '',
+      // On edit we only know the day's total, so seed it into the first slot.
+      eggs_morning: initialValues?.eggs_collected?.toString() ?? '',
+      eggs_afternoon: '',
+      eggs_evening: '',
+      broken_eggs: initialValues?.broken_eggs?.toString() ?? '',
       avg_bird_weight_g: initialValues?.avg_bird_weight_g?.toString() ?? '',
       notes: initialValues?.notes ?? '',
     },
@@ -168,6 +192,14 @@ export function DailyLogForm({
 
   const birdsDead = watch('birds_dead');
   const showDeathCause = parseInt(birdsDead ?? '0', 10) > 0;
+
+  const eggsMorning = watch('eggs_morning');
+  const eggsAfternoon = watch('eggs_afternoon');
+  const eggsEvening = watch('eggs_evening');
+  const eggsTotal =
+    (parseInt(eggsMorning || '0', 10) || 0) +
+    (parseInt(eggsAfternoon || '0', 10) || 0) +
+    (parseInt(eggsEvening || '0', 10) || 0);
 
   const handleValidSubmit = async (data: FormFields) => {
     const values: DailyLogValues = {
@@ -179,8 +211,17 @@ export function DailyLogForm({
       feed_cost_per_kg: data.feed_cost_per_kg
         ? parseFloat(data.feed_cost_per_kg)
         : undefined,
-      eggs_collected: data.eggs_collected
-        ? parseInt(data.eggs_collected, 10)
+      eggs_collected: isLayer
+        ? (() => {
+            const sum =
+              (parseInt(data.eggs_morning || '0', 10) || 0) +
+              (parseInt(data.eggs_afternoon || '0', 10) || 0) +
+              (parseInt(data.eggs_evening || '0', 10) || 0);
+            return sum > 0 ? sum : undefined;
+          })()
+        : undefined,
+      broken_eggs: isLayer && data.broken_eggs
+        ? parseInt(data.broken_eggs, 10)
         : undefined,
       avg_bird_weight_g: data.avg_bird_weight_g
         ? parseInt(data.avg_bird_weight_g, 10)
@@ -197,21 +238,42 @@ export function DailyLogForm({
       keyboardShouldPersistTaps="handled"
       testID={testID}
     >
-      {/* 1. Date */}
+      {/* 1. Date — quick chips first (the <60s path), free text as fallback */}
       <Controller
         control={control}
         name="log_date"
         render={({ field: { value, onChange } }) => (
-          <TextInput
-            label={t('daily_log.log_date')}
-            value={value}
-            onChangeText={onChange}
-            placeholder={t('daily_log.date_placeholder')}
-            autoCapitalize="none"
-            error={errors.log_date?.message}
-            style={styles.field}
-            testID="daily-log-date"
-          />
+          <View style={styles.field}>
+            <View style={styles.dateChips}>
+              <Pressable
+                onPress={() => onChange(todayISO())}
+                style={[styles.chip, value === todayISO() && styles.chipActive]}
+                testID="daily-log-date-today"
+              >
+                <Text style={[styles.chipText, value === todayISO() && styles.chipTextActive]}>
+                  {t('daily_log.date_today')}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => onChange(yesterdayISO())}
+                style={[styles.chip, value === yesterdayISO() && styles.chipActive]}
+                testID="daily-log-date-yesterday"
+              >
+                <Text style={[styles.chipText, value === yesterdayISO() && styles.chipTextActive]}>
+                  {t('daily_log.date_yesterday')}
+                </Text>
+              </Pressable>
+            </View>
+            <TextInput
+              label={t('daily_log.log_date')}
+              value={value}
+              onChangeText={onChange}
+              placeholder={t('daily_log.date_placeholder')}
+              autoCapitalize="none"
+              error={errors.log_date?.message}
+              testID="daily-log-date"
+            />
+          </View>
         )}
       />
 
@@ -302,22 +364,77 @@ export function DailyLogForm({
         )}
       />
 
-      {/* 7. Eggs collected (optional) */}
-      <Controller
-        control={control}
-        name="eggs_collected"
-        render={({ field: { value, onChange } }) => (
-          <TextInput
-            label={t('daily_log.fields.eggs_collected')}
-            value={value ?? ''}
-            onChangeText={onChange}
-            keyboardType="number-pad"
-            error={errors.eggs_collected?.message}
-            style={styles.field}
-            testID="daily-log-eggs"
-          />
-        )}
-      />
+      {/* 7. Eggs collected (up to 3 collections/day) + broken eggs — layer only */}
+      {isLayer && (
+        <View style={styles.field}>
+          <Text style={styles.eggsLabel}>{t('daily_log.fields.eggs_collected')}</Text>
+          <View style={styles.eggSlots}>
+            <Controller
+              control={control}
+              name="eggs_morning"
+              render={({ field: { value, onChange } }) => (
+                <TextInput
+                  label={t('daily_log.egg_slots.morning')}
+                  value={value ?? ''}
+                  onChangeText={onChange}
+                  keyboardType="number-pad"
+                  style={styles.eggSlot}
+                  testID="daily-log-eggs-morning"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="eggs_afternoon"
+              render={({ field: { value, onChange } }) => (
+                <TextInput
+                  label={t('daily_log.egg_slots.afternoon')}
+                  value={value ?? ''}
+                  onChangeText={onChange}
+                  keyboardType="number-pad"
+                  style={styles.eggSlot}
+                  testID="daily-log-eggs-afternoon"
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="eggs_evening"
+              render={({ field: { value, onChange } }) => (
+                <TextInput
+                  label={t('daily_log.egg_slots.evening')}
+                  value={value ?? ''}
+                  onChangeText={onChange}
+                  keyboardType="number-pad"
+                  style={styles.eggSlot}
+                  testID="daily-log-eggs-evening"
+                />
+              )}
+            />
+          </View>
+          <Text style={styles.eggTotal}>
+            {t('daily_log.egg_slots.total', { count: eggsTotal })}
+          </Text>
+        </View>
+      )}
+
+      {isLayer && (
+        <Controller
+          control={control}
+          name="broken_eggs"
+          render={({ field: { value, onChange } }) => (
+            <TextInput
+              label={t('daily_log.fields.broken_eggs')}
+              value={value ?? ''}
+              onChangeText={onChange}
+              keyboardType="number-pad"
+              error={errors.broken_eggs?.message}
+              style={styles.field}
+              testID="daily-log-broken-eggs"
+            />
+          )}
+        />
+      )}
 
       {/* 8. Avg bird weight (optional) */}
       <Controller
@@ -389,6 +506,49 @@ const styles = StyleSheet.create({
   },
   field: {
     // gap handled by container
+  },
+  eggsLabel: {
+    ...typography.bodyMdStrong,
+    color: colors.ink,
+    marginBottom: spacing.sm,
+  },
+  eggSlots: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  eggSlot: {
+    flex: 1,
+  },
+  eggTotal: {
+    ...typography.bodySm,
+    color: colors.body,
+    marginTop: spacing.xs,
+  },
+  dateChips: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  chip: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.mute,
+    backgroundColor: colors.canvas,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  chipActive: {
+    backgroundColor: colors.primarySubtle,
+    borderColor: colors.primary,
+  },
+  chipText: {
+    ...typography.bodyMdStrong,
+    color: colors.body,
+  },
+  chipTextActive: {
+    color: colors.primary,
   },
   actions: {
     marginTop: spacing.sm,

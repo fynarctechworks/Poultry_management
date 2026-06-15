@@ -3,3 +3,8 @@ export * from './format';
 export * from './format-date';
 export * from './kpis';
 export * from './freemium';
+export * from './breed-benchmarks';
+export * from './insights';
+export * from './feed-intelligence';
+export * from './hdep';
+export * from './sell-timing';

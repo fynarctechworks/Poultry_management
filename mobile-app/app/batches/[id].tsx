@@ -10,12 +10,18 @@ import {
   Card,
   CloseBatchModal,
   EmptyState,
+  HarvestBatchModal,
+  HdepCurveCard,
   KpiTile,
+  SellTimingCard,
   TraceabilityModal,
+  TransferBatchModal,
   UpgradeBanner,
   type ClosedBatch,
+  type HarvestBuyerOption,
   type KpiTone,
   type TraceabilityRecord,
+  type TransferShedOption,
 } from '../../components/ui';
 import { hasTraceability } from '../../lib/freemium';
 import { useIsPaid } from '../../lib/freemium-hooks';
@@ -41,7 +47,17 @@ import {
   mortalityAgainstBenchmark,
   type BenchmarkTone,
 } from '../../lib/breed-benchmarks';
-import { formatINR as sharedINR, formatNumber as sharedNum } from '@poultryos/shared';
+import {
+  formatINR as sharedINR,
+  formatNumber as sharedNum,
+  computeHdepSeries,
+  computeSellTiming,
+  deriveSellTimingInput,
+  type HdepWeekPoint,
+  type HdepLogRow,
+  type SellTimingResult,
+  type SellTimingLogRow,
+} from '@poultryos/shared';
 
 interface BatchRow {
   id: string;
@@ -58,6 +74,16 @@ interface BatchRow {
   harvest_date: string | null;
   status: 'active' | 'harvested' | 'closed';
   source_supplier: string | null;
+  shed_id: string;
+}
+
+interface TransferRow {
+  id: string;
+  transfer_date: string;
+  bird_count: number;
+  notes: string | null;
+  from_shed: { shed_name: string } | null;
+  to_shed: { shed_name: string } | null;
 }
 
 function formatINR(n: number): string {
@@ -86,8 +112,15 @@ export default function BatchDetailScreen() {
   const [fcr, setFcr] = useState<number | null>(null);
   const [livability, setLivability] = useState<number | null>(null);
   const [latestWeightG, setLatestWeightG] = useState<number | null>(null);
+  const [hdepSeries, setHdepSeries] = useState<HdepWeekPoint[]>([]);
+  const [sellTiming, setSellTiming] = useState<SellTimingResult | null>(null);
   const [snackbar, setSnackbar] = useState<string | null>(null);
   const [closeModalOpen, setCloseModalOpen] = useState(false);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [harvestModalOpen, setHarvestModalOpen] = useState(false);
+  const [buyers, setBuyers] = useState<HarvestBuyerOption[]>([]);
+  const [farmSheds, setFarmSheds] = useState<TransferShedOption[]>([]);
+  const [transfers, setTransfers] = useState<TransferRow[]>([]);
   const [traceModalOpen, setTraceModalOpen] = useState(false);
   const [traceRecord, setTraceRecord] = useState<TraceabilityRecord | null>(null);
   const [traceLoading, setTraceLoading] = useState(false);
@@ -99,14 +132,14 @@ export default function BatchDetailScreen() {
         supabase
           .from('batches')
           .select(
-            'id, batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, cost_per_bird, sale_weight_kg, sale_price_per_kg, total_sale_revenue, harvest_date, status, source_supplier',
+            'id, batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, cost_per_bird, sale_weight_kg, sale_price_per_kg, total_sale_revenue, harvest_date, status, source_supplier, shed_id',
           )
           .eq('id', id)
           .eq('farm_id', currentFarm.id)
           .maybeSingle(),
         supabase
           .from('daily_logs')
-          .select('feed_consumed_kg, feed_cost_per_kg, avg_bird_weight_g, log_date')
+          .select('feed_consumed_kg, feed_cost_per_kg, avg_bird_weight_g, eggs_collected, log_date')
           .eq('batch_id', id),
         supabase
           .from('financial_transactions')
@@ -121,6 +154,29 @@ export default function BatchDetailScreen() {
       }
       const b = batchRes.data as BatchRow;
       setBatch(b);
+
+      // Sheds on this farm (transfer picker) + this batch's move history +
+      // buyers (Khata picker on the harvest modal; owner-only via RLS).
+      const [shedsRes, transfersRes, buyersRes] = await Promise.all([
+        supabase
+          .from('sheds')
+          .select('id, shed_name, capacity, poultry_type, status')
+          .eq('farm_id', currentFarm.id)
+          .order('shed_name'),
+        supabase
+          .from('batch_transfers')
+          .select('id, transfer_date, bird_count, notes, from_shed:sheds!from_shed_id(shed_name), to_shed:sheds!to_shed_id(shed_name)')
+          .eq('batch_id', id)
+          .order('transfer_date', { ascending: false }),
+        supabase
+          .from('buyers')
+          .select('id, buyer_name')
+          .eq('farm_id', currentFarm.id)
+          .order('buyer_name'),
+      ]);
+      setFarmSheds((shedsRes.data ?? []) as TransferShedOption[]);
+      setTransfers((transfersRes.data ?? []) as unknown as TransferRow[]);
+      setBuyers((buyersRes.data ?? []) as HarvestBuyerOption[]);
 
       const logs = (logsRes.data ?? []) as BatchPnlLogRow[];
       const txns = (txnRes.data ?? []) as BatchPnlTxn[];
@@ -175,6 +231,63 @@ export default function BatchDetailScreen() {
         .filter((l) => l.avg_bird_weight_g != null && Number(l.avg_bird_weight_g) > 0)
         .sort((a, b2) => (b2.log_date > a.log_date ? 1 : -1))[0];
       setLatestWeightG(latestWithWeight?.avg_bird_weight_g ?? null);
+
+      // ---- Phase 3 operational intelligence (per batch) -------------------
+      type RawLog = {
+        feed_consumed_kg: number | null;
+        feed_cost_per_kg: number | null;
+        avg_bird_weight_g: number | null;
+        eggs_collected: number | null;
+        log_date: string;
+      };
+      const rawLogs = (logsRes.data ?? []) as RawLog[];
+
+      // Layer HDEP curve
+      if (b.poultry_type === 'layer' || b.poultry_type === 'breeder') {
+        setHdepSeries(
+          computeHdepSeries(
+            rawLogs.map((l): HdepLogRow => ({ log_date: l.log_date, eggs_collected: l.eggs_collected })),
+            b.current_bird_count,
+            b.placement_date,
+          ),
+        );
+      } else {
+        setHdepSeries([]);
+      }
+
+      // Broiler sell-timing (active broiler/breeder batches only)
+      if ((b.poultry_type === 'broiler' || b.poultry_type === 'breeder') && b.status === 'active') {
+        // Latest broiler price for the farm's state, falling back to override.
+        let pricePerKg = 0;
+        if (currentFarm.state) {
+          const { data: mp } = await supabase
+            .from('market_prices')
+            .select('broiler_price_per_kg')
+            .eq('state', currentFarm.state)
+            .order('price_date', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          pricePerKg = Number(mp?.broiler_price_per_kg ?? 0);
+        }
+        if (!pricePerKg) {
+          pricePerKg = Number(
+            (currentFarm as { market_price_override_broiler?: number | null }).market_price_override_broiler ?? 0,
+          );
+        }
+
+        const bench = findBenchmark(b.breed_name, b.poultry_type);
+        setSellTiming(
+          computeSellTiming(
+            deriveSellTimingInput(rawLogs as SellTimingLogRow[], {
+              birds: b.current_bird_count,
+              pricePerKg,
+              targetWeightKg: bench?.targetWeightKg ?? null,
+            }),
+          ),
+        );
+      } else {
+        setSellTiming(null);
+      }
     } catch (err: unknown) {
       setSnackbar(err instanceof Error ? err.message : t('batch_detail.errors.load_failed'));
     }
@@ -381,6 +494,50 @@ export default function BatchDetailScreen() {
           />
         )}
 
+        {/* Layer HDEP curve — production over the lay cycle vs breed peak */}
+        {hdepSeries.length > 0 ? (
+          <HdepCurveCard
+            series={hdepSeries}
+            peakHdepPct={findBenchmark(batch.breed_name, batch.poultry_type)?.peakHdepPct ?? null}
+          />
+        ) : null}
+
+        {/* Broiler sell-timing — sell now vs grow another day */}
+        {sellTiming ? <SellTimingCard result={sellTiming} /> : null}
+
+        {/* Location history — batch keeps its identity across shed moves */}
+        <Text style={styles.sectionLabel}>{t('batch_detail.location_history')}</Text>
+        <Card style={styles.historyCard}>
+          <View style={styles.historyRow}>
+            <View style={[styles.historyDot, { backgroundColor: colors.primary }]} />
+            <View style={styles.historyBody}>
+              <Text style={styles.historyTitle}>
+                {t('batch_detail.placed_in', { date: formatDDMMMYYYY(batch.placement_date) })}
+              </Text>
+              <Text style={styles.historyMeta}>
+                {batch.opening_bird_count.toLocaleString('en-IN')} birds
+              </Text>
+            </View>
+          </View>
+          {transfers.map((tr) => (
+            <View key={tr.id} style={styles.historyRow}>
+              <View style={[styles.historyDot, { backgroundColor: colors.success }]} />
+              <View style={styles.historyBody}>
+                <Text style={styles.historyTitle}>
+                  {(tr.from_shed?.shed_name ?? '—')} → {(tr.to_shed?.shed_name ?? '—')}
+                </Text>
+                <Text style={styles.historyMeta}>
+                  {formatDDMMMYYYY(tr.transfer_date)} · {Number(tr.bird_count).toLocaleString('en-IN')} birds
+                  {tr.notes ? ` · ${tr.notes}` : ''}
+                </Text>
+              </View>
+            </View>
+          ))}
+          {transfers.length === 0 ? (
+            <Text style={styles.historyMeta}>{t('batch_detail.no_transfers')}</Text>
+          ) : null}
+        </Card>
+
         {/* CTAs */}
         <View style={styles.actions}>
           <Button
@@ -401,6 +558,22 @@ export default function BatchDetailScreen() {
             onPress={() => router.push(`/health?batchId=${batch.id}`)}
             fullWidth
           />
+          {batch.status === 'active' ? (
+            <Button
+              variant="outlineDark"
+              label={t('batch_detail.record_harvest')}
+              onPress={() => setHarvestModalOpen(true)}
+              fullWidth
+            />
+          ) : null}
+          {batch.status === 'active' ? (
+            <Button
+              variant="outlineDark"
+              label={t('batch_detail.transfer_batch')}
+              onPress={() => setTransferModalOpen(true)}
+              fullWidth
+            />
+          ) : null}
           {batch.status === 'active' ? (
             <Button
               variant="outlineRed"
@@ -438,6 +611,39 @@ export default function BatchDetailScreen() {
         record={traceRecord}
         batchCode={batch.batch_code}
         farmName={currentFarm?.farm_name ?? 'PoultryOS'}
+      />
+
+      <TransferBatchModal
+        visible={transferModalOpen}
+        onDismiss={() => setTransferModalOpen(false)}
+        batch={{
+          id: batch.id,
+          batch_code: batch.batch_code,
+          shed_id: batch.shed_id,
+          poultry_type: batch.poultry_type,
+          placement_date: batch.placement_date,
+        }}
+        sheds={farmSheds}
+        onSuccess={() => {
+          setSnackbar(t('batch_detail.batch_transferred'));
+          load();
+        }}
+      />
+
+      <HarvestBatchModal
+        visible={harvestModalOpen}
+        onDismiss={() => setHarvestModalOpen(false)}
+        batch={{
+          id: batch.id,
+          batch_code: batch.batch_code,
+          current_bird_count: batch.current_bird_count,
+          placement_date: batch.placement_date,
+        }}
+        buyers={buyers}
+        onSuccess={() => {
+          setSnackbar(t('harvest.success'));
+          load();
+        }}
       />
 
       <CloseBatchModal
@@ -545,4 +751,10 @@ const styles = StyleSheet.create({
   netNeg: { color: colors.primary },
   pnlSub: { ...typography.captionStrong, color: colors.body },
   actions: { gap: spacing.sm },
+  historyCard: { gap: spacing.md },
+  historyRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md },
+  historyDot: { width: 10, height: 10, borderRadius: radius.full, marginTop: spacing.xs },
+  historyBody: { flex: 1 },
+  historyTitle: { ...typography.bodyMdStrong, color: colors.ink },
+  historyMeta: { ...typography.bodySm, color: colors.body },
 });

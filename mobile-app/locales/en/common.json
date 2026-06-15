@@ -182,6 +182,10 @@
     "title": "Dashboard",
     "hello": "Hello",
     "active_batches_section": "Active batches",
+    "farm_map_section": "Farm map",
+    "shed_empty": "Empty",
+    "shed_birds": "birds",
+    "shed_more": "+{{count}} more",
     "empty_batches": {
       "title": "No active batches",
       "description": "Add sheds and place a batch to start tracking.",
@@ -227,6 +231,34 @@
     },
     "log_today_cta": "Log today's data"
   },
+  "insights": {
+    "section_title": "Smart insights",
+    "costing": "Costing ~{{amount}}/week",
+    "saving": "Saving ~{{amount}}/week",
+    "more": "+{{count}} more insights",
+    "fcr": {
+      "up_title": "FCR drifting up",
+      "down_title": "FCR improving",
+      "detail": "FCR moved {{from}} → {{to}} week-over-week.",
+      "detail_bench": "FCR moved {{from}} → {{to}} week-over-week (target {{target}})."
+    },
+    "mortality": {
+      "up_title": "Mortality rising",
+      "down_title": "Mortality easing",
+      "detail": "{{deaths_recent}} deaths this week vs {{deaths_prior}} last week ({{pct_recent}}% vs {{pct_prior}}% of flock).",
+      "above_suffix": " — above breed standard."
+    },
+    "feed": {
+      "title": "Feed up but weight flat",
+      "detail": "Feed rose {{pct}}% ({{from}} → {{to}} kg) while bird weight didn't gain — check for wastage, theft, or illness."
+    },
+    "production": {
+      "down_title": "Egg production dropped",
+      "up_title": "Egg production up",
+      "detail": "HDEP {{from}}% → {{to}}% — {{eggs}} eggs/week vs last week.",
+      "detail_bench": "HDEP {{from}}% → {{to}}% (peak ~{{peak}}%) — {{eggs}} eggs/week vs last week."
+    }
+  },
   "daily_log": {
     "title": "Daily log",
     "fields": {
@@ -237,6 +269,7 @@
       "feed_type": "Feed type",
       "feed_cost_per_kg": "Feed cost per kg",
       "eggs_collected": "Eggs collected",
+      "broken_eggs": "Broken eggs",
       "avg_bird_weight_g": "Avg bird weight (g)",
       "notes": "Notes"
     },
@@ -246,6 +279,12 @@
       "injury": "Injury",
       "heat_stress": "Heat stress",
       "unknown": "Unknown"
+    },
+    "egg_slots": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "total": "Total today: {{count}}"
     },
     "feed_type": {
       "starter": "Starter",
@@ -263,6 +302,8 @@
     "select_batch_hint": "Select a batch above to start logging.",
     "feed_cost_per_kg_inr": "Feed cost per kg (₹)",
     "log_date": "Log date",
+    "date_today": "Today",
+    "date_yesterday": "Yesterday",
     "date_placeholder": "YYYY-MM-DD",
     "no_active_batches": {
       "title": "No active batches",
@@ -270,7 +311,8 @@
     },
     "duplicate_error": "Already logged for {{date}} on this batch",
     "save_failed": "Save failed",
-    "save_success": "Saved — bird count and alerts updating"
+    "save_success": "Saved — bird count and alerts updating",
+    "feed_stock_not_updated": "Saved — but feed stock wasn't updated (no matching feed item)"
   },
   "settings": {
     "title": "Settings",
@@ -301,6 +343,8 @@
       "upi_helper": "Used for UPI QR codes shared with buyers in the Khata module.",
       "heat_threshold": "Heat-stress threshold (°C)",
       "heat_helper": "Triggers a heat alert when forecast max exceeds this value. Default 35 °C.",
+      "mortality_threshold": "Mortality alert threshold (%/day)",
+      "mortality_helper": "Fires a mortality alert when a day's deaths exceed this % of opening birds. Default 1%.",
       "whatsapp_phone": "WhatsApp phone",
       "wa_toggle": "Receive WhatsApp alerts",
       "wa_toggle_desc": "Daily digest, mortality alerts, heat-stress alerts, payment reminders.",
@@ -310,7 +354,8 @@
         "phone_invalid": "Invalid phone",
         "whatsapp_phone_invalid": "Invalid WhatsApp number",
         "upi_invalid": "UPI ID must be in format name@bank",
-        "heat_range": "Must be 20–50 °C"
+        "heat_range": "Must be 20–50 °C",
+        "mortality_range": "Must be between 0 and 100"
       }
     }
   },
@@ -692,12 +737,65 @@
     "view_vaccinations": "View vaccinations",
     "view_health": "View health incidents",
     "close_batch": "Close batch (harvest)",
+    "record_harvest": "Record harvest / sale",
+    "transfer_batch": "Transfer to another shed",
+    "batch_transferred": "Batch transferred to the new shed.",
+    "location_history": "Location history",
+    "placed_in": "Placed in shed · {{date}}",
+    "no_transfers": "No shed transfers yet — this batch has stayed in its placement shed.",
     "view_certificate": "View traceability certificate",
     "generating": "Generating…",
     "generate_certificate": "Generate traceability certificate",
     "trace_gate_reason": "Upgrade to generate traceability certificates",
     "errors": { "load_failed": "Failed to load batch", "generate_failed": "Failed to generate certificate" },
     "batch_closed": "Batch closed — P&L locked."
+  },
+  "hdep": {
+    "title": "Egg production curve (HDEP)",
+    "current": "current",
+    "peak": "peak ~{{pct}}%",
+    "weeks_axis": "Weeks since placement"
+  },
+  "sell_timing": {
+    "title": "Sell timing",
+    "sell_now": "Sell now",
+    "keep_growing": "Keep growing",
+    "unknown": "Add recent weights, feed cost, and today's broiler price to see a sell-vs-grow recommendation.",
+    "explain_sell": "Each extra day now costs more in feed than the weight it adds is worth.",
+    "explain_grow": "Each extra day still adds more value than the feed it costs.",
+    "extra_revenue": "Extra revenue",
+    "extra_feed_cost": "Extra feed cost",
+    "net_per_day": "Net per day",
+    "days_to_target": "Days to target weight",
+    "day": "day",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days"
+  },
+  "harvest": {
+    "title": "Record harvest — {{code}}",
+    "subtitle": "{{count}} birds currently alive. Selling part of the flock thins it without closing the batch.",
+    "birds": "Birds harvested *",
+    "avg_weight": "Avg weight (kg) *",
+    "price_per_kg": "Price / kg (₹) *",
+    "date": "Date *",
+    "buyer": "Buyer (Khata, optional)",
+    "buyer_none": "— None —",
+    "payment_status": "Payment status",
+    "status": { "paid": "Paid", "pending": "Pending", "partial": "Partial" },
+    "notes": "Notes (optional)",
+    "revenue_booked": "Revenue booked",
+    "revenue_formula": "{{birds}} birds × {{weight}} kg × {{price}}/kg",
+    "submit": "Record harvest",
+    "success": "Harvest recorded — P&L updated.",
+    "errors": {
+      "birds_range": "Birds must be between 1 and {{max}}",
+      "weight_positive": "Enter a valid average weight",
+      "price_non_negative": "Enter a valid price per kg",
+      "date_format": "Date must be YYYY-MM-DD",
+      "date_after_placement": "Must be on or after placement",
+      "date_future": "Cannot be in the future",
+      "failed": "Failed to record harvest"
+    }
   },
   "contract": {
     "title": "Contract farming",
@@ -929,6 +1027,9 @@
     "cat": { "feed": "Feed", "medicine": "Medicine", "vaccine": "Vaccine", "equipment": "Equipment" },
     "record_purchase": "Record purchase",
     "record_new_purchase": "Record new purchase",
+    "days_left_one": "~{{count}} day left",
+    "days_left_other": "~{{count}} days left",
+    "reorder": "Reorder",
     "load_failed": "Failed to load inventory: {{reason}}",
     "empty_all": { "title": "No inventory items", "description": "Record your first purchase to start tracking stock levels." },
     "empty_filtered": { "title": "No {{category}} items", "description": "Try a different category filter or record a new purchase." },
@@ -1042,6 +1143,7 @@
       "other_expense": "Other expense"
     },
     "amount_label": "Amount (₹)",
+    "amount_paid_label": "Amount paid so far (₹)",
     "quantity_label": "Quantity",
     "price_per_unit_label": "Price per unit (₹)",
     "buyer_label": "Buyer (optional)",
@@ -1066,7 +1168,8 @@
       "pick_category": "Pick a category",
       "date_format": "Date must be YYYY-MM-DD",
       "due_date_format": "Due date must be YYYY-MM-DD",
-      "due_date_required": "Due date required when payment is pending or partial"
+      "due_date_required": "Due date required when payment is pending or partial",
+      "amount_paid_range": "Enter an amount paid between 0 and the total"
     }
   },
   "common": {
