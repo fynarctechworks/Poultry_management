@@ -6,11 +6,23 @@ import { useTranslation } from 'react-i18next';
 import { MessageCircle } from 'lucide-react-native';
 import { supabase } from '../../lib/supabase';
 import { useFarmStore } from '../../stores/farm';
-import { Button, Card } from '../../components/ui';
+import {
+  Button,
+  Card,
+  ContractReconciliationCard,
+  ContractStatementModal,
+  ContractTariffModal,
+} from '../../components/ui';
 import { colors, radius, spacing, typography } from '../../theme/tokens';
 import { formatDDMMMYYYY } from '../../lib/format-date';
-import { buildSettlementReport } from '../../lib/contract-report';
-import { formatINR as sharedINR, formatNumber as sharedNum } from '@poultryos/shared';
+import {
+  formatINR as sharedINR,
+  computeContractReconciliation,
+  parseTariffCard,
+  buildContractReconciliationMessage,
+  type ContractFigures,
+  type ContractReconciliation,
+} from '@poultryos/shared';
 
 
 interface CycleRow {
@@ -29,6 +41,12 @@ interface CycleRow {
   actual_settlement_amount: number | null;
   settlement_received_date: string | null;
   dispute_notes: string | null;
+  integrator_birds_lifted: number | null;
+  integrator_avg_weight_kg: number | null;
+  integrator_fcr: number | null;
+  integrator_mortality_pct: number | null;
+  tariff_card_snapshot: any | null;
+  tariff_confirmed_at: string | null;
   batches: { batch_code: string; breed_name: string | null } | null;
   integrators: { name: string; tariff_card_json: any } | null;
 }
@@ -46,6 +64,47 @@ function formatINR(n: number | null | undefined): string {
   return sharedINR(n, { decimals: 2 });
 }
 
+const numOrNull = (v: unknown): number | null => (v == null ? null : Number(v));
+
+function growerFigures(c: CycleRow): ContractFigures {
+  return {
+    birdsLifted: numOrNull(c.birds_delivered) ?? 0,
+    avgWeightKg: numOrNull(c.avg_weight_kg) ?? 0,
+    fcr: numOrNull(c.actual_fcr),
+    mortalityPct: numOrNull(c.actual_mortality_pct),
+  };
+}
+
+function integratorFigures(c: CycleRow): Partial<ContractFigures> {
+  return {
+    birdsLifted: numOrNull(c.integrator_birds_lifted) ?? undefined,
+    avgWeightKg: numOrNull(c.integrator_avg_weight_kg) ?? undefined,
+    fcr: numOrNull(c.integrator_fcr),
+    mortalityPct: numOrNull(c.integrator_mortality_pct),
+  };
+}
+
+function buildReconciliation(c: CycleRow): ContractReconciliation {
+  const tariff = parseTariffCard(c.tariff_card_snapshot ?? c.integrators?.tariff_card_json ?? {});
+  return computeContractReconciliation({
+    tariff,
+    your: growerFigures(c),
+    integrator: integratorFigures(c),
+    integratorStatedAmount: numOrNull(c.actual_settlement_amount),
+    tariffConfirmed: c.tariff_confirmed_at != null,
+  });
+}
+
+function hasIntegratorStatement(c: CycleRow): boolean {
+  return (
+    c.integrator_birds_lifted != null ||
+    c.integrator_avg_weight_kg != null ||
+    c.integrator_fcr != null ||
+    c.integrator_mortality_pct != null ||
+    c.actual_settlement_amount != null
+  );
+}
+
 export default function ContractDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -54,13 +113,15 @@ export default function ContractDetailScreen() {
   const [breakdown, setBreakdown] = useState<SettlementBreakdown | null>(null);
   const [snackbar, setSnackbar] = useState<string | null>(null);
   const [recalcLoading, setRecalcLoading] = useState(false);
+  const [tariffOpen, setTariffOpen] = useState(false);
+  const [statementOpen, setStatementOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;
     const { data, error } = await supabase
       .from('contract_cycles')
       .select(
-        'id, status, chicks_supplied, chicks_supplied_date, total_feed_supplied_kg, expected_harvest_date, actual_harvest_date, birds_delivered, avg_weight_kg, actual_fcr, actual_mortality_pct, expected_settlement_amount, actual_settlement_amount, settlement_received_date, dispute_notes, batches!inner(batch_code, breed_name), integrators(name, tariff_card_json)',
+        'id, status, chicks_supplied, chicks_supplied_date, total_feed_supplied_kg, expected_harvest_date, actual_harvest_date, birds_delivered, avg_weight_kg, actual_fcr, actual_mortality_pct, expected_settlement_amount, actual_settlement_amount, settlement_received_date, dispute_notes, integrator_birds_lifted, integrator_avg_weight_kg, integrator_fcr, integrator_mortality_pct, tariff_card_snapshot, tariff_confirmed_at, batches!inner(batch_code, breed_name), integrators(name, tariff_card_json)',
       )
       .eq('id', id)
       .maybeSingle();
@@ -85,28 +146,19 @@ export default function ContractDetailScreen() {
 
   async function shareReconciliation() {
     if (!cycle) return;
-    const text = buildSettlementReport({
+    const recon = buildReconciliation(cycle);
+    const text = buildContractReconciliationMessage(recon, {
       batchCode: cycle.batches?.batch_code ?? null,
+      farmName: currentFarm?.farm_name ?? null,
       integratorName: cycle.integrators?.name ?? null,
       breedName: cycle.batches?.breed_name ?? null,
-      status: cycle.status,
       chicksSupplied: Number(cycle.chicks_supplied),
-      chicksSuppliedDate: cycle.chicks_supplied_date,
       totalFeedSuppliedKg: Number(cycle.total_feed_supplied_kg),
-      birdsDelivered: cycle.birds_delivered,
-      avgWeightKg: cycle.avg_weight_kg,
-      actualFcr: cycle.actual_fcr,
-      actualMortalityPct: cycle.actual_mortality_pct,
-      actualHarvestDate: cycle.actual_harvest_date,
-      liveWeightKg: breakdown?.total_live_weight_kg ?? null,
-      baseAmount: breakdown?.base_amount ?? null,
-      fcrBonus: breakdown?.fcr_bonus ?? null,
-      mortalityBonus: breakdown?.mortality_bonus ?? null,
-      expectedSettlement: cycle.expected_settlement_amount,
-      actualSettlement: cycle.actual_settlement_amount,
+      harvestDate: cycle.actual_harvest_date,
       settlementReceivedDate: cycle.settlement_received_date,
       disputeNotes: cycle.dispute_notes,
-      farmName: currentFarm?.farm_name ?? null,
+      your: growerFigures(cycle),
+      integrator: integratorFigures(cycle),
     });
     const encoded = encodeURIComponent(text);
     const native = `whatsapp://send?text=${encoded}`;
@@ -172,6 +224,11 @@ export default function ContractDetailScreen() {
     cycle.actual_settlement_amount != null && cycle.expected_settlement_amount != null
       ? Number(cycle.actual_settlement_amount) - Number(cycle.expected_settlement_amount)
       : null;
+  const tariffConfirmed = cycle.tariff_confirmed_at != null;
+  const effectiveTariff = parseTariffCard(cycle.tariff_card_snapshot ?? cycle.integrators?.tariff_card_json ?? {});
+  const reconciliation = buildReconciliation(cycle);
+  const showReconciliation = hasIntegratorStatement(cycle);
+  const isLocked = cycle.status === 'settled';
 
   return (
     <View style={styles.root}>
@@ -288,6 +345,28 @@ export default function ContractDetailScreen() {
           </Card>
         ) : null}
 
+        {/* Confirm tariff terms — required before reconciling */}
+        {!isLocked ? (
+          <Card>
+            <Text style={styles.sectionTitle}>{t('contract.tariff.title')}</Text>
+            <Text style={styles.bodyText}>
+              {tariffConfirmed
+                ? t('contract.tariff.confirmed_on', {
+                    date: cycle.tariff_confirmed_at ? formatDDMMMYYYY(cycle.tariff_confirmed_at) : '',
+                  })
+                : t('contract.tariff.help')}
+            </Text>
+            <View style={styles.actionBtnWrap}>
+              <Button
+                variant={tariffConfirmed ? 'outlineDark' : 'primary'}
+                label={tariffConfirmed ? t('contract.tariff.edit') : t('contract.tariff.confirm')}
+                onPress={() => setTariffOpen(true)}
+                fullWidth
+              />
+            </View>
+          </Card>
+        ) : null}
+
         {/* Settlement calculator */}
         <Card>
           <Text style={styles.sectionTitle}>{t('contract.detail.settlement')}</Text>
@@ -337,15 +416,40 @@ export default function ContractDetailScreen() {
             variant="primary"
             label={recalcLoading ? t('contract.detail.calculating') : t('contract.detail.recalculate')}
             onPress={recalcSettlement}
-            disabled={recalcLoading || !cycle.birds_delivered || !cycle.avg_weight_kg}
+            disabled={recalcLoading || !cycle.birds_delivered || !cycle.avg_weight_kg || !tariffConfirmed}
             fullWidth
           />
-          {(!cycle.birds_delivered || !cycle.avg_weight_kg) ? (
+          {!tariffConfirmed ? (
+            <Text style={styles.muted}>{t('contract.reconcile.confirm_tariff_first')}</Text>
+          ) : (!cycle.birds_delivered || !cycle.avg_weight_kg) ? (
             <Text style={styles.muted}>
               {t('contract.detail.need_inputs')}
             </Text>
           ) : null}
         </Card>
+
+        {/* Reconciliation — your data vs integrator statement */}
+        {showReconciliation ? <ContractReconciliationCard reconciliation={reconciliation} /> : null}
+
+        {/* Enter / edit the integrator statement */}
+        {!isLocked ? (
+          <Card>
+            <Text style={styles.sectionTitle}>{t('contract.statement.title')}</Text>
+            <Text style={styles.bodyText}>{t('contract.statement.help')}</Text>
+            <View style={styles.actionBtnWrap}>
+              <Button
+                variant={showReconciliation ? 'outlineDark' : 'primary'}
+                label={showReconciliation ? t('contract.statement.edit') : t('contract.statement.enter')}
+                onPress={() => setStatementOpen(true)}
+                disabled={!tariffConfirmed}
+                fullWidth
+              />
+            </View>
+            {!tariffConfirmed ? (
+              <Text style={styles.muted}>{t('contract.reconcile.confirm_tariff_first')}</Text>
+            ) : null}
+          </Card>
+        ) : null}
 
         {cycle.dispute_notes ? (
           <Card>
@@ -379,6 +483,37 @@ export default function ContractDetailScreen() {
           </Card>
         ) : null}
       </ScrollView>
+
+      <ContractTariffModal
+        visible={tariffOpen}
+        onDismiss={() => setTariffOpen(false)}
+        cycleId={cycle.id}
+        defaults={effectiveTariff}
+        onSuccess={() => {
+          setTariffOpen(false);
+          setSnackbar(t('contract.tariff.saved'));
+          load();
+        }}
+      />
+      <ContractStatementModal
+        visible={statementOpen}
+        onDismiss={() => setStatementOpen(false)}
+        cycleId={cycle.id}
+        initial={{
+          integrator_birds_lifted: cycle.integrator_birds_lifted,
+          integrator_avg_weight_kg: cycle.integrator_avg_weight_kg,
+          integrator_fcr: cycle.integrator_fcr,
+          integrator_mortality_pct: cycle.integrator_mortality_pct,
+          actual_settlement_amount: cycle.actual_settlement_amount,
+          settlement_received_date: cycle.settlement_received_date,
+          dispute_notes: cycle.dispute_notes,
+        }}
+        onSuccess={() => {
+          setStatementOpen(false);
+          setSnackbar(t('contract.statement.saved'));
+          load();
+        }}
+      />
 
       <Snackbar visible={!!snackbar} onDismiss={() => setSnackbar(null)}>
         {snackbar ?? ''}
@@ -427,6 +562,7 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: colors.mute, marginVertical: spacing.xs },
   bodyText: { ...typography.bodySm, color: colors.ink },
   shareBtnWrap: { marginTop: spacing.md },
+  actionBtnWrap: { marginTop: spacing.md },
   shareBtn: {
     flexDirection: 'row',
     alignItems: 'center',

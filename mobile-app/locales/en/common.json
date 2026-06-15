@@ -334,7 +334,10 @@
       "phone": "Phone",
       "gstin": "GSTIN",
       "type": "Type",
-      "type_options": { "independent": "Independent farm", "contract": "Contract farm" },
+      "type_options": {
+        "independent": "Independent farm",
+        "contract": "Contract farm"
+      },
       "integrator": "Integrator",
       "integrator_placeholder": "Pick integrator",
       "integrator_none": "— Pick an integrator —",
@@ -371,9 +374,15 @@
     "web_only_p1": "The multi-farm dashboard is optimised for a larger screen. Open PoultryOS in your browser to see the consolidated view across all your farms.",
     "web_only_p2": "We'll still show you the summary below — but the web version has more density and column-level controls.",
     "loading_farms": "Loading farms…",
-    "empty": { "title": "No farms yet", "description": "Add a farm to see it appear in this consolidated view." },
+    "empty": {
+      "title": "No farms yet",
+      "description": "Add a farm to see it appear in this consolidated view."
+    },
     "per_farm": "Per farm",
-    "farm_type": { "contract": "Contract", "independent": "Independent" },
+    "farm_type": {
+      "contract": "Contract",
+      "independent": "Independent"
+    },
     "last_log": "Last log {{date}}",
     "kpi": {
       "farms": "Farms",
@@ -546,12 +555,30 @@
     "save_failed": "Failed to save",
     "not_signed_in": "Not signed in",
     "categories": {
-      "mortality_alert": { "label": "Mortality spike alerts", "description": "Sent when daily deaths cross your threshold. Recommended to keep on." },
-      "heat_stress_alert": { "label": "Heat-stress warnings", "description": "Sent the evening before a forecast heat day. Includes mitigation tips." },
-      "vaccination_reminder": { "label": "Vaccination reminders", "description": "Daily 7 AM digest of vaccinations due today." },
-      "payment_reminder": { "label": "Payment reminders", "description": "Day 7 / 15 / 30 reminders for pending receivables." },
-      "low_stock_alert": { "label": "Low-stock alerts", "description": "When feed, medicine or vaccines drop below threshold." },
-      "daily_digest": { "label": "Daily farm digest", "description": "Evening 8 PM summary of mortality, feed and prices." }
+      "mortality_alert": {
+        "label": "Mortality spike alerts",
+        "description": "Sent when daily deaths cross your threshold. Recommended to keep on."
+      },
+      "heat_stress_alert": {
+        "label": "Heat-stress warnings",
+        "description": "Sent the evening before a forecast heat day. Includes mitigation tips."
+      },
+      "vaccination_reminder": {
+        "label": "Vaccination reminders",
+        "description": "Daily 7 AM digest of vaccinations due today."
+      },
+      "payment_reminder": {
+        "label": "Payment reminders",
+        "description": "Day 7 / 15 / 30 reminders for pending receivables."
+      },
+      "low_stock_alert": {
+        "label": "Low-stock alerts",
+        "description": "When feed, medicine or vaccines drop below threshold."
+      },
+      "daily_digest": {
+        "label": "Daily farm digest",
+        "description": "Evening 8 PM summary of mortality, feed and prices."
+      }
     }
   },
   "onboarding": {
@@ -581,7 +608,9 @@
       "step1": {
         "sub": "Let us know your name to personalise your experience.",
         "full_name": "Full name",
-        "errors": { "name_min": "Enter your full name (min 2 characters)" }
+        "errors": {
+          "name_min": "Enter your full name (min 2 characters)"
+        }
       },
       "step2": {
         "sub": "Basic details about your farm for records and compliance.",
@@ -606,7 +635,10 @@
       "step3": {
         "sub": "Are you farming independently or under a contract integrator?",
         "farm_type": "Farm type",
-        "type": { "independent": "Independent", "contract": "Contract farming" },
+        "type": {
+          "independent": "Independent",
+          "contract": "Contract farming"
+        },
         "integrator": "Integrator",
         "integrator_loading": "Loading...",
         "integrator_placeholder": "Select integrator",
@@ -656,7 +688,11 @@
     }
   },
   "setup": {
-    "poultry_type": { "broiler": "Broiler", "layer": "Layer", "breeder": "Breeder" },
+    "poultry_type": {
+      "broiler": "Broiler",
+      "layer": "Layer",
+      "breeder": "Breeder"
+    },
     "sheds": {
       "empty_title": "No sheds yet",
       "empty_description": "Add at least one shed to start tracking your flocks.",
@@ -725,14 +761,37 @@
     "age_days_one": "Placed {{date}} · {{count}} day",
     "age_days_other": "Placed {{date}} · {{count}} days",
     "supplier": "Supplier: {{name}}",
-    "status": { "active": "Active", "harvested": "Harvested", "closed": "Closed" },
-    "kpi": { "current_birds": "Current birds", "cumulative_fcr": "Cumulative FCR", "livability": "Livability", "avg_weight": "Avg weight" },
+    "status": {
+      "active": "Active",
+      "harvested": "Harvested",
+      "closed": "Closed"
+    },
+    "kpi": {
+      "current_birds": "Current birds",
+      "cumulative_fcr": "Cumulative FCR",
+      "livability": "Livability",
+      "avg_weight": "Avg weight"
+    },
     "target_fcr": "Target: {{fcr}} ({{breed}})",
     "target_livability": "Target: ≥ {{pct}}%",
     "target_weight": "Target: {{kg}} kg @ {{days}}d",
     "pnl_title": "Profit & loss",
-    "pnl": { "chick_cost": "Chick cost", "feed_cost": "Feed cost", "other_expenses": "Other expenses", "total_cost": "Total cost", "harvest_sale": "Harvest sale", "other_income": "Other income", "total_income": "Total income", "net": "Net P&L", "per_bird": "P&L per bird", "realised": "Realised P&L (paid only)" },
-    "no_pnl": { "title": "No P&L data yet", "description": "Record daily feed costs, expenses, and sales to populate this batch's P&L." },
+    "pnl": {
+      "chick_cost": "Chick cost",
+      "feed_cost": "Feed cost",
+      "other_expenses": "Other expenses",
+      "total_cost": "Total cost",
+      "harvest_sale": "Harvest sale",
+      "other_income": "Other income",
+      "total_income": "Total income",
+      "net": "Net P&L",
+      "per_bird": "P&L per bird",
+      "realised": "Realised P&L (paid only)"
+    },
+    "no_pnl": {
+      "title": "No P&L data yet",
+      "description": "Record daily feed costs, expenses, and sales to populate this batch's P&L."
+    },
     "add_transaction": "Add transaction for this batch",
     "view_vaccinations": "View vaccinations",
     "view_health": "View health incidents",
@@ -747,7 +806,10 @@
     "generating": "Generating…",
     "generate_certificate": "Generate traceability certificate",
     "trace_gate_reason": "Upgrade to generate traceability certificates",
-    "errors": { "load_failed": "Failed to load batch", "generate_failed": "Failed to generate certificate" },
+    "errors": {
+      "load_failed": "Failed to load batch",
+      "generate_failed": "Failed to generate certificate"
+    },
     "batch_closed": "Batch closed — P&L locked."
   },
   "hdep": {
@@ -781,7 +843,11 @@
     "buyer": "Buyer (Khata, optional)",
     "buyer_none": "— None —",
     "payment_status": "Payment status",
-    "status": { "paid": "Paid", "pending": "Pending", "partial": "Partial" },
+    "status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "partial": "Partial"
+    },
     "notes": "Notes (optional)",
     "revenue_booked": "Revenue booked",
     "revenue_formula": "{{birds}} birds × {{weight}} kg × {{price}}/kg",
@@ -805,7 +871,12 @@
       "description": "Track integrator-supplied inputs, calculate expected settlements from tariff cards, and reconcile actual payouts. Available on the PoultryOS Pro plan.",
       "action": "See plans"
     },
-    "status": { "active": "Active", "harvest_complete": "Harvest complete", "settled": "Settled", "disputed": "Disputed" },
+    "status": {
+      "active": "Active",
+      "harvest_complete": "Harvest complete",
+      "settled": "Settled",
+      "disputed": "Disputed"
+    },
     "unknown_integrator": "Unknown integrator",
     "placed_chicks": "Placed {{date}} · {{count}} chicks",
     "actual": "Actual",
@@ -854,7 +925,65 @@
       "reconciliation_help": "Shares a formatted summary of the cycle and settlement breakdown via WhatsApp. Pick the integrator contact when WhatsApp opens.",
       "share_a11y": "Share settlement reconciliation via WhatsApp",
       "send_to_integrator": "Send to integrator",
-      "errors": { "whatsapp_failed": "Could not open WhatsApp", "compute_failed": "Failed to compute" }
+      "errors": {
+        "whatsapp_failed": "Could not open WhatsApp",
+        "compute_failed": "Failed to compute"
+      }
+    },
+    "reconcile": {
+      "title": "Reconciliation",
+      "subtitle": "Your data vs the integrator statement",
+      "your": "You",
+      "integrator": "Integrator",
+      "impact": "₹ impact",
+      "owed": "You may be owed {{amount}}",
+      "statement_ok": "Statement is at or above your expected {{amount}}",
+      "arithmetic_gap": "Integrator figures imply {{computed}} vs {{stated}} stated",
+      "confirm_tariff_first": "Confirm the tariff terms first",
+      "line": {
+        "birds_lifted": "Birds lifted",
+        "avg_weight": "Avg weight (kg)",
+        "fcr": "FCR",
+        "mortality": "Mortality %"
+      }
+    },
+    "tariff": {
+      "title": "Contract terms",
+      "help": "Confirm or edit the terms to match your actual contract before reconciling — a wrong rate gives a wrong expectation.",
+      "confirmed_on": "Terms confirmed {{date}}",
+      "base_rate": "Base charge (₹/kg)",
+      "fcr_threshold": "FCR bonus threshold (≤)",
+      "fcr_bonus": "FCR bonus (₹/kg)",
+      "mortality_threshold": "Mortality threshold (% ≤)",
+      "mortality_bonus": "Mortality bonus (₹/kg)",
+      "confirm": "Confirm terms",
+      "edit": "Edit terms",
+      "saving": "Saving…",
+      "saved": "Tariff terms saved",
+      "errors": {
+        "base": "Enter a valid base rate"
+      }
+    },
+    "statement": {
+      "title": "Integrator statement",
+      "help": "Enter the figures from the integrator's settlement statement to compare with your data.",
+      "amount": "Settlement amount (₹)",
+      "received_date": "Received date",
+      "birds": "Birds lifted",
+      "weight": "Avg weight (kg)",
+      "fcr": "FCR",
+      "mortality": "Mortality %",
+      "dispute": "Dispute notes",
+      "mark_disputed": "Mark as disputed",
+      "enter": "Enter statement",
+      "edit": "Edit statement",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Statement saved",
+      "errors": {
+        "amount": "Enter a valid settlement amount",
+        "date": "Use date format YYYY-MM-DD"
+      }
     }
   },
   "buyers": {
@@ -870,7 +999,10 @@
     "generating": "Generating…",
     "send_upi_collect": "Send UPI Collect link",
     "recent_transactions": "Recent transactions",
-    "empty": { "title": "No transactions yet", "description": "Sales and payments linked to this buyer will appear here." },
+    "empty": {
+      "title": "No transactions yet",
+      "description": "Sales and payments linked to this buyer will appear here."
+    },
     "errors": {
       "load_failed": "Failed to load buyer",
       "no_pending": "No pending invoice to collect",
@@ -924,21 +1056,66 @@
   },
   "more": {
     "title": "More",
-    "transactions": { "label": "Transactions", "description": "Income, expenses, and payment status" },
-    "market_prices": { "label": "Market prices", "description": "14-day broiler & egg price trend" },
-    "weather": { "label": "Weather & alerts", "description": "Current conditions, forecast, heat-stress history" },
-    "reports": { "label": "Reports", "description": "Operational + financial summaries · WhatsApp + CSV" },
-    "health": { "label": "Health incidents", "description": "Symptoms, treatment, withdrawal" },
-    "vaccinations": { "label": "Vaccinations", "description": "Schedule and history" },
-    "inventory": { "label": "Inventory", "description": "Feed, medicine, equipment stock" },
-    "contract": { "label": "Contract farming", "description": "Cycles, tariff card, settlements" },
-    "settings": { "label": "Settings", "description": "Farm profile, UPI, WhatsApp opt-in, heat threshold" },
-    "security": { "label": "Security", "description": "Two-factor, trusted devices, login history" },
-    "billing": { "label": "Billing & subscription", "description": "Plan, status, upgrade to Pro" },
-    "multi_farm": { "label": "Multi-farm dashboard", "description": "Consolidated KPIs across all your farms (Pro · best on web)" },
-    "notifications": { "label": "Notifications", "description": "WhatsApp alert history for this farm" },
-    "whatsapp_settings": { "label": "WhatsApp notifications", "description": "Master switch + per-category opt-in" },
-    "language": { "label": "Language / भाषा / తెలుగు / மொழி", "description": "English, Hindi, Telugu, Tamil" }
+    "transactions": {
+      "label": "Transactions",
+      "description": "Income, expenses, and payment status"
+    },
+    "market_prices": {
+      "label": "Market prices",
+      "description": "14-day broiler & egg price trend"
+    },
+    "weather": {
+      "label": "Weather & alerts",
+      "description": "Current conditions, forecast, heat-stress history"
+    },
+    "reports": {
+      "label": "Reports",
+      "description": "Operational + financial summaries · WhatsApp + CSV"
+    },
+    "health": {
+      "label": "Health incidents",
+      "description": "Symptoms, treatment, withdrawal"
+    },
+    "vaccinations": {
+      "label": "Vaccinations",
+      "description": "Schedule and history"
+    },
+    "inventory": {
+      "label": "Inventory",
+      "description": "Feed, medicine, equipment stock"
+    },
+    "contract": {
+      "label": "Contract farming",
+      "description": "Cycles, tariff card, settlements"
+    },
+    "settings": {
+      "label": "Settings",
+      "description": "Farm profile, UPI, WhatsApp opt-in, heat threshold"
+    },
+    "security": {
+      "label": "Security",
+      "description": "Two-factor, trusted devices, login history"
+    },
+    "billing": {
+      "label": "Billing & subscription",
+      "description": "Plan, status, upgrade to Pro"
+    },
+    "multi_farm": {
+      "label": "Multi-farm dashboard",
+      "description": "Consolidated KPIs across all your farms (Pro · best on web)"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "description": "WhatsApp alert history for this farm"
+    },
+    "whatsapp_settings": {
+      "label": "WhatsApp notifications",
+      "description": "Master switch + per-category opt-in"
+    },
+    "language": {
+      "label": "Language / भाषा / తెలుగు / மொழி",
+      "description": "English, Hindi, Telugu, Tamil"
+    }
   },
   "vaccinations": {
     "title": "Vaccinations",
@@ -946,13 +1123,24 @@
     "select_batch": "Select a batch",
     "schedule_new": "Schedule new vaccination",
     "schedule": "Schedule vaccination",
-    "empty": { "title": "No vaccinations scheduled", "description": "Tap + to schedule a vaccination for this batch." },
+    "empty": {
+      "title": "No vaccinations scheduled",
+      "description": "Tap + to schedule a vaccination for this batch."
+    },
     "load_failed": "Failed to load vaccinations: {{reason}}",
     "update_failed_reason": "Could not update: {{reason}}",
     "update_failed": "Update failed",
     "marked_done": "Vaccination marked as done",
-    "status": { "done": "Done", "overdue": "Overdue", "scheduled": "Scheduled" },
-    "route": { "oral": "Oral", "injection": "Injection", "spray": "Spray" },
+    "status": {
+      "done": "Done",
+      "overdue": "Overdue",
+      "scheduled": "Scheduled"
+    },
+    "route": {
+      "oral": "Oral",
+      "injection": "Injection",
+      "spray": "Spray"
+    },
     "given": "Given {{date}}",
     "due": "Due {{date}}",
     "mark_done": "Mark done",
@@ -991,7 +1179,10 @@
     "report_new_incident": "Report new incident",
     "report_incident": "Report incident",
     "load_failed": "Failed to load incidents: {{reason}}",
-    "empty": { "title": "No health incidents recorded", "description": "Tap + to report symptoms or treatment for this batch." },
+    "empty": {
+      "title": "No health incidents recorded",
+      "description": "Tap + to report symptoms or treatment for this batch."
+    },
     "form": {
       "title": "Report Incident",
       "incident_date": "Incident date",
@@ -1024,15 +1215,26 @@
     "title": "Inventory",
     "category": "Category",
     "all_categories": "All Categories",
-    "cat": { "feed": "Feed", "medicine": "Medicine", "vaccine": "Vaccine", "equipment": "Equipment" },
+    "cat": {
+      "feed": "Feed",
+      "medicine": "Medicine",
+      "vaccine": "Vaccine",
+      "equipment": "Equipment"
+    },
     "record_purchase": "Record purchase",
     "record_new_purchase": "Record new purchase",
     "days_left_one": "~{{count}} day left",
     "days_left_other": "~{{count}} days left",
     "reorder": "Reorder",
     "load_failed": "Failed to load inventory: {{reason}}",
-    "empty_all": { "title": "No inventory items", "description": "Record your first purchase to start tracking stock levels." },
-    "empty_filtered": { "title": "No {{category}} items", "description": "Try a different category filter or record a new purchase." },
+    "empty_all": {
+      "title": "No inventory items",
+      "description": "Record your first purchase to start tracking stock levels."
+    },
+    "empty_filtered": {
+      "title": "No {{category}} items",
+      "description": "Try a different category filter or record a new purchase."
+    },
     "purchase": {
       "title": "Record Purchase",
       "item": "Item",
@@ -1064,7 +1266,10 @@
   "market_prices": {
     "title": "Market prices",
     "state_title": "{{state}} prices",
-    "no_state": { "title": "No farm state set", "description": "Add a state in farm settings to start tracking market prices." },
+    "no_state": {
+      "title": "No farm state set",
+      "description": "Add a state in farm settings to start tracking market prices."
+    },
     "trend_14d": "14-day trend",
     "no_data": "No price data yet for {{state}}. Enter today's price below to start the trend.",
     "legend_broiler": "Broiler ₹/kg",
@@ -1093,14 +1298,23 @@
     "health": "Health",
     "vaccinations": "Vaccinations",
     "load_failed": "Could not load batches: {{reason}}",
-    "empty_active": { "title": "No active flocks", "description": "Add your first batch to start tracking daily logs." },
-    "empty_closed": { "title": "No closed flocks yet", "description": "Closed batches will appear here after harvest." },
+    "empty_active": {
+      "title": "No active flocks",
+      "description": "Add your first batch to start tracking daily logs."
+    },
+    "empty_closed": {
+      "title": "No closed flocks yet",
+      "description": "Closed batches will appear here after harvest."
+    },
     "set_up_flock": "Set up flock"
   },
   "reports": {
     "title": "Reports",
     "report_type": "Report type",
-    "type": { "operational": "Operational summary", "financial": "Financial summary" },
+    "type": {
+      "operational": "Operational summary",
+      "financial": "Financial summary"
+    },
     "date_range": "Date range",
     "from": "From",
     "to": "To",
@@ -1123,7 +1337,10 @@
   },
   "transaction_form": {
     "type_label": "Type",
-    "type": { "income": "Income", "expense": "Expense" },
+    "type": {
+      "income": "Income",
+      "expense": "Expense"
+    },
     "category_label": "Category",
     "category_placeholder": "Pick a category",
     "income_category": {
@@ -1154,7 +1371,11 @@
     "transaction_date_label": "Transaction date",
     "date_placeholder": "YYYY-MM-DD",
     "payment_status_label": "Payment status",
-    "payment_status": { "paid": "Paid", "pending": "Pending", "partial": "Partial" },
+    "payment_status": {
+      "paid": "Paid",
+      "pending": "Pending",
+      "partial": "Partial"
+    },
     "due_date_label": "Due date",
     "notes_label": "Notes",
     "save": "Save transaction",
