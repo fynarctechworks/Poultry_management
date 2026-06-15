@@ -940,6 +940,10 @@
     "language": {
       "label": "Language / भाषा / తెలుగు / மொழி",
       "description": "English, Hindi, Telugu, Tamil"
+    },
+    "farm_integrity": {
+      "label": "फार्म इंटीग्रिटी",
+      "description": "दर्ज डेटा बनाम वास्तविक स्थिति का मिलान"
     }
   },
   "vaccinations": {
@@ -1241,5 +1245,44 @@
     "retry": "पुनः प्रयास करें",
     "yes": "हाँ",
     "no": "नहीं"
+  },
+  "farm_integrity": {
+    "title": "फार्म इंटीग्रिटी",
+    "intro": "पिछले {{days}} दिनों में दर्ज डेटा और वास्तविक स्थिति के बीच अंतर। समीक्षा हेतु, निष्कर्ष नहीं।",
+    "this_week": "इस सप्ताह",
+    "all_clear": "सब कुछ मेल खाता है ✓",
+    "areas": "{{count}} क्षेत्र समीक्षा हेतु",
+    "exposure": "{{amount}} का हिसाब बाकी",
+    "to_account": "{{amount}} का हिसाब बाकी",
+    "recent": "हाल की गिनती",
+    "owner_only": {
+      "title": "केवल मालिक",
+      "description": "फार्म इंटीग्रिटी रिपोर्ट केवल फार्म मालिक को दिखती है।"
+    },
+    "finding": {
+      "feed_variance": "भौतिक फ़ीड स्टॉक {{varianceKg}} कि.ग्रा. है, सिस्टम में {{systemKg}} कि.ग्रा.।",
+      "feed_growth": "फ़ीड-से-वृद्धि एफसीआर {{actualFcr}} बनाम मानक {{standardFcr}} — वज़न वृद्धि से लगभग {{excessKg}} कि.ग्रा. अधिक फ़ीड।",
+      "bird_variance": "पक्षी गिनती में {{varianceBirds}} का अंतर (सिस्टम {{systemCount}}, गिने {{physicalCount}})।",
+      "entry_backfill": "{{count}} लॉग तारीख के बहुत बाद दर्ज किए गए।",
+      "entry_repeated": "फ़ीड मात्रा {{run}} दिन लगातार समान।",
+      "entry_odd_hours": "{{count}} लॉग कार्य समय के बाहर दर्ज।",
+      "entry_weight_jump": "{{count}} असंभव वज़न परिवर्तन।"
+    },
+    "spot": {
+      "title": "भौतिक गिनती दर्ज करें",
+      "what": "आपने क्या गिना?",
+      "bird_count": "पक्षी गिनती (एक बैच)",
+      "feed_stock": "फ़ीड स्टॉक (एक आइटम)",
+      "feed_item": "फ़ीड आइटम",
+      "batch": "बैच",
+      "select": "चुनें",
+      "counted_kg": "गिना स्टॉक (कि.ग्रा.)",
+      "counted_birds": "गिने पक्षी",
+      "date": "गिनती तिथि",
+      "save": "गिनती सहेजें",
+      "saving": "सहेजा जा रहा है…",
+      "saved": "गिनती सहेजी गई",
+      "invalid": "लक्ष्य चुनें और मान्य गिनती दर्ज करें।"
+    }
   }
 }

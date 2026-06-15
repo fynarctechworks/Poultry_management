@@ -10,3 +10,4 @@ export * from './hdep';
 export * from './sell-timing';
 export * from './contract-reconciliation';
 export * from './necc-zones';
+export * from './farm-integrity';

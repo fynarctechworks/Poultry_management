@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, Tractor, Wallet, BarChart3, Settings, LogOut, FileText, CloudSun, TrendingUp, Handshake, PlusCircle, Syringe, Stethoscope, Package, MessageCircle, Bell, Layers, Users, CreditCard, Building2, QrCode } from 'lucide-react';
+import { LayoutGrid, Tractor, Wallet, BarChart3, Settings, LogOut, FileText, CloudSun, TrendingUp, Handshake, PlusCircle, Syringe, Stethoscope, Package, MessageCircle, Bell, Layers, Users, CreditCard, Building2, QrCode, ShieldCheck } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ const NAV = [
   { href: '/inventory', label: 'Inventory', icon: Package },
   { href: '/transactions', label: 'Transactions', icon: FileText },
   { href: '/khata', label: 'Khata', icon: Wallet },
+  { href: '/farm-integrity', label: 'Farm Integrity', icon: ShieldCheck },
   { href: '/contract', label: 'Contract', icon: Handshake },
   { href: '/integrators', label: 'Integrators', icon: Building2 },
   { href: '/traceability', label: 'Traceability', icon: QrCode },

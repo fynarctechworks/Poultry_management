@@ -1115,6 +1115,10 @@
     "language": {
       "label": "Language / भाषा / తెలుగు / மொழி",
       "description": "English, Hindi, Telugu, Tamil"
+    },
+    "farm_integrity": {
+      "label": "Farm Integrity",
+      "description": "Reconcile logged data vs physical reality"
     }
   },
   "vaccinations": {
@@ -1416,5 +1420,44 @@
     "retry": "Retry",
     "yes": "Yes",
     "no": "No"
+  },
+  "farm_integrity": {
+    "title": "Farm Integrity",
+    "intro": "Variances between what was logged and physical reality, over the last {{days}} days. Items to review, not conclusions.",
+    "this_week": "This week",
+    "all_clear": "Everything reconciles ✓",
+    "areas": "{{count}} area(s) to review",
+    "exposure": "{{amount}} to account for",
+    "to_account": "{{amount}} to account for",
+    "recent": "Recent spot-counts",
+    "owner_only": {
+      "title": "Owner only",
+      "description": "The Farm Integrity report is visible to the farm owner only."
+    },
+    "finding": {
+      "feed_variance": "Physical feed stock is {{varianceKg}} kg against {{systemKg}} kg in the system.",
+      "feed_growth": "Feed-to-growth FCR {{actualFcr}} vs standard {{standardFcr}} — about {{excessKg}} kg feed beyond the weight gain.",
+      "bird_variance": "Bird count differs by {{varianceBirds}} (system {{systemCount}}, counted {{physicalCount}}).",
+      "entry_backfill": "{{count}} log(s) entered well after their date.",
+      "entry_repeated": "Feed quantity identical for {{run}} days in a row.",
+      "entry_odd_hours": "{{count}} log(s) entered outside working hours.",
+      "entry_weight_jump": "{{count}} implausible weight change(s) between weighings."
+    },
+    "spot": {
+      "title": "Enter a physical spot-count",
+      "what": "What did you count?",
+      "bird_count": "Bird count (a batch)",
+      "feed_stock": "Feed stock (an item)",
+      "feed_item": "Feed item",
+      "batch": "Batch",
+      "select": "Select",
+      "counted_kg": "Counted stock (kg)",
+      "counted_birds": "Counted birds",
+      "date": "Count date",
+      "save": "Save count",
+      "saving": "Saving…",
+      "saved": "Count saved",
+      "invalid": "Pick a target and enter a valid count."
+    }
   }
 }

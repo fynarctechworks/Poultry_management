@@ -89,6 +89,12 @@ export default function MoreScreen() {
         ]
       : []),
     {
+      label: t('more.farm_integrity.label'),
+      description: t('more.farm_integrity.description'),
+      icon: <ShieldCheck size={20} color={colors.ink} />,
+      href: '/farm-integrity',
+    },
+    {
       label: t('more.settings.label'),
       description: t('more.settings.description'),
       icon: <SettingsIcon size={20} color={colors.ink} />,
