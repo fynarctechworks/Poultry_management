@@ -43,7 +43,11 @@ export function Sidebar({ userName }: { userName: string }) {
   return (
     <aside className="w-[240px] shrink-0 bg-canvas border-r border-mute flex flex-col h-screen">
       <div className="px-lg py-xl">
-        <h1 className="text-xl font-bold text-primary">PoultryOS</h1>
+        <div className="flex items-center gap-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/poultry-mark.png" alt="" className="h-8 w-8 rounded-lg" />
+          <h1 className="text-xl font-bold text-primary">PoultryOS</h1>
+        </div>
         <p className="text-xs text-body-soft mt-xxs">{userName}</p>
       </div>
       <Link

@@ -19,7 +19,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0d1317"
       },
       "package": "com.fynarctechworks.poultryos",
       "edgeToEdgeEnabled": true,

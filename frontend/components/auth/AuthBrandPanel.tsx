@@ -1,4 +1,3 @@
-import { Bird } from 'lucide-react';
 import Silk from '@/components/Silk';
 import { colors } from '@/lib/theme/tokens';
 
@@ -25,11 +24,9 @@ export function AuthBrandPanel({
         <Silk color={colors.primary} speed={5} scale={1} noiseIntensity={1.5} rotation={0} />
       </div>
 
-      <div className="relative z-10 flex items-center gap-sm">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/20 backdrop-blur">
-          <Bird size={20} className="text-on-dark" />
-        </span>
-        <span className="text-lg font-semibold tracking-tight">PoultryOS</span>
+      <div className="relative z-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/poultry-logo-white.png" alt="PoultryOS" className="h-10 w-auto" />
       </div>
 
       <div className="relative z-10 max-w-md">

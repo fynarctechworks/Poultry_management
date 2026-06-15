@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable, Image } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
@@ -75,6 +75,10 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <View style={styles.brand}>
+          <Image source={require('../../assets/poultry-logo.png')} style={styles.brandLogo} resizeMode="contain" />
+        </View>
+
         {mode === 'mobile' ? (
           <>
             <Text style={styles.heading}>{t('auth.otp.heading')}</Text>
@@ -176,6 +180,8 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvasSoft },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing['3xl'] },
+  brand: { alignItems: 'center', marginBottom: spacing['2xl'] },
+  brandLogo: { width: 220, height: 84 },
   heading: { ...typography.displayLg, color: colors.ink, marginBottom: spacing.xs },
   sub: { ...typography.bodyMd, color: colors.body, marginBottom: spacing['3xl'] },
   fields: { gap: spacing.lg, marginBottom: spacing.md },

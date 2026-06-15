@@ -1,4 +1,3 @@
-import { ShieldCheck } from 'lucide-react';
 import { colors } from '@/lib/theme/tokens';
 
 /**
@@ -25,11 +24,10 @@ export function AuthBrandPanel({
           `linear-gradient(150deg, ${colors.canvasSoft} 0%, ${colors.primaryHaze} 32%, ${colors.primary} 72%, ${colors.primaryDeep} 100%)`,
       }}
     >
-      <div className="flex items-center gap-sm">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/20 backdrop-blur">
-          <ShieldCheck size={20} className="text-on-dark" />
-        </span>
-        <span className="text-lg font-semibold tracking-tight">PoultryOS Control Center</span>
+      <div className="flex flex-col gap-xs">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/poultry-logo-white.png" alt="PoultryOS" className="h-10 w-auto self-start" />
+        <span className="text-sm font-semibold uppercase tracking-wide opacity-80">Control Center</span>
       </div>
 
       <div className="max-w-md">

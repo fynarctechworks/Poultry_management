@@ -1,4 +1,3 @@
-import { ShieldCheck } from 'lucide-react';
 import { AuthBrandPanel } from '@/components/auth';
 
 /**
@@ -15,11 +14,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <section className="flex flex-1 items-center justify-center px-6 py-10 sm:px-10">
         <div className="w-full max-w-[400px]">
           {/* Compact logo for mobile (panel is hidden) */}
-          <div className="mb-2xl flex items-center gap-sm lg:hidden">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-on-primary">
-              <ShieldCheck size={20} />
+          <div className="mb-2xl lg:hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/poultry-logo-color.png" alt="PoultryOS" className="h-8 w-auto" />
+            <span className="mt-xs block text-sm font-semibold uppercase tracking-wide text-body-soft">
+              Control Center
             </span>
-            <span className="text-lg font-semibold tracking-tight text-ink">Control Center</span>
           </div>
           {children}
         </div>
