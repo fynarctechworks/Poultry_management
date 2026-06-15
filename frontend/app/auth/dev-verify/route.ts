@@ -19,7 +19,9 @@ import { createClient } from '@supabase/supabase-js';
 // =============================================================================
 
 export async function POST(request: Request) {
-  if (process.env.DEV_EMAIL_VERIFY !== 'true') {
+  // Defense-in-depth: never honour this shortcut in a production build, even if
+  // DEV_EMAIL_VERIFY is mistakenly set. The flag below is the dev-only gate.
+  if (process.env.NODE_ENV === 'production' || process.env.DEV_EMAIL_VERIFY !== 'true') {
     return NextResponse.json({ error: 'Not available' }, { status: 404 });
   }
 
