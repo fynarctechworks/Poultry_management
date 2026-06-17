@@ -64,6 +64,12 @@
         "phone_invalid": "Enter a valid 10-digit Indian mobile number",
         "email_invalid": "Enter a valid email",
         "password_min": "Password must be at least 6 characters"
+      },
+      "i_am_a": "I am a",
+      "role": {
+        "owner": "Owner",
+        "worker": "Worker",
+        "vet": "Vet"
       }
     }
   },
