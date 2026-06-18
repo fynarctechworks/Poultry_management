@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, PlusCircle, ChevronDown, LogOut, Settings, ShieldCheck } from 'lucide-react';
+import { Menu, PlusCircle, ChevronDown, LogOut, Settings, ShieldCheck } from '@/components/icons';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { titleForPath } from '@/components/nav-config';
 import { useCanWrite } from '@/components/CanWriteProvider';
@@ -43,7 +43,7 @@ export function Topbar({ userName, onMenu }: { userName: string; onMenu: () => v
         {canWrite && (
           <Link
             href="/daily-log/new"
-            className="inline-flex items-center gap-sm bg-primary text-on-primary rounded-pill px-lg py-sm text-sm font-medium hover:bg-primary-dark transition-colors"
+            className="inline-flex items-center gap-sm bg-primary text-on-primary rounded-pill px-xl py-sm text-sm font-medium min-h-[40px] hover:bg-primary-dark transition-colors"
           >
             <PlusCircle size={16} />
             <span className="hidden sm:inline">Log entry</span>

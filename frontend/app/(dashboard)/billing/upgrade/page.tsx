@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from '@/components/icons';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getBillingSummary } from '@/lib/subscription';
 import { UpgradeFlow, type PlanCard, type BillingProfile } from './UpgradeFlow';

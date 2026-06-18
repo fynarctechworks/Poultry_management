@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, CheckCircle2, CreditCard, Handshake, Loader2, Lock, Warehouse } from 'lucide-react';
+import { Check, CheckCircle2, CreditCard, Handshake, Loader2, Lock, Warehouse } from '@/components/icons';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { PhoneInput } from '@/components/PhoneInput';
 import { isValidPhone, parsePhone } from '@/lib/constants/countries';

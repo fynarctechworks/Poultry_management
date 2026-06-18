@@ -14,7 +14,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, CheckCircle2, Loader2, CreditCard, ReceiptText } from 'lucide-react';
+import { Check, CheckCircle2, Loader2, CreditCard, ReceiptText } from '@/components/icons';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { PhoneInput } from '@/components/PhoneInput';
 import { openSubscriptionCheckout } from '@/lib/razorpay';

@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { Check } from '@/components/icons';
 
 /**
  * The 7-step signup journey rail (PRD "required user journey"). Shared across

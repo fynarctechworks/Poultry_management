@@ -3,7 +3,7 @@ import {
   TrendingUp, Handshake, Syringe, Stethoscope, Package, MessageCircle, Bell,
   Layers, Users, CreditCard, Building2, QrCode, ShieldCheck, ClipboardList,
   type LucideIcon,
-} from 'lucide-react';
+} from '@/components/icons';
 
 export type NavItem = { href: string; label: string; icon: LucideIcon };
 export type NavGroup = { label: string; items: NavItem[] };

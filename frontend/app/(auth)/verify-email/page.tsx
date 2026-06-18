@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { MailCheck } from 'lucide-react';
+import { MailCheck } from '@/components/icons';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { AuthHeader, AuthButton, AuthFooter, AuthError } from '@/components/auth';
 

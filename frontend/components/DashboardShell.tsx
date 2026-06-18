@@ -16,11 +16,25 @@ export function DashboardShell({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   // Close the drawer whenever the route changes.
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Restore the desktop collapsed preference once mounted (avoids SSR mismatch).
+  useEffect(() => {
+    setCollapsed(localStorage.getItem('sidebar-collapsed') === '1');
+  }, []);
+
+  function toggleCollapse() {
+    setCollapsed((v) => {
+      const next = !v;
+      localStorage.setItem('sidebar-collapsed', next ? '1' : '0');
+      return next;
+    });
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-canvas-soft">
@@ -33,7 +47,13 @@ export function DashboardShell({
         />
       )}
 
-      <Sidebar userName={userName} mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <Sidebar
+        userName={userName}
+        mobileOpen={mobileOpen}
+        collapsed={collapsed}
+        onClose={() => setMobileOpen(false)}
+        onToggleCollapse={toggleCollapse}
+      />
 
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <Topbar userName={userName} onMenu={() => setMobileOpen(true)} />

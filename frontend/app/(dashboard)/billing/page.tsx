@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from '@/components/icons';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getBillingSummary } from '@/lib/subscription';
 import { InvoiceDownloadButton } from './InvoiceDownloadButton';

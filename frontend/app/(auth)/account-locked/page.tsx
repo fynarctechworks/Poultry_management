@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Lock } from 'lucide-react';
+import { Lock } from '@/components/icons';
 import { AuthHeader } from '@/components/auth';
 
 /**

@@ -9,7 +9,7 @@
 
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
-import { ReceiptText, Download, Loader2 } from 'lucide-react';
+import { ReceiptText, Download, Loader2 } from '@/components/icons';
 
 export interface ReceiptData {
   invoiceNumber: string;

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MailCheck } from 'lucide-react';
+import { MailCheck } from '@/components/icons';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { AuthHeader, AuthField, AuthButton, AuthFooter, AuthError } from '@/components/auth';
 

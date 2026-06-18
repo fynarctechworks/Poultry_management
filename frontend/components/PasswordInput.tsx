@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef, useState, type InputHTMLAttributes } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from '@/components/icons';
 
 /**
  * Password input with a show/hide eye toggle. Spreads through any input props
