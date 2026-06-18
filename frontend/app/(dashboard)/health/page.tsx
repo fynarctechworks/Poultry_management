@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function HealthPage() {
   const supabase = createSupabaseServerClient();
@@ -13,10 +14,12 @@ export default async function HealthPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Health incidents</h1>
-        <Link href="/health/new" className="btn-primary">Report incident</Link>
-      </div>
+      <PageHeader
+        eyebrow="Operations"
+        title="Health incidents"
+        subtitle="Symptoms, treatments and withdrawal tracking per batch."
+        actions={<Link href="/health/new" className="btn-primary">Report incident</Link>}
+      />
 
       <div className="space-y-md">
         {(incidents ?? []).map((h: any) => {

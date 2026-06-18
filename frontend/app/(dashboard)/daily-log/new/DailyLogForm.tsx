@@ -7,9 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 const schema = z.object({
   batch_id: z.string().uuid('Pick a batch'),
-  log_date: z.string().min(1),
+  log_date: z.string().min(1).refine((v) => v <= todayISO(), 'Log date cannot be in the future'),
   birds_dead: z.coerce.number().int().min(0),
   death_cause: z.enum(['disease', 'culled', 'injury', 'heat_stress', 'unknown']).optional(),
   feed_consumed_kg: z.coerce.number().min(0),
@@ -143,7 +145,7 @@ export function DailyLogForm({ batches }: { batches: Batch[] }) {
           </select>
         </Field>
         <Field label="Log date" error={errors.log_date?.message}>
-          <input type="date" className="input" {...register('log_date')} />
+          <input type="date" max={todayISO()} className="input" {...register('log_date')} />
         </Field>
         <Field label="Birds dead" error={errors.birds_dead?.message}>
           <input type="number" min={0} className="input" {...register('birds_dead')} />

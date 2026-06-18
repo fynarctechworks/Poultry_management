@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { AuthHeader, AuthField, AuthButton, AuthFooter, AuthError } from '@/components/auth';
+import { notifyPasswordChanged } from './actions';
 
 const schema = z
   .object({
@@ -37,6 +38,8 @@ export default function ResetPasswordPage() {
     const { error } = await supabase.auth.updateUser({ password: data.password });
     setLoading(false);
     if (error) return setError(error.message);
+    // Security notification (best-effort — never blocks the redirect).
+    notifyPasswordChanged().catch(() => {});
     router.push('/multi-farm');
     router.refresh();
   }

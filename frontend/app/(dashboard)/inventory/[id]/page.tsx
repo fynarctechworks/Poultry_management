@@ -32,7 +32,7 @@ export default async function InventoryItemPage({ params }: { params: { id: stri
       <Link href="/inventory" className="text-sm text-primary-dark font-semibold">&larr; Inventory</Link>
       <div className="flex items-baseline justify-between mt-md mb-2xl flex-wrap gap-sm">
         <div>
-          <h1 className="text-3xl font-bold text-ink">{it.item_name}</h1>
+          <h1 className="font-display text-3xl text-ink">{it.item_name}</h1>
           <p className="text-sm text-body mt-xs">{it.category} · {it.farms?.farm_name ?? '—'}</p>
         </div>
         <div className="flex items-center gap-md">

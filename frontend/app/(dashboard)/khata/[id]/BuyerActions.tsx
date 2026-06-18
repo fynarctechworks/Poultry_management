@@ -20,7 +20,10 @@ export function BuyerActions({ buyerName, buyerPhone, outstanding, farmUpiId, fa
       alert('No WhatsApp number on file for this buyer.');
       return;
     }
-    const msg = `Hi ${buyerName}, ${formatCurrencyINR(outstanding)} is pending for poultry purchases. Please pay at your earliest convenience. UPI: ${farmUpiId ?? '(set UPI ID)'} — ${farmName}`;
+    // Only include the UPI line when a real VPA is on file — never leak a "(set UPI ID)"
+    // placeholder into a message sent to the buyer.
+    const upiLine = farmUpiId ? ` Pay via UPI: ${farmUpiId}.` : '';
+    const msg = `Hi ${buyerName}, ${formatCurrencyINR(outstanding)} is pending for poultry purchases. Please pay at your earliest convenience.${upiLine} — ${farmName}`;
     const clean = buyerPhone.replace(/[^\d]/g, '');
     window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
   }

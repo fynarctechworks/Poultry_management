@@ -173,8 +173,10 @@ export default async function AdminOverviewPage() {
   if (!raw) {
     return (
       <div className="max-w-[1100px]">
-        <h2 className="text-2xl font-bold text-ink mb-xs">Command Center</h2>
-        <p className="text-sm text-body-soft mb-xl">
+        <h2 className="font-display text-[2.25rem] leading-[1.17] tracking-[-0.36px] text-ink mb-xs">
+          Command Center
+        </h2>
+        <p className="text-sm text-muted mb-xl">
           Real-time platform health across revenue, customers, subscriptions, support, security and infrastructure.
         </p>
         <div className="bg-canvas border border-mute rounded-card p-2xl text-center">
@@ -308,11 +310,14 @@ export default async function AdminOverviewPage() {
   return (
     <div className="max-w-[1200px]">
       {/* ------------------------------------------------------------------ */}
-      {/* Page header                                                          */}
+      {/* Page header — editorial serif title per DESIGN.md display hierarchy */}
       {/* ------------------------------------------------------------------ */}
       <div className="mb-2xl">
-        <h2 className="text-2xl font-bold text-ink mb-xxs">Command Center</h2>
-        <p className="text-sm text-body-soft">
+        {/* display-lg (36px / 300 / -0.36px) — EB Garamond Light, never bold */}
+        <h2 className="font-display text-[2.25rem] leading-[1.17] tracking-[-0.36px] text-ink mb-xxs">
+          Command Center
+        </h2>
+        <p className="text-sm text-muted">
           Real-time platform health across revenue, customers, subscriptions, support, security and infrastructure.
         </p>
       </div>
@@ -403,7 +408,8 @@ export default async function AdminOverviewPage() {
       {/* Row 3 — 8 Health section cards in 2×4 grid                         */}
       {/* ------------------------------------------------------------------ */}
       <div className="mb-xl">
-        <p className="text-xs font-bold uppercase tracking-widest text-body-soft mb-lg">
+        {/* Section eyebrow: caption-uppercase style per DESIGN.md */}
+        <p className="text-[12px] font-semibold uppercase tracking-[0.96px] text-muted mb-lg">
           Module health
         </p>
 
@@ -468,7 +474,7 @@ export default async function AdminOverviewPage() {
               <div className="grid place-items-center w-8 h-8 rounded-md bg-primary-subtle text-primary shrink-0">
                 <Activity size={16} />
               </div>
-              <p className="text-xs font-bold uppercase tracking-wide text-body-soft">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.96px] text-muted">
                 MRR Trend
               </p>
             </div>

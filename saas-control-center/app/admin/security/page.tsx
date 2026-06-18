@@ -12,7 +12,7 @@ export default async function SecurityPage() {
 
   return (
     <div className="max-w-[640px]">
-      <h1 className="text-2xl font-bold text-ink mb-xs">Security</h1>
+      <h1 className="font-display text-[2rem] text-ink mb-xs">Security</h1>
       <p className="text-sm text-body mb-xl">
         Protect your operator account with two-factor authentication.
       </p>

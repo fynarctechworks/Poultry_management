@@ -33,7 +33,7 @@ async function NewContractCycleContent() {
   return (
     <div className="max-w-[720px] mx-auto">
       <Link href="/contract" className="text-sm text-primary-dark font-semibold">&larr; Contract cycles</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Start contract cycle</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Start contract cycle</h1>
       <ContractCycleForm integrators={integrators ?? []} batches={eligible as any} />
     </div>
   );

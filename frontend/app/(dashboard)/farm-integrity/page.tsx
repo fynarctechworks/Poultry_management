@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { UpgradeGate } from '@/components/UpgradeGate';
+import { PageHeader } from '@/components/ui/PageHeader';
 import {
   buildFarmIntegrityReport,
   findBenchmark,
@@ -74,7 +75,7 @@ async function FarmIntegrityContent() {
       ? supabase.from('daily_logs').select('batch_id, birds_dead').in('batch_id', batchIds)
       : Promise.resolve({ data: [] as any[] }),
     batchIds.length
-      ? supabase.from('batch_harvests').select('batch_id, birds').in('batch_id', batchIds)
+      ? supabase.from('batch_harvests').select('batch_id, birds_harvested').in('batch_id', batchIds)
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
@@ -90,7 +91,7 @@ async function FarmIntegrityContent() {
   }
   const soldByBatch = new Map<string, number>();
   for (const h of (harvests ?? []) as any[]) {
-    soldByBatch.set(h.batch_id, (soldByBatch.get(h.batch_id) ?? 0) + Number(h.birds ?? 0));
+    soldByBatch.set(h.batch_id, (soldByBatch.get(h.batch_id) ?? 0) + Number(h.birds_harvested ?? 0));
   }
 
   // Feed cost per kg: most recent non-null across window logs (farm-agnostic proxy).
@@ -168,14 +169,12 @@ async function FarmIntegrityContent() {
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      <div className="flex items-center justify-between mb-xs flex-wrap gap-md">
-        <h1 className="text-3xl font-bold text-ink">Farm Integrity</h1>
-        <Link href="/" className="text-sm text-primary-dark font-semibold">&larr; Dashboard</Link>
-      </div>
-      <p className="text-sm text-body mb-2xl">
-        Variances between what was logged and physical reality, over the last {WINDOW_DAYS} days. These are
-        items to review — not conclusions. Enter a quick physical count to sharpen the check.
-      </p>
+      <PageHeader
+        eyebrow="Insights"
+        title="Farm Integrity"
+        subtitle={`Variances between what was logged and physical reality, over the last ${WINDOW_DAYS} days. These are items to review — not conclusions. Enter a quick physical count to sharpen the check.`}
+        orbs={['sky', 'lavender']}
+      />
 
       <div className={`card mb-2xl ${worst === 'attention' ? 'border-danger' : worst === 'review' ? 'border-warning' : ''}`}>
         <div className="flex items-center justify-between flex-wrap gap-md">

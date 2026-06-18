@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function DailyLogListPage() {
   const supabase = createSupabaseServerClient();
@@ -13,10 +14,12 @@ export default async function DailyLogListPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Daily logs</h1>
-        <Link href="/daily-log/new" className="btn-primary">Log entry</Link>
-      </div>
+      <PageHeader
+        eyebrow="Operations"
+        title="Daily logs"
+        subtitle="Mortality, feed, eggs and weights — the daily source of truth."
+        actions={<Link href="/daily-log/new" className="btn-primary">Log entry</Link>}
+      />
 
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm">

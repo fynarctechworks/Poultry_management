@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getBillingSummary } from '@/lib/subscription';
 import { InvoiceDownloadButton } from './InvoiceDownloadButton';
 import { CancelSubscriptionButton } from './CancelSubscriptionButton';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,8 +41,12 @@ export default async function BillingPage() {
 
   return (
     <div className="max-w-[1000px] mx-auto">
-      <h1 className="text-3xl font-bold text-ink mb-xs">Billing</h1>
-      <p className="text-sm text-body mb-2xl">Manage your subscription, plan and invoices.</p>
+      <PageHeader
+        eyebrow="Account"
+        title="Billing"
+        subtitle="Manage your subscription, plan and invoices."
+        orbs={['peach', 'rose']}
+      />
 
       {/* Current plan */}
       <div className="card mb-2xl">
@@ -49,7 +54,7 @@ export default async function BillingPage() {
           <div className="min-w-[240px]">
             <p className="text-xs uppercase tracking-wider text-body-soft">Current plan</p>
             <div className="flex items-center gap-sm mt-xxs">
-              <h2 className="text-2xl font-bold text-ink">{planName}</h2>
+              <h2 className="font-display text-2xl text-ink">{planName}</h2>
               <span className={`px-sm py-xxs rounded-md text-xs font-semibold capitalize ${STATUS_STYLES[status] ?? 'bg-mute-soft text-body'}`}>
                 {status.replace('_', ' ')}
               </span>

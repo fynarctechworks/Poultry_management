@@ -43,7 +43,7 @@ export default async function FarmDetailPage({ params }: { params: { id: string 
       <Link href="/farms" className="text-sm text-primary-dark font-semibold">&larr; Farms</Link>
       <div className="flex items-start justify-between mt-md gap-md">
         <div>
-          <h1 className="text-3xl font-bold text-ink">{farm.farm_name}</h1>
+          <h1 className="font-display text-3xl text-ink">{farm.farm_name}</h1>
           <p className="text-sm text-body mt-xs">{[farm.district, farm.state].filter(Boolean).join(', ') || '—'}</p>
         </div>
         <Link href={`/farms/${farm.id}/edit`} className="btn-outline shrink-0">Edit farm</Link>

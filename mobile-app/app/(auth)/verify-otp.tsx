@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { OtpInput } from 'react-native-otp-entry';
 import { sendOtp, verifyOtp } from '../../auth/auth-service';
 import { Button, InlineError } from '../../components/ui';
-import { colors, spacing, typography, radius } from '../../theme/tokens';
+import { colors, spacing, typography, radius, fonts } from '../../theme/tokens';
 
 const RESEND_SECONDS = 30;
 
@@ -69,6 +69,11 @@ export default function VerifyOtpScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        {/* Atmospheric orb — decorative, cheap plain View */}
+        <View style={styles.orbContainer} pointerEvents="none">
+          <View style={[styles.orb, styles.orbLavender]} />
+        </View>
+
         <Text style={styles.heading}>{t('auth.otp.verify_heading')}</Text>
         <Text style={styles.sub}>{t('auth.otp.verify_sub', { phone })}</Text>
 
@@ -118,8 +123,11 @@ export default function VerifyOtpScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvasSoft },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing['3xl'] },
-  heading: { ...typography.displayLg, color: colors.ink, marginBottom: spacing.xs },
+  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xxl, paddingBottom: spacing['3xl'] },
+  orbContainer: { position: 'absolute', top: 0, left: 0, right: 0, height: 280, overflow: 'hidden' },
+  orb: { position: 'absolute', borderRadius: radius.full, opacity: 0.16 },
+  orbLavender: { width: 280, height: 280, top: -100, right: -60, backgroundColor: colors.gradientLavender },
+  heading: { ...typography.displayXl, color: colors.ink, marginBottom: spacing.sm },
   sub: { ...typography.bodyMd, color: colors.body, marginBottom: spacing['2xl'] },
   otpWrap: { marginBottom: spacing.lg },
   otpCell: {

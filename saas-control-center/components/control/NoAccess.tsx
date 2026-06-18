@@ -25,15 +25,14 @@ export function NoAccess() {
         <div className="grid place-items-center w-12 h-12 rounded-full bg-warning-soft text-warning-ink mx-auto mb-md">
           <ShieldAlert size={24} />
         </div>
-        <h2 className="text-xl font-bold text-ink mb-xs">No Control Center access</h2>
-        <p className="text-sm text-body-soft mb-xl">
+        <h2 className="font-display text-[1.75rem] leading-[1.2] tracking-[-0.32px] text-ink mb-xs">
+          No Control Center access
+        </h2>
+        <p className="text-sm text-muted mb-xl">
           This account isn’t a platform operator. If you believe this is a mistake,
           contact a Control Center administrator.
         </p>
-        <button
-          onClick={signOut}
-          className="inline-flex items-center gap-sm h-10 px-lg rounded-lg text-sm font-semibold bg-primary text-on-primary hover:bg-primary-dark"
-        >
+        <button onClick={signOut} className="btn-primary gap-sm">
           <LogOut size={16} /> Sign out
         </button>
       </div>

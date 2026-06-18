@@ -15,7 +15,7 @@ const schema = z.object({
 });
 type Form = z.infer<typeof schema>;
 
-export function CloseBatchForm({ batchId }: { batchId: string }) {
+export function CloseBatchForm({ batchId, withdrawalWarning }: { batchId: string; withdrawalWarning?: string | null }) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [open, setOpen] = useState(false);
@@ -30,13 +30,16 @@ export function CloseBatchForm({ batchId }: { batchId: string }) {
   async function onSubmit(data: Form) {
     setError(null);
     setLoading(true);
-    const { error } = await supabase.from('batches').update({
-      status: 'harvested',
-      harvest_date: data.harvest_date,
-      birds_sold: data.birds_sold,
-      sale_weight_kg: data.sale_weight_kg,
-      sale_price_per_kg: data.sale_price_per_kg,
-    }).eq('id', batchId);
+    // Go through the close_batch RPC (not a raw UPDATE): it enforces owner-only,
+    // birds_sold ≤ current_bird_count, and harvest_date within [placement_date, today]
+    // server-side. A direct table update bypassed all of those guards.
+    const { error } = await supabase.rpc('close_batch', {
+      p_batch_id: batchId,
+      p_harvest_date: data.harvest_date,
+      p_birds_sold: data.birds_sold,
+      p_sale_weight_kg: data.sale_weight_kg,
+      p_sale_price_per_kg: data.sale_price_per_kg,
+    });
     setLoading(false);
     if (error) return setError(error.message);
     setOpen(false);
@@ -52,6 +55,9 @@ export function CloseBatchForm({ batchId }: { batchId: string }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="card mt-md space-y-md">
       <h3 className="font-bold text-ink">Record harvest & close batch</h3>
+      {withdrawalWarning && (
+        <p className="rounded-md bg-danger/10 px-md py-sm text-sm font-semibold text-danger">⚠ {withdrawalWarning}</p>
+      )}
       <div className="grid grid-cols-2 gap-md">
         <Field label="Harvest date" error={errors.harvest_date?.message}><input type="date" className="input" {...register('harvest_date')} /></Field>
         <Field label="Birds sold" error={errors.birds_sold?.message}><input type="number" min={1} className="input" {...register('birds_sold')} /></Field>

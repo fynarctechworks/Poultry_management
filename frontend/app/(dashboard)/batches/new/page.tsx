@@ -13,7 +13,7 @@ export default async function NewBatchPage() {
   return (
     <div className="max-w-[720px] mx-auto">
       <Link href="/batches" className="text-sm text-primary-dark font-semibold">&larr; Batches</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">New batch</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">New batch</h1>
       <BatchForm sheds={(sheds as any) ?? []} />
     </div>
   );

@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { login, sendOtp, isValidIndianMobile, toE164 } from '../../auth/auth-service';
 import { TextInput, Button, InlineError } from '../../components/ui';
-import { colors, spacing, typography, fonts } from '../../theme/tokens';
+import { colors, spacing, typography, fonts, radius } from '../../theme/tokens';
 
 type Mode = 'mobile' | 'email';
 
@@ -75,6 +75,12 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        {/* Atmospheric gradient orb — purely decorative, cheap View, no blur */}
+        <View style={styles.orbContainer} pointerEvents="none">
+          <View style={[styles.orb, styles.orbMint]} />
+          <View style={[styles.orb, styles.orbPeach]} />
+        </View>
+
         <View style={styles.brand}>
           <Image source={require('../../assets/poultry-logo.png')} style={styles.brandLogo} resizeMode="contain" />
         </View>
@@ -179,10 +185,15 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvasSoft },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing['3xl'] },
-  brand: { alignItems: 'center', marginBottom: spacing['2xl'] },
+  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xxl, paddingBottom: spacing['3xl'] },
+  // Atmospheric orb layer — absolute behind content, zero cost (plain Views, no blur)
+  orbContainer: { position: 'absolute', top: 0, left: 0, right: 0, height: 320, overflow: 'hidden' },
+  orb: { position: 'absolute', borderRadius: radius.full, opacity: 0.18 },
+  orbMint: { width: 260, height: 260, top: -80, left: -60, backgroundColor: colors.gradientMint },
+  orbPeach: { width: 200, height: 200, top: 40, right: -50, backgroundColor: colors.gradientPeach },
+  brand: { alignItems: 'center', marginBottom: spacing['3xl'] },
   brandLogo: { width: 220, height: 84 },
-  heading: { ...typography.displayLg, color: colors.ink, marginBottom: spacing.xs },
+  heading: { ...typography.displayXl, color: colors.ink, marginBottom: spacing.sm },
   sub: { ...typography.bodyMd, color: colors.body, marginBottom: spacing['3xl'] },
   fields: { gap: spacing.lg, marginBottom: spacing.md },
   serverError: { marginBottom: spacing.sm },

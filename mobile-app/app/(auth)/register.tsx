@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { register, sendOtp, isValidIndianMobile, toE164 } from '../../auth/auth-service';
 import { track, FUNNEL } from '../../lib/analytics';
 import { TextInput, Button, InlineError } from '../../components/ui';
-import { colors, spacing, typography, fonts } from '../../theme/tokens';
+import { colors, spacing, typography, fonts, radius } from '../../theme/tokens';
 
 function makeSchema(t: TFunction) {
   return z.object({
@@ -63,6 +63,12 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        {/* Atmospheric orb — decorative, cheap plain View */}
+        <View style={styles.orbContainer} pointerEvents="none">
+          <View style={[styles.orb, styles.orbSky]} />
+          <View style={[styles.orb, styles.orbRose]} />
+        </View>
+
         <Text style={styles.heading}>{t('auth.register.heading')}</Text>
         <Text style={styles.sub}>{t('auth.register.sub')}</Text>
 
@@ -158,8 +164,12 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.canvasSoft },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing['3xl'] },
-  heading: { ...typography.displayLg, color: colors.ink, marginBottom: spacing.xs },
+  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingTop: spacing.xxl, paddingBottom: spacing['3xl'] },
+  orbContainer: { position: 'absolute', top: 0, left: 0, right: 0, height: 300, overflow: 'hidden' },
+  orb: { position: 'absolute', borderRadius: radius.full, opacity: 0.15 },
+  orbSky: { width: 240, height: 240, top: -70, left: -40, backgroundColor: colors.gradientSky },
+  orbRose: { width: 180, height: 180, top: 60, right: -30, backgroundColor: colors.gradientRose },
+  heading: { ...typography.displayXl, color: colors.ink, marginBottom: spacing.sm },
   sub: { ...typography.bodyMd, color: colors.body, marginBottom: spacing['3xl'] },
   fields: { gap: spacing.lg, marginBottom: spacing.md },
   verifyHint: { ...typography.bodySm, color: colors.bodySoft, marginBottom: spacing.sm },

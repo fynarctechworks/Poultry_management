@@ -24,7 +24,7 @@ export default async function AuditPage({ searchParams }: { searchParams: { page
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Audit Log</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Audit Log</h2>
       <p className="text-sm text-body-soft mb-xl">
         Immutable, append-only record of every operator action. {total.toLocaleString('en-IN')} total.
       </p>

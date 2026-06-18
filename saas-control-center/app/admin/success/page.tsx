@@ -56,7 +56,7 @@ export default async function SuccessPage({ searchParams }: { searchParams: { ri
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Customer Success</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Customer Success</h2>
       <p className="text-sm text-body-soft mb-lg">
         Health 0–100 from payment, usage, login &amp; setup signals. {churnCount} churn-risk tenant{churnCount === 1 ? '' : 's'} in view.
       </p>

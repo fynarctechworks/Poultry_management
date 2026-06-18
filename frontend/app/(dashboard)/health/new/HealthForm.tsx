@@ -7,9 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 const schema = z.object({
   batch_id: z.string().uuid(),
-  incident_date: z.string().min(1),
+  incident_date: z.string().min(1).refine((v) => v <= todayISO(), 'Incident date cannot be in the future'),
   symptom_description: z.string().min(3),
   affected_bird_count: z.coerce.number().int().min(1),
   vet_consulted: z.boolean().optional(),
@@ -39,6 +41,10 @@ export function HealthForm({ batches }: { batches: Batch[] }) {
     setLoading(true);
     const batch = batches.find((b) => b.id === data.batch_id);
     if (!batch) { setError('Pick a batch'); setLoading(false); return; }
+    if (data.affected_bird_count > batch.current_bird_count) {
+      setLoading(false);
+      return setError(`Affected birds (${data.affected_bird_count.toLocaleString('en-IN')}) exceeds live count (${batch.current_bird_count.toLocaleString('en-IN')}).`);
+    }
     const { error } = await supabase.from('health_incidents').insert({
       ...data,
       farm_id: batch.farm_id,
@@ -68,7 +74,7 @@ export function HealthForm({ batches }: { batches: Batch[] }) {
           </select>
         </Field>
         <Field label="Incident date" error={errors.incident_date?.message}>
-          <input type="date" className="input" {...register('incident_date')} />
+          <input type="date" max={todayISO()} className="input" {...register('incident_date')} />
         </Field>
         <Field label="Affected birds" error={errors.affected_bird_count?.message}>
           <input type="number" min={1} className="input" {...register('affected_bird_count')} />

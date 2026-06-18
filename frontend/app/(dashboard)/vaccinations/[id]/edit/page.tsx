@@ -17,7 +17,7 @@ export default async function EditVaccinationPage({ params }: { params: { id: st
   return (
     <div className="max-w-[560px] mx-auto">
       <Link href="/vaccinations" className="text-sm text-primary-dark font-semibold">&larr; Vaccinations</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit vaccination</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit vaccination</h1>
       <EditVaccinationForm vaccination={vaccination as any} />
     </div>
   );

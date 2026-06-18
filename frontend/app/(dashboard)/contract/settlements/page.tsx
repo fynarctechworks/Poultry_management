@@ -45,7 +45,7 @@ async function SettlementHistoryContent() {
   return (
     <div className="max-w-[1400px] mx-auto">
       <div className="flex items-center justify-between mb-xs">
-        <h1 className="text-3xl font-bold text-ink">Settlement history</h1>
+        <h1 className="font-display text-3xl text-ink">Settlement history</h1>
         <Link href="/contract" className="text-sm text-primary-dark font-semibold">&larr; Contract</Link>
       </div>
       <p className="text-sm text-body mb-2xl">Expected vs received reconciliation across all harvested and settled cycles.</p>

@@ -7,9 +7,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 const schema = z.object({
   state: z.string().min(2),
-  price_date: z.string().min(1),
+  price_date: z.string().min(1).refine((v) => v <= todayISO(), 'Date cannot be in the future'),
   broiler_price_per_kg: z.coerce.number().positive(),
   egg_price_per_100: z.coerce.number().positive().optional().or(z.literal('')),
 });
@@ -29,16 +31,16 @@ export function PriceEntryForm() {
   async function onSubmit(data: Form) {
     setError(null);
     setLoading(true);
-    const { error } = await supabase.from('market_prices').upsert(
-      {
-        state: data.state,
-        price_date: data.price_date,
-        broiler_price_per_kg: data.broiler_price_per_kg,
-        egg_price_per_100: data.egg_price_per_100 === '' || data.egg_price_per_100 == null ? null : data.egg_price_per_100,
-        source: 'manual',
-      },
-      { onConflict: 'state,price_date' }
-    );
+    // Go through the upsert_market_price RPC, not a direct table upsert: market_prices
+    // has SELECT-only RLS (no INSERT policy), so a raw upsert is rejected. The RPC
+    // (SECURITY DEFINER) enforces owner-in-state + price_date ≤ today server-side.
+    const { error } = await supabase.rpc('upsert_market_price', {
+      p_state: data.state,
+      p_price_date: data.price_date,
+      p_broiler_price_per_kg: data.broiler_price_per_kg,
+      p_egg_price_per_100:
+        data.egg_price_per_100 === '' || data.egg_price_per_100 == null ? null : data.egg_price_per_100,
+    });
     setLoading(false);
     if (error) return setError(error.message);
     router.push('/market-prices');
@@ -51,7 +53,7 @@ export function PriceEntryForm() {
         <input className="input" placeholder="Telangana" {...register('state')} />
       </Field>
       <Field label="Price date *" error={errors.price_date?.message}>
-        <input type="date" className="input" {...register('price_date')} />
+        <input type="date" max={todayISO()} className="input" {...register('price_date')} />
       </Field>
       <div className="grid grid-cols-2 gap-md">
         <Field label="Broiler ₹/kg *" error={errors.broiler_price_per_kg?.message}>

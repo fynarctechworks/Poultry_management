@@ -208,19 +208,19 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing['3xl'],
+    paddingTop: spacing.xxl,
     paddingBottom: spacing['3xl'],
   },
-  stepIndicator: { marginBottom: spacing['2xl'] },
+  stepIndicator: { marginBottom: spacing['3xl'] },
   heading: {
-    ...typography.displaySm,
+    ...typography.displayLg,
     color: colors.ink,
     marginBottom: spacing.sm,
   },
   sub: {
     ...typography.bodyMd,
     color: colors.body,
-    marginBottom: spacing['2xl'],
+    marginBottom: spacing['3xl'],
   },
   fields: { gap: spacing.lg },
   navRow: {

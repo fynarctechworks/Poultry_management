@@ -15,6 +15,7 @@
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { dispatchEmail, resolveTenantOwnerEmail } from "../_shared/send-email-client.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -63,6 +64,31 @@ serve(async (req: Request) => {
         pushed = res.ok;
       } catch (e) { console.warn("push failed:", e); }
     }
+    // Email dispatch alongside push — owner email comes from auth.users via the
+    // tenant owner. Best-effort; email failure must not block the reminder record.
+    const ownerEmail = await resolveTenantOwnerEmail(r.tenant_id);
+    if (ownerEmail) {
+      const amt = `₹${Number(r.amount_inr ?? 0).toLocaleString("en-IN")}`;
+      if (r.days_remaining <= 0) {
+        await dispatchEmail({
+          recipient_email: ownerEmail,
+          email_type: "subscription_expired",
+          template_id: "subscription_expired",
+          tenant_id: r.tenant_id,
+          template_data: { planName: r.plan_name },
+        });
+      } else {
+        const d = r.days_remaining === 1 ? "in 1 day" : `in ${r.days_remaining} days`;
+        await dispatchEmail({
+          recipient_email: ownerEmail,
+          email_type: "trial_expiring",
+          template_id: "trial_expiring",
+          tenant_id: r.tenant_id,
+          template_data: { planName: r.plan_name, endsIn: d, amount: amt },
+        });
+      }
+    }
+
     await svc.rpc("record_subscription_reminder", {
       p_tenant: r.tenant_id, p_subscription: r.subscription_id, p_stage: r.stage,
       p_period_end: r.period_end, p_push: pushed, p_whatsapp: false,

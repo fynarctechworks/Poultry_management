@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div>
-        <span className="mb-lg grid h-12 w-12 place-items-center rounded-full bg-primary-subtle text-primary">
+        <span className="mb-lg grid h-12 w-12 place-items-center rounded-full bg-success-soft text-success-ink">
           <MailCheck size={24} />
         </span>
         <AuthHeader

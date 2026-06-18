@@ -43,7 +43,7 @@ export default async function ErrorsPage({ searchParams }: { searchParams: { sta
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Error Monitoring</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Error Monitoring</h2>
       <p className="text-sm text-body-soft mb-lg">Centralized errors across frontend, API, RPC, edge, webhook, payment and jobs. Repeats are grouped by fingerprint.</p>
 
       <div className="flex gap-sm mb-lg">

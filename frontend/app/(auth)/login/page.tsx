@@ -74,7 +74,7 @@ function LoginInner() {
             />
             Remember me
           </label>
-          <Link href="/forgot-password" className="text-sm font-semibold text-primary-dark hover:underline">
+          <Link href="/forgot-password" className="text-sm font-semibold text-ink underline-offset-2 hover:underline">
             Forgot password?
           </Link>
         </div>

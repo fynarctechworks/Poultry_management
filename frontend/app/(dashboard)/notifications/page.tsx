@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function NotificationsPage() {
   const supabase = createSupabaseServerClient();
@@ -11,8 +12,12 @@ export default async function NotificationsPage() {
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      <h1 className="text-3xl font-bold text-ink mb-xs">Notification history</h1>
-      <p className="text-sm text-body mb-2xl">Last 100 WhatsApp messages sent on your account.</p>
+      <PageHeader
+        eyebrow="Account"
+        title="Notification history"
+        subtitle="Last 100 WhatsApp messages sent on your account."
+        orbs={['mint', 'lavender']}
+      />
 
       <div className="card p-0 overflow-x-auto">
         <table className="w-full text-sm">

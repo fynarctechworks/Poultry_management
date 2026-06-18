@@ -44,7 +44,7 @@ export default async function SystemPage() {
 
   return (
     <div className="max-w-[1000px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">System</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">System</h2>
       <p className="text-sm text-body-soft mb-xl">Live database, error, audit and scheduled-job health.</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-lg mb-2xl">

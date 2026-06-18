@@ -13,7 +13,7 @@ export default async function NewDailyLogPage() {
   return (
     <div className="max-w-[720px] mx-auto">
       <Link href="/multi-farm" className="text-sm text-primary-dark font-semibold">&larr; Back</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Daily log entry</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Daily log entry</h1>
       <DailyLogForm batches={(batches as any) ?? []} />
     </div>
   );

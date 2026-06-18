@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY, formatCurrencyINR } from '@/lib/utils';
 import { InsightsPanel } from '@/components/InsightsPanel';
+import { PageHeader } from '@/components/ui/PageHeader';
 import {
   computeInsights,
   type Insight,
@@ -66,10 +67,12 @@ export default async function BatchesPage({
 
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="flex items-center justify-between mb-lg flex-wrap gap-md">
-        <h1 className="text-3xl font-bold text-ink">Batches</h1>
-        <Link href="/batches/new" className="btn-primary">New batch</Link>
-      </div>
+      <PageHeader
+        eyebrow="Flocks"
+        title="Batches"
+        subtitle="Every flock you've placed — filter by status or farm."
+        actions={<Link href="/batches/new" className="btn-primary">New batch</Link>}
+      />
 
       <form className="card flex flex-wrap items-end gap-md mb-lg">
         <div>

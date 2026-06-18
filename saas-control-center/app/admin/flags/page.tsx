@@ -21,7 +21,7 @@ export default async function FlagsPage() {
 
   return (
     <div className="max-w-[1000px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Feature Flags</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Feature Flags</h2>
       <p className="text-sm text-body-soft mb-xl">
         Global flags with percentage rollouts. Resolution: tenant override → plan override → global + rollout.
         Anything can resolve a flag via <code>tenant_feature(tenant, key)</code>.

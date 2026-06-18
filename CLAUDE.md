@@ -408,19 +408,30 @@ keys to those tokens. Anything below is either (a) a domain colour overlay Poult
 needs that DESIGN.md does not cover, or (b) a UX rule that the design system can't
 encode. Never hardcode hex values — import from `mobile-app/theme/tokens.ts` (mobile) or `frontend/lib/theme/tokens.ts` / `saas-control-center/lib/theme/tokens.ts` (web) instead.
 
-### Token Quick Reference (from DESIGN.md — Kraken-inspired system)
+### Token Quick Reference (from DESIGN.md — ElevenLabs editorial system)
+
+Off-white canvas, warm near-black ink, **NO saturated CTA color**. The primary action is
+a near-black **ink pill**; brand voltage comes from pastel **gradient orbs** used as
+atmospheric decoration only. Token NAMES are preserved from the prior system (so the ~200
+consuming files compile unchanged) — only VALUES were remapped, plus additive tokens.
 
 | Group | Tokens |
 |---|---|
-| **Brand (Kraken Purple)** | `colors.primary` `#7132f5` · `colors.primaryDark` `#5741d8` · `colors.primaryDeep` `#5b1ecf` · `colors.primarySubtle` `rgba(133,91,251,0.16)` · `colors.onPrimary` `#ffffff` |
-| **Neutrals** | `colors.ink` `#101114` · `colors.body` `#686b82` · `colors.bodySoft` `#9497a9` · `colors.mute` `#dedee5` · `colors.muteSoft` `rgba(148,151,169,0.08)` · `colors.canvas` `#ffffff` · `colors.canvasSoft` `#f7f7fa` · `colors.onDark` `#ffffff` |
-| **Semantic** | `colors.success` `#149e61` · `colors.successInk` `#026b3f` · `colors.successSoft` `rgba(20,158,97,0.16)` · `colors.danger` `#9B1C1C` · `colors.warning` `#92400E` · `colors.warningSoft` `#FEF3C7` · `colors.warningInk` `#92400E` |
-| **Typography** | `displayHero/Xxl/Xl/Lg/Md/Sm/Xs` (48→18, weight 600–700, negative tracking on hero/section/sub) · `bodyLg/Md/MdStrong/Sm/SmStrong` (18/16/14, weight 400/600) · `caption/captionStrong/captionUppercase/eyebrowUppercase` · `buttonMd` (16/600) |
-| **Spacing** | `xxs:2 / xs:4 / sm:8 / md:12 / lg:16 / xl:20 / 2xl:24 / 3xl:32` |
-| **Radius** | `none:0 / xs:3 / sm:6 / md:8 / lg:12 / card:16 / pillMd:12 / pillLg:12 / full:9999` — **buttons cap at 12px (NOT pill)**; `pillMd`/`pillLg` names retained for back-compat but resolve to 12 |
-| **Elevation** | `elevation.subtle` (whisper shadow: `rgba(0,0,0,0.03) 0 4px 24px`) · `elevation.micro` (`rgba(16,24,40,0.04) 0 1px 4px`) |
+| **Primary (Ink pill — NOT a brand color)** | `colors.primary` `#292524` · `colors.primaryDark` `#0c0a09` (press) · `colors.primaryDeep` `#0c0a09` · `colors.primarySubtle` `rgba(41,37,36,0.08)` · `colors.onPrimary` `#ffffff` |
+| **Neutrals** | `colors.ink` `#0c0a09` · `colors.body` `#4e4e4e` · `colors.bodySoft`/`muted` `#777169` · `colors.mutedSoft` `#a8a29e` (disabled) · `colors.mute` (hairline) `#e7e5e4` · `colors.hairlineStrong` `#d6d3d1` · `colors.canvas` (card) `#ffffff` · `colors.canvasSoft` (page floor) `#f5f5f5` · `colors.surfaceStrong` `#f0efed` · `colors.surfaceDark` `#0c0a09` |
+| **Gradient orbs (signature — decoration ONLY)** | `colors.gradientMint` `#a7e5d3` · `gradientPeach` `#f4c5a8` · `gradientLavender` `#c8b8e0` · `gradientSky` `#a8c8e8` · `gradientRose` `#e8b8c4` — radial blooms behind hero/feature copy. NEVER button fills, NEVER text colors. Web: `.orb-*` utilities. |
+| **Semantic** | `colors.success` `#16a34a` · `colors.successInk` `#15803d` · `colors.successSoft` `rgba(22,163,74,0.12)` · `colors.danger` `#dc2626` · `colors.warning` `#92400E` |
+| **Typography** | Display = **EB Garamond Light (300)** serif — `displayHero/Xxl/Xl/Lg/Md` weight **300**, negative tracking (editorial; **never bold display**); `displaySm/Xs` step into Inter. Body = **Inter** at 400/500 with **+0.15–0.18px tracking** — `bodyLg/Md/MdStrong/Sm/SmStrong` · `caption/captionUppercase` (uppercase 0.96px) · `buttonMd` (15/500) |
+| **Spacing** | `xxs:2 / xs:4 / sm:8 / md:12 / lg:16 / xl:20 / 2xl:24 / 3xl:32 / xxl:48 / section:96` (96px = editorial band rhythm) |
+| **Radius** | `none:0 / xs:4 / sm:6 / md:8 (inputs) / lg:12 / card:16 / xl:16 (cards) / xxl:24 (orb cards) / pill:9999 / full:9999` — **CTAs + badges are PILLS** (`pillMd`/`pillLg` remapped to 9999); cards use `xl`/`card` (16px) |
+| **Elevation** | Single soft-drop tier: `elevation.subtle` (`rgba(0,0,0,0.04) 0 4px 16px`) · `elevation.micro` (`rgba(0,0,0,0.03) 0 2px 8px`). Depth otherwise = hairline + gradient orbs. |
 
-**Font substitution**: DESIGN.md specifies the proprietary `Kraken-Brand` (display) + `Kraken-Product` (UI) faces. PoultryOS substitutes **IBM Plex Sans** (Kraken's documented fallback) via the stack `IBM Plex Sans, Helvetica Neue, Helvetica, Arial, sans-serif` — exported as `fontFamily` / `fontFamilyDisplay` from `theme/tokens.ts`. Inter is no longer used; the `@expo-google-fonts/inter` dep can be removed in a cleanup pass.
+**Fonts**: DESIGN.md specifies **Waldenburg Light (300)** display + **Inter** body. PoultryOS
+substitutes **EB Garamond** (weight 300/400, the documented open-source substitute) for display
+and uses **Inter** directly for body/UI. Mobile: `@expo-google-fonts/inter` + `@expo-google-fonts/eb-garamond`,
+registered in `app/_layout.tsx`, exported as `fontFamily` / `fontFamilyDisplay` from `theme/tokens.ts`.
+Web: `next/font/google` `Inter` (`--font-sans`) + `EB_Garamond` (`--font-display`) in `app/layout.tsx`.
+IBM Plex Sans is fully retired.
 
 ### PoultryOS Domain Colour Overlay (not in DESIGN.md — additive)
 
@@ -428,18 +439,20 @@ encode. Never hardcode hex values — import from `mobile-app/theme/tokens.ts` (
 |-------|-----|-------|
 | WhatsApp Green | `#25D366` (`colors.whatsapp`) | WhatsApp share buttons only — external brand, instant recognition |
 | Heat Orange | `#EA580C` (`colors.heat`) | Heat-stress alert banners |
-| UPI Purple | `#5B21B6` (`colors.upi`) | UPI / payment screens (kept distinct from brand purple to avoid confusion) |
+| UPI Purple | `#5B21B6` (`colors.upi`) | UPI / payment screens (kept distinct so payment flows stay recognisable) |
 
-> **Note on `colors.primary` vs Danger**: DESIGN.md's primary is Kraken Purple
-> (`#7132f5`) — a trust/brand colour, NOT urgent. For destructive confirmations
-> use `colors.danger` (`#9B1C1C`) explicitly. Do not reuse primary for errors.
+> **Note on `colors.primary` vs Danger**: DESIGN.md's primary is the **ink pill**
+> (`#292524`) — a calm, near-black action color, NOT urgent and NOT a saturated brand
+> hue. There is intentionally no chromatic CTA color. For destructive confirmations
+> use `colors.danger` (`#dc2626`) explicitly. Brand voltage lives in the gradient orbs.
 
 ### Component Rules
-- Theme: Light only (v1). Page bg `colors.canvasSoft` (`#f7f7fa`). Card bg `colors.canvas`.
-- Cards: `colors.canvas` bg, 1px `colors.mute` border, `radius.card` (16px), `spacing.lg` (16px) padding, optional `elevation.subtle` for raised cards
-- Primary button: `colors.primary` fill, `colors.onPrimary` text, **`radius.lg` (12px) — NEVER pill**, 13px vertical × 16px horizontal padding, 44px min touch target, font `buttonMd` (16/600)
-- Outlined button: `colors.canvas` bg, 1px `colors.primaryDark` border, `colors.primaryDark` text, 12px radius
-- Subtle button: `colors.primarySubtle` bg, `colors.primary` text, 12px radius — for tertiary actions
+- Theme: Light only (v1). Page bg `colors.canvasSoft` (off-white `#f5f5f5`). Card bg `colors.canvas` (`#ffffff`).
+- Cards: `colors.canvas` bg, 1px `colors.mute` (hairline) border, `radius.xl`/`card` (16px), `spacing.lg` (16px) padding, optional `elevation.subtle` (single soft-drop) for raised/hovered cards
+- Primary button: `colors.primary` (ink) fill, `colors.onPrimary` text, **`radius.pill` (9999) — the ElevenLabs brand button IS a pill**, ~10px vertical × 20px horizontal padding, 40px height (44px min touch target), font `buttonMd` (15/500)
+- Outlined button: transparent bg, 1px `colors.hairlineStrong` border, `colors.ink` text, pill radius
+- Subtle button: `colors.primarySubtle` (ink wash) bg, `colors.ink` text, pill radius — for tertiary actions
+- **Gradient orb**: atmospheric radial bloom (one of the 5 gradient tokens) behind hero/section copy; `radius.xxl` (24px) orb cards on `canvasSoft`. Decoration only — never content surface, never button fill.
 - **WhatsApp share button: `colors.whatsapp` (`#25D366`, NOT brand primary) for instant recognition**
 - **UPI QR display: full-screen modal, 250×250px QR via `react-native-qrcode-svg`, amount + buyer name below**
 - **Heat-stress alert banner: `colors.heat` bg with thermometer icon; sticky on dashboard during alert window**
@@ -451,8 +464,9 @@ encode. Never hardcode hex values — import from `mobile-app/theme/tokens.ts` (
 - Loading: skeleton screens (not spinners)
 
 ### Legacy Cleanup Notes
-1. Pre-DESIGN.md code used **Brand Blue `#1A56DB`** in `(tabs)/dashboard.tsx`, `(auth)/login.tsx`, `(auth)/register.tsx`, `(tabs)/_layout.tsx`, etc. Migrate any `#1A56DB`, `#EBF5FF`, `#F9FAFB`, `#E5E7EB`, `#111827`, `#6B7280` on contact via `theme/tokens.ts`.
-2. The earlier Vodafone-red era (`#e60000`) is fully retired — `colors.primary` is now Kraken Purple. Any lingering pill-shaped buttons (`radius.pillLg = 60` references) now render as 12px; if a layout depended on full-pill geometry, switch to `radius.full` deliberately (e.g. circular FAB).
+1. **ElevenLabs migration (2026-06-17):** the Kraken purple system was remapped to the ElevenLabs editorial palette by **rewriting the 3 token files + 2 Tailwind configs + 2 `globals.css` + the Paper theme + fonts** — token NAMES were preserved so consumers compile unchanged. `colors.primary` is no longer purple (`#7132f5`) — it is the ink pill (`#292524`). Buttons are now PILLS (`radius.pillLg`/`pillMd` remapped 12→9999); if a layout relied on the prior 12px button corner, that is intended to change.
+2. Display type flipped from IBM Plex **Bold (700)** to **EB Garamond Light (300)** serif via the `typography.display*` tokens. Any component that hardcodes `fontWeight: '700'`/`'bold'` *on display text* will fight the loaded weights (only 400/500 of EB Garamond are registered) — prefer the `typography.display*` tokens, never inline bold on headings.
+3. Older eras (Brand Blue `#1A56DB`, Vodafone-red `#e60000`) remain fully retired. The codebase is essentially 100% tokenised — never reintroduce hex literals outside `theme/tokens.ts`.
 
 ### Mobile UX
 - Minimum touch target: 44 × 44px

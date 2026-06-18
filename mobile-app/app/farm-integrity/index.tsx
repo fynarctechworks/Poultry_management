@@ -100,7 +100,7 @@ export default function FarmIntegrityScreen() {
         ? supabase.from('daily_logs').select('batch_id, birds_dead').in('batch_id', batchIds)
         : Promise.resolve({ data: [] as any[] }),
       batchIds.length
-        ? supabase.from('batch_harvests').select('batch_id, birds').in('batch_id', batchIds)
+        ? supabase.from('batch_harvests').select('batch_id, birds_harvested').in('batch_id', batchIds)
         : Promise.resolve({ data: [] as any[] }),
     ]);
 
@@ -115,7 +115,7 @@ export default function FarmIntegrityScreen() {
       deathsByBatch.set(d.batch_id, (deathsByBatch.get(d.batch_id) ?? 0) + Number(d.birds_dead ?? 0));
     const soldByBatch = new Map<string, number>();
     for (const h of (harvests ?? []) as any[])
-      soldByBatch.set(h.batch_id, (soldByBatch.get(h.batch_id) ?? 0) + Number(h.birds ?? 0));
+      soldByBatch.set(h.batch_id, (soldByBatch.get(h.batch_id) ?? 0) + Number(h.birds_harvested ?? 0));
 
     const feedCost =
       ((windowLogs ?? []) as any[])

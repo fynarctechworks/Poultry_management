@@ -51,4 +51,45 @@ verify_enabled = true
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
-enable_confirmations = false
+# Production-ready: require a real email confirmation before the account is
+# usable. Locally, GoTrue delivers to Inbucket (http://127.0.0.1:54324) so the
+# flow is fully testable without a provider. The dev-verify shortcut is REMOVED.
+enable_confirmations = true
+
+# Branded GoTrue email templates (shared visual system with the Layer-2
+# send-email engine). Paths are relative to the supabase/ directory.
+[auth.email.template.confirmation]
+subject = "Confirm your PoultryOS email"
+content_path = "./templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Reset your PoultryOS password"
+content_path = "./templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Confirm your new PoultryOS email"
+content_path = "./templates/email-change.html"
+
+[auth.email.template.magic_link]
+subject = "Your PoultryOS sign-in link"
+content_path = "./templates/magic-link.html"
+
+[auth.email.template.invite]
+subject = "You've been invited to PoultryOS"
+content_path = "./templates/invite.html"
+
+# -----------------------------------------------------------------------------
+# Production SMTP via Resend. Keep enabled = false for LOCAL dev (so emails land
+# in Inbucket). On the HOSTED project this is configured in the dashboard
+# (Authentication > Emails > SMTP) — see docs/email/dns-setup.md. To send real
+# email from a LOCAL stack, set RESEND_SMTP_PASSWORD in supabase/.env and flip
+# enabled = true.
+# -----------------------------------------------------------------------------
+[auth.email.smtp]
+enabled = false
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_SMTP_PASSWORD)"
+admin_email = "noreply@poultryosadmin.infynarc.com"
+sender_name = "PoultryOS"

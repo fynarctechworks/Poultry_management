@@ -139,7 +139,7 @@ export default async function AnalyticsCommandCenterPage() {
     return (
       <div className="max-w-[1100px]">
         <div className="mb-2xl">
-          <h2 className="text-2xl font-bold text-ink mb-xxs">Analytics Command Center</h2>
+          <h2 className="font-display text-[2rem] text-ink mb-xxs">Analytics Command Center</h2>
           <p className="text-sm text-body-soft">
             Growth, conversion, retention and product engagement across the platform.
           </p>
@@ -182,7 +182,7 @@ export default async function AnalyticsCommandCenterPage() {
       {/* Header                                                               */}
       {/* ------------------------------------------------------------------ */}
       <div className="mb-2xl">
-        <h2 className="text-2xl font-bold text-ink mb-xxs">Analytics Command Center</h2>
+        <h2 className="font-display text-[2rem] text-ink mb-xxs">Analytics Command Center</h2>
         <p className="text-sm text-body-soft">
           Growth, conversion, retention and product engagement across the platform.
         </p>

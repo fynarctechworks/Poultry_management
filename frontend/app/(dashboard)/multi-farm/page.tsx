@@ -3,6 +3,9 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { Sparkline } from '@/components/Sparkline';
 import { UpgradeGate } from '@/components/UpgradeGate';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatGrid, StatCard } from '@/components/ui/StatGrid';
+import { DataTable, Th, Td, Tr } from '@/components/ui/DataTable';
 import { colors } from '@/lib/theme/tokens';
 
 type FarmSummary = {
@@ -118,10 +121,11 @@ async function MultiFarmContent() {
 
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Multi-Farm Dashboard</h1>
-        <p className="text-sm text-body mt-xs">Consolidated KPIs across all farms you own or manage — current month.</p>
-      </div>
+      <PageHeader
+        eyebrow="Overview"
+        title="Multi-Farm Dashboard"
+        subtitle="Consolidated KPIs across all farms you own or manage — current month."
+      />
 
       {error && (
         <div className="card bg-warning-soft border-warning mb-lg">
@@ -158,38 +162,37 @@ async function MultiFarmContent() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-md mb-2xl">
-        <KpiCard label="Active farms" value={rows.length.toString()} />
-        <KpiCard label="Active batches" value={totals.batches.toString()} />
-        <KpiCard label="Total birds" value={totals.birds.toLocaleString('en-IN')} />
-        <KpiCard label="Net P&L (month)" value={formatCurrencyINR(totals.pnl)} accent={totals.pnl >= 0 ? 'success' : 'danger'} />
-        <KpiCard label="Income (month)" value={formatCurrencyINR(totals.income)} />
-        <KpiCard label="Expense (month)" value={formatCurrencyINR(totals.expense)} />
-        <KpiCard label="Receivables" value={formatCurrencyINR(totals.receivables)} accent="warning" />
-      </div>
+      <StatGrid>
+        <StatCard label="Active farms" value={rows.length.toString()} />
+        <StatCard label="Active batches" value={totals.batches.toString()} />
+        <StatCard label="Total birds" value={totals.birds.toLocaleString('en-IN')} />
+        <StatCard label="Net P&L (month)" value={formatCurrencyINR(totals.pnl)} accent={totals.pnl >= 0 ? 'success' : 'danger'} />
+        <StatCard label="Income (month)" value={formatCurrencyINR(totals.income)} />
+        <StatCard label="Expense (month)" value={formatCurrencyINR(totals.expense)} />
+        <StatCard label="Receivables" value={formatCurrencyINR(totals.receivables)} accent="warning" />
+      </StatGrid>
 
-      <div className="card overflow-x-auto p-0">
-        <table className="w-full text-sm">
-          <thead className="bg-canvas-soft border-b border-mute">
-            <tr className="text-left text-xs uppercase tracking-wider text-body-soft">
-              <Th>Farm</Th>
-              <Th>Type</Th>
-              <Th align="right">Batches</Th>
-              <Th align="right">Birds</Th>
-              <Th align="right">Mortality %</Th>
-              <Th>7d trend</Th>
-              <Th align="right">Feed (kg)</Th>
-              <Th align="right">Income</Th>
-              <Th align="right">Expense</Th>
-              <Th align="right">Net P&amp;L</Th>
-              <Th align="right">Receivables</Th>
-              <Th>Last log</Th>
-            </tr>
-          </thead>
-          <tbody>
+      <DataTable
+        head={
+          <>
+            <Th>Farm</Th>
+            <Th>Type</Th>
+            <Th align="right">Batches</Th>
+            <Th align="right">Birds</Th>
+            <Th align="right">Mortality %</Th>
+            <Th>7d trend</Th>
+            <Th align="right">Feed (kg)</Th>
+            <Th align="right">Income</Th>
+            <Th align="right">Expense</Th>
+            <Th align="right">Net P&amp;L</Th>
+            <Th align="right">Receivables</Th>
+            <Th>Last log</Th>
+          </>
+        }
+      >
             {rows.length === 0 && (
               <tr>
-                <td colSpan={11} className="py-2xl text-center text-body">
+                <td colSpan={12} className="py-2xl text-center text-body">
                   No farms yet. Create your first farm to populate the dashboard.
                 </td>
               </tr>
@@ -197,7 +200,7 @@ async function MultiFarmContent() {
             {rows.map((r) => {
               const w = latestWeather.get(r.farm_id);
               return (
-              <tr key={r.farm_id} className="border-b border-mute last:border-0 hover:bg-canvas-soft">
+              <Tr key={r.farm_id}>
                 <Td>
                   <Link href={`/farms/${r.farm_id}`} className="font-semibold text-primary-dark">{r.farm_name}</Link>
                   <div className="text-xs text-body-soft">
@@ -230,58 +233,11 @@ async function MultiFarmContent() {
                 </Td>
                 <Td align="right">{formatCurrencyINR(Number(r.pending_receivables))}</Td>
                 <Td>{formatDateDDMonYYYY(r.last_log_date)}</Td>
-              </tr>
+              </Tr>
               );
             })}
-          </tbody>
-        </table>
-      </div>
+      </DataTable>
     </div>
   );
 }
 
-function KpiCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent?: 'success' | 'danger' | 'warning';
-}) {
-  const tone =
-    accent === 'success' ? 'text-success-ink'
-    : accent === 'danger' ? 'text-danger'
-    : accent === 'warning' ? 'text-warning-ink'
-    : 'text-ink';
-  return (
-    <div className="card">
-      <p className="text-xs uppercase tracking-wider text-body-soft mb-xs">{label}</p>
-      <p className={`text-2xl font-bold ${tone}`}>{value}</p>
-    </div>
-  );
-}
-
-function Th({ children, align }: { children: React.ReactNode; align?: 'right' }) {
-  return (
-    <th className={`px-md py-sm font-semibold ${align === 'right' ? 'text-right' : 'text-left'}`}>
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  align,
-  className = '',
-}: {
-  children: React.ReactNode;
-  align?: 'right';
-  className?: string;
-}) {
-  return (
-    <td className={`px-md py-md ${align === 'right' ? 'text-right tabular-nums' : ''} ${className}`}>
-      {children}
-    </td>
-  );
-}

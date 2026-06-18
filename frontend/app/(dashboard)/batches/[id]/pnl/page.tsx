@@ -77,7 +77,7 @@ export default async function BatchPnlPage({ params }: { params: { id: string } 
       <Link href={`/batches/${batch.id}`} className="text-sm text-primary-dark font-semibold">&larr; {batch.batch_code}</Link>
       <div className="flex items-baseline justify-between mt-md mb-2xl">
         <div>
-          <h1 className="text-3xl font-bold text-ink">P&amp;L Statement</h1>
+          <h1 className="font-display text-3xl text-ink">P&amp;L Statement</h1>
           <p className="text-sm text-body mt-xs">{batch.batch_code} · {batch.breed_name} · {batch.poultry_type}</p>
         </div>
         <span className={`px-md py-xs rounded-md text-sm font-semibold ${batch.status === 'active' ? 'bg-success-soft text-success-ink' : 'bg-mute-soft text-body'}`}>

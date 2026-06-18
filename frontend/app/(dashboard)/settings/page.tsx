@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { ProfileForm } from './ProfileForm';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function SettingsPage() {
   const supabase = createSupabaseServerClient();
@@ -12,7 +13,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-[800px] mx-auto">
-      <h1 className="text-3xl font-bold text-ink mb-2xl">Settings</h1>
+      <PageHeader eyebrow="Account" title="Settings" subtitle="Your profile, farm preferences and access." />
 
       <h2 className="text-lg font-bold text-ink mb-md">Profile</h2>
       <ProfileForm

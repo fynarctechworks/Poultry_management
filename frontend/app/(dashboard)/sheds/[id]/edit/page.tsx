@@ -18,7 +18,7 @@ export default async function EditShedPage({ params }: { params: { id: string } 
   return (
     <div className="max-w-[560px] mx-auto">
       <Link href={`/farms/${shed.farm_id}`} className="text-sm text-primary-dark font-semibold">&larr; Farm</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit shed</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit shed</h1>
       <EditShedForm shed={shed as any} />
       <div className="card mt-lg">
         <p className="text-sm font-semibold text-ink mb-xs">Danger zone</p>

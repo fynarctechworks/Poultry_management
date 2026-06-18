@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { ReminderButton } from './ReminderButton';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 type Bucket = '0-7' | '8-15' | '16-30' | '30+';
 
@@ -53,11 +54,12 @@ export default async function ReceivablesAgingPage() {
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      <div className="flex items-center justify-between mb-md">
-        <h1 className="text-3xl font-bold text-ink">Receivables aging</h1>
-        <Link href="/khata" className="text-sm text-primary-dark font-semibold">&larr; Khata</Link>
-      </div>
-      <p className="text-sm text-body mb-2xl">Outstanding income (pending or partial) bucketed by days overdue from the due date.</p>
+      <PageHeader
+        eyebrow="Money"
+        title="Receivables aging"
+        subtitle="Outstanding income (pending or partial) bucketed by days overdue from the due date."
+        actions={<Link href="/khata" className="btn-outline">Back to Khata</Link>}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-md mb-2xl">
         <BucketCard label="0–7 days" value={buckets['0-7']} />

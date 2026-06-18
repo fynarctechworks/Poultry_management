@@ -1,14 +1,22 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans } from 'next/font/google';
+import { Inter, EB_Garamond } from 'next/font/google';
 import './globals.css';
 
-// Real font decision (blueprint §3.1): IBM Plex Sans self-hosted via next/font,
-// 4 weights max, latin + latin-ext subsets. Exposed as --font-sans for Tailwind.
-const plexSans = IBM_Plex_Sans({
+// Font decision (DESIGN.md): body/UI = Inter (the family ElevenLabs uses); display
+// = EB Garamond at weight 300 (open-source substitute for Waldenburg Light). Both
+// self-hosted via next/font, latin + latin-ext subsets.
+const inter = Inter({
   weight: ['400', '500', '600', '700'],
   subsets: ['latin', 'latin-ext'],
   display: 'swap',
   variable: '--font-sans',
+});
+
+const ebGaramond = EB_Garamond({
+  weight: ['400', '500'],
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-display',
 });
 
 export const metadata: Metadata = {
@@ -18,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={plexSans.variable}>
+    <html lang="en" className={`${inter.variable} ${ebGaramond.variable}`}>
       <body className="font-sans">{children}</body>
     </html>
   );

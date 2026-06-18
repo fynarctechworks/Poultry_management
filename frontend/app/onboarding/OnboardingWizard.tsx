@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, CheckCircle2, CreditCard, Handshake, Loader2, Lock, Warehouse } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
-import Silk from '@/components/Silk';
 import { PhoneInput } from '@/components/PhoneInput';
 import { isValidPhone, parsePhone } from '@/lib/constants/countries';
 import { Country, State, City } from 'country-state-city';
@@ -31,6 +30,9 @@ interface FarmForm {
   farm_name: string; owner_name: string; country: string; state: string; district: string; address: string;
   phone: string; gstin: string; farm_type: 'independent' | 'contract'; integrator_id: string; upi_id: string;
   whatsapp_phone: string; whatsapp_opt_in: boolean;
+  // Location powers weather + heat-stress alerts. Optional, but without it those
+  // alerts never fire (mobile captures this in its onboarding step-4; web must too).
+  latitude: string; longitude: string; heat_stress_threshold_celsius: string;
 }
 interface Integrator { id: string; name: string; }
 interface BillingForm {
@@ -66,7 +68,10 @@ export function OnboardingWizard() {
   const [farm, setFarm] = useState<FarmForm>({
     farm_name: '', owner_name: '', country: 'IN', state: '', district: '', address: '', phone: '', gstin: '',
     farm_type: 'independent', integrator_id: '', upi_id: '', whatsapp_phone: '', whatsapp_opt_in: true,
+    latitude: '', longitude: '', heat_stress_threshold_celsius: '35',
   });
+  const [locating, setLocating] = useState(false);
+  const [locationNote, setLocationNote] = useState<string | null>(null);
   // ISO code of the selected state — needed to look up its cities. The farm form
   // itself stores the human-readable state/city names.
   const [stateIso, setStateIso] = useState('');
@@ -100,11 +105,40 @@ export function OnboardingWizard() {
   const fset = <K extends keyof FarmForm>(k: K, v: FarmForm[K]) => setFarm((f) => ({ ...f, [k]: v }));
   const bset = <K extends keyof BillingForm>(k: K, v: BillingForm[K]) => setBilling((b) => ({ ...b, [k]: v }));
 
+  // Browser geolocation → fills lat/long so weather + heat-stress alerts can run.
+  // Best-effort: permission denial or no support just leaves the manual inputs.
+  function useMyLocation() {
+    setLocationNote(null);
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocationNote('Location not supported on this device — enter it manually below.');
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setFarm((f) => ({
+          ...f,
+          latitude: pos.coords.latitude.toFixed(6),
+          longitude: pos.coords.longitude.toFixed(6),
+        }));
+        setLocating(false);
+        setLocationNote('Location captured — weather & heat-stress alerts will use it.');
+      },
+      () => {
+        setLocating(false);
+        setLocationNote('Could not get your location — allow permission or enter it manually.');
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 },
+    );
+  }
+
   // ---- Step 1a: Farm details → validate, then advance to farm-type --------
   function goToFarmType() {
     setError(null);
     if (!farm.farm_name || !farm.state || !farm.district) return setError('Farm name, state, and district are required.');
     if (farm.phone) { const { country, national } = parsePhone(farm.phone); if (!isValidPhone(country, national)) return setError(`Enter a valid ${country.name} phone number.`); }
+    if (farm.latitude && (Number.isNaN(Number(farm.latitude)) || Math.abs(Number(farm.latitude)) > 90)) return setError('Latitude must be between -90 and 90.');
+    if (farm.longitude && (Number.isNaN(Number(farm.longitude)) || Math.abs(Number(farm.longitude)) > 180)) return setError('Longitude must be between -180 and 180.');
     setStep('farmType');
   }
 
@@ -134,6 +168,9 @@ export function OnboardingWizard() {
               gstin: farm.gstin || null, farm_type: farm.farm_type,
               integrator_id: farm.farm_type === 'contract' ? farm.integrator_id : null,
               upi_id: farm.upi_id || null,
+              latitude: farm.latitude || null,
+              longitude: farm.longitude || null,
+              heat_stress_threshold_celsius: farm.heat_stress_threshold_celsius || null,
             },
           },
         });
@@ -297,12 +334,16 @@ export function OnboardingWizard() {
   // -------------------------------------------------------------------------
   return (
     <>
-      {/* Left brand panel — animated Silk backdrop with the signup step rail.
-          Mirrors the (auth) layout's AuthBrandPanel. Hidden below lg. */}
-      <aside className={`relative m-3 hidden w-[44%] flex-col justify-between overflow-hidden rounded-card p-10 text-on-dark xl:w-1/2 xl:p-12 ${isWide ? 'lg:hidden' : 'lg:flex'}`}>
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <Silk color={colors.primary} speed={5} scale={1} noiseIntensity={1.5} rotation={0} />
-        </div>
+      {/* Left brand panel — atmospheric orb backdrop with the signup step rail.
+          Mirrors the (auth) layout's AuthBrandPanel visual language.
+          Hidden below lg; also hidden on the wide plan/billing/complete steps. */}
+      <aside className={`relative m-3 hidden w-[44%] flex-col justify-between overflow-hidden rounded-card bg-surface-dark p-10 text-on-dark xl:w-1/2 xl:p-12 ${isWide ? 'lg:hidden' : 'lg:flex'}`}>
+        {/* Atmospheric orb — mint bloom top-right */}
+        <div aria-hidden className="orb-mint pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] opacity-20 blur-3xl" />
+        {/* Atmospheric orb — peach bloom bottom-left */}
+        <div aria-hidden className="orb-peach pointer-events-none absolute -bottom-24 -left-16 h-[360px] w-[360px] opacity-15 blur-3xl" />
+        {/* Faint sky mid accent */}
+        <div aria-hidden className="orb-sky pointer-events-none absolute right-1/3 top-1/2 h-[240px] w-[240px] -translate-y-1/2 opacity-10 blur-2xl" />
 
         <div className="relative z-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -310,7 +351,7 @@ export function OnboardingWizard() {
         </div>
 
         <div className="relative z-10">
-          <p className="mb-md text-sm font-medium uppercase tracking-wide opacity-80">Get started</p>
+          <p className="mb-md text-sm font-medium uppercase tracking-widest text-on-dark-soft">Get started</p>
           <SignupProgress current={currentIdx} variant="dark" />
         </div>
       </aside>
@@ -331,8 +372,8 @@ export function OnboardingWizard() {
 
           {step === 'farm' && (
           <div>
-            <h2 className="text-2xl font-bold text-ink">Tell us about your farm</h2>
-            <p className="mb-lg mt-1 text-sm text-body">This sets up your dashboard, weather alerts and reports. You can change any of it later in Settings.</p>
+            <h2 className="font-display text-3xl leading-tight text-ink">Tell us about your farm</h2>
+            <p className="mb-lg mt-2 text-sm text-body">This sets up your dashboard, weather alerts and reports. You can change any of it later in Settings.</p>
 
             <div className="grid grid-cols-1 gap-md md:grid-cols-2">
               <Field label="Farm name *"><input className="input" value={farm.farm_name} onChange={(e) => fset('farm_name', e.target.value)} placeholder="e.g. Sri Lakshmi Poultry Farm" /></Field>
@@ -385,14 +426,35 @@ export function OnboardingWizard() {
               </div>
             </div>
 
+            {/* Location → powers weather + heat-stress alerts. Optional but recommended;
+                without coordinates those alerts can never fire for this farm. */}
+            <div className="mt-lg rounded-card border border-mute bg-canvas-soft p-md">
+              <div className="flex flex-wrap items-center justify-between gap-sm">
+                <div>
+                  <p className="text-sm font-semibold text-ink">Farm location <span className="font-normal text-body">— for weather &amp; heat-stress alerts</span></p>
+                  <p className="text-xs text-body">Recommended. We use it to forecast heat stress for your sheds. You can set it later in Settings.</p>
+                </div>
+                <button type="button" onClick={useMyLocation} disabled={locating} className="btn-outline gap-sm whitespace-nowrap">
+                  {locating && <Loader2 size={14} className="animate-spin" />}
+                  {locating ? 'Locating…' : 'Use my location'}
+                </button>
+              </div>
+              <div className="mt-md grid grid-cols-1 gap-md sm:grid-cols-3">
+                <Field label="Latitude"><input className="input" inputMode="decimal" value={farm.latitude} onChange={(e) => fset('latitude', e.target.value)} placeholder="e.g. 17.6868" /></Field>
+                <Field label="Longitude"><input className="input" inputMode="decimal" value={farm.longitude} onChange={(e) => fset('longitude', e.target.value)} placeholder="e.g. 83.2185" /></Field>
+                <Field label="Heat-stress threshold (°C)"><input className="input" inputMode="decimal" value={farm.heat_stress_threshold_celsius} onChange={(e) => fset('heat_stress_threshold_celsius', e.target.value)} placeholder="35" /></Field>
+              </div>
+              {locationNote && <p className="mt-sm text-xs text-body">{locationNote}</p>}
+            </div>
+
             <Footer error={error} busy={busy} onNext={goToFarmType} nextLabel="Continue" />
           </div>
         )}
 
         {step === 'farmType' && (
           <div>
-            <h2 className="text-2xl font-bold text-ink">How do you run your farm?</h2>
-            <p className="mb-lg mt-1 text-sm text-body">Pick the one that matches how you get chicks &amp; feed — it decides whether we set up buyer khata or contract settlement tracking.</p>
+            <h2 className="font-display text-3xl leading-tight text-ink">How do you run your farm?</h2>
+            <p className="mb-lg mt-2 text-sm text-body">Pick the one that matches how you get chicks &amp; feed — it decides whether we set up buyer khata or contract settlement tracking.</p>
 
             <div className="grid grid-cols-1 gap-md md:grid-cols-2">
               <FarmTypeCard
@@ -434,7 +496,7 @@ export function OnboardingWizard() {
         {step === 'plan' && (
           <div>
             <div className="mb-lg flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-ink">Choose a plan</h2>
+              <h2 className="font-display text-3xl leading-tight text-ink">Choose a plan</h2>
               <div className="inline-flex rounded-lg bg-mute-soft p-1 text-sm font-semibold">
                 <button onClick={() => setCycle('monthly')} className={`rounded-md px-md py-1.5 ${cycle === 'monthly' ? 'bg-canvas text-ink shadow-sm' : 'text-body'}`}>Monthly</button>
                 <button onClick={() => setCycle('yearly')} className={`rounded-md px-md py-1.5 ${cycle === 'yearly' ? 'bg-canvas text-ink shadow-sm' : 'text-body'}`}>Yearly <span className="text-success">·2 mo free</span></button>
@@ -473,7 +535,7 @@ export function OnboardingWizard() {
         {step === 'billing' && (
           <div>
             <div className="mb-lg">
-              <h2 className="text-2xl font-bold text-ink">Billing &amp; payment</h2>
+              <h2 className="font-display text-3xl leading-tight text-ink">Billing &amp; payment</h2>
               <p className="mt-1 text-sm text-body">
                 Fill in your billing details and card to start your <strong>7-day free trial</strong>. The first charge happens only after the trial — cancel any time before then.
               </p>
@@ -538,7 +600,7 @@ export function OnboardingWizard() {
         {step === 'complete' && (
           <div className="text-center">
             <span className="mx-auto mb-md grid h-14 w-14 place-items-center rounded-full bg-success-soft text-success-ink"><Check size={28} /></span>
-            <h2 className="text-2xl font-bold text-ink">You’re all set!</h2>
+            <h2 className="font-display text-4xl leading-tight text-ink">You’re all set!</h2>
             <p className="mx-auto mt-sm max-w-md text-body">
               {selectedPlan ? <>Your <strong>{selectedPlan.name}</strong> plan is active on a 7-day free trial.</> : 'Your account is ready.'}
               {trialEndsAt && <> First charge on <strong>{new Date(trialEndsAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>.</>}

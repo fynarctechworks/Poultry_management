@@ -9,9 +9,11 @@ interface Props {
   batchId: string;
   currentBirdCount: number;
   buyers: { id: string; buyer_name: string }[];
+  // Set when an open health incident's drug withdrawal period has not yet cleared.
+  withdrawalWarning?: string | null;
 }
 
-export function HarvestForm({ batchId, currentBirdCount, buyers }: Props) {
+export function HarvestForm({ batchId, currentBirdCount, buyers, withdrawalWarning }: Props) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [open, setOpen] = useState(false);
@@ -68,6 +70,9 @@ export function HarvestForm({ batchId, currentBirdCount, buyers }: Props) {
   return (
     <div className="card space-y-md w-full">
       <h3 className="text-base font-bold text-ink">Record harvest / sale</h3>
+      {withdrawalWarning && (
+        <p className="rounded-md bg-danger/10 px-md py-sm text-sm font-semibold text-danger">⚠ {withdrawalWarning}</p>
+      )}
       <p className="text-xs text-body">{currentBirdCount.toLocaleString('en-IN')} birds currently alive. Selling part of the flock thins it without closing the batch.</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
         <L label="Birds harvested"><input type="number" min={1} max={currentBirdCount} className="input" value={birds} onChange={(e) => setBirds(e.target.value)} /></L>

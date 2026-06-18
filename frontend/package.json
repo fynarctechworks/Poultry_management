@@ -12,7 +12,6 @@
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@poultryos/shared": "file:../packages/shared",
-    "@react-three/fiber": "^8.18.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.105.1",
     "class-variance-authority": "^0.7.1",
@@ -28,7 +27,6 @@
     "react-hook-form": "^7.53.2",
     "recharts": "^2.13.3",
     "tailwind-merge": "^2.5.5",
-    "three": "^0.169.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -37,7 +35,6 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.169.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.18",

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY } from '@/lib/utils';
 import { ShareTraceability } from './ShareTraceability';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function TraceabilityListPage() {
   const supabase = createSupabaseServerClient();
@@ -15,10 +16,12 @@ export default async function TraceabilityListPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="mb-xs">
-        <h1 className="text-3xl font-bold text-ink">Traceability</h1>
-      </div>
-      <p className="text-sm text-body mb-2xl">Farm-to-plate certificates. Share the public link or QR with buyers for full provenance.</p>
+      <PageHeader
+        eyebrow="Insights"
+        title="Traceability"
+        subtitle="Farm-to-plate certificates. Share the public link or QR with buyers for full provenance."
+        orbs={['rose', 'peach']}
+      />
 
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm">

@@ -50,7 +50,10 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+
+  const { register, control, handleSubmit, setValue, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
       farm_name: farm.farm_name ?? '',
@@ -68,6 +71,30 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
       necc_zone: farm.necc_zone ?? '',
     },
   });
+
+  // Capture device GPS so an owner can set/backfill coordinates without knowing
+  // raw lat/long — without coordinates the farm gets no weather or heat-stress
+  // alerts (mirrors the onboarding location step).
+  function useMyLocation() {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setGeoError('Geolocation is not available in this browser. Enter coordinates manually.');
+      return;
+    }
+    setGeoError(null);
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setValue('latitude', Number(pos.coords.latitude.toFixed(6)) as any, { shouldValidate: true });
+        setValue('longitude', Number(pos.coords.longitude.toFixed(6)) as any, { shouldValidate: true });
+        setGeoLoading(false);
+      },
+      (err) => {
+        setGeoError(err.message || 'Could not get your location. Enter coordinates manually.');
+        setGeoLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }
 
   async function onSubmit(data: Form) {
     setError(null);
@@ -113,6 +140,13 @@ export function EditFarmForm({ farm }: { farm: FarmRow }) {
         <Field label="UPI ID" error={errors.upi_id?.message}><input className="input" placeholder="name@okhdfcbank" {...register('upi_id')} /></Field>
         <Field label="Latitude"><input type="number" step="any" className="input" {...register('latitude')} /></Field>
         <Field label="Longitude"><input type="number" step="any" className="input" {...register('longitude')} /></Field>
+        <div className="md:col-span-2 -mt-xs">
+          <button type="button" onClick={useMyLocation} disabled={geoLoading} className="btn-subtle text-sm">
+            {geoLoading ? 'Locating…' : '📍 Use my current location'}
+          </button>
+          <p className="text-xs text-body-soft mt-xxs">Coordinates power weather &amp; heat-stress alerts. Without them this farm gets no forecast.</p>
+          {geoError && <p className="text-xs text-danger mt-xxs">{geoError}</p>}
+        </div>
         <Field label="Heat-stress threshold (°C)"><input type="number" step="0.1" className="input" {...register('heat_stress_threshold_celsius')} /></Field>
         <Field label="Mortality alert threshold (%/day)" error={errors.mortality_alert_threshold_pct?.message}><input type="number" step="0.1" className="input" {...register('mortality_alert_threshold_pct')} /></Field>
         <Field label="NECC egg-price zone">

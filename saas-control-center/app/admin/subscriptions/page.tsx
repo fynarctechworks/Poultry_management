@@ -31,7 +31,7 @@ export default async function SubscriptionsPage() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Plans</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Plans</h2>
       <p className="text-sm text-body-soft mb-xl">
         Plans are database-driven. Edits here update the canonical <code>subscription_plans</code> the app reads — no code changes.
         Click any plan to view and edit its full feature set.

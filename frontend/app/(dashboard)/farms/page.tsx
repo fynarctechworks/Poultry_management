@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY } from '@/lib/utils';
 import Link from 'next/link';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function FarmsPage() {
   const supabase = createSupabaseServerClient();
@@ -11,10 +12,12 @@ export default async function FarmsPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Farms</h1>
-        <Link href="/farms/new" className="btn-primary">Add farm</Link>
-      </div>
+      <PageHeader
+        eyebrow="Overview"
+        title="Farms"
+        subtitle="Every farm you own or manage."
+        actions={<Link href="/farms/new" className="btn-primary">Add farm</Link>}
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
         {(farms ?? []).map((f) => (
           <Link key={f.id} href={`/farms/${f.id}`} className="card hover:shadow-subtle transition-shadow">

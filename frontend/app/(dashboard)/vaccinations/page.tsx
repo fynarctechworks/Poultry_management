@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY } from '@/lib/utils';
 import { MarkDoneButton } from './MarkDoneButton';
 import { DeleteButton } from '@/components/DeleteButton';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function VaccinationsPage() {
   const supabase = createSupabaseServerClient();
@@ -20,10 +21,12 @@ export default async function VaccinationsPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Vaccinations</h1>
-        <Link href="/vaccinations/new" className="btn-primary">Schedule</Link>
-      </div>
+      <PageHeader
+        eyebrow="Operations"
+        title="Vaccinations"
+        subtitle="Scheduled, overdue and completed doses per batch."
+        actions={<Link href="/vaccinations/new" className="btn-primary">Schedule</Link>}
+      />
 
       <Section title="Overdue" rows={grouped.overdue} accent="warning" />
       <Section title="Upcoming" rows={grouped.scheduled} />

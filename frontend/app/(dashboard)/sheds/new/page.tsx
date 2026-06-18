@@ -8,7 +8,7 @@ export default async function NewShedPage() {
   return (
     <div className="max-w-[640px] mx-auto">
       <Link href="/farms" className="text-sm text-primary-dark font-semibold">&larr; Farms</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Add shed</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Add shed</h1>
       <ShedForm farms={farms ?? []} />
     </div>
   );

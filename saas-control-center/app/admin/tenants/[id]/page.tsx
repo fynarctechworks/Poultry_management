@@ -88,7 +88,7 @@ export default async function TenantDetailPage({
       <div className="flex items-start justify-between mt-sm mb-lg">
         <div>
           <div className="flex items-center gap-md">
-            <h2 className="text-2xl font-bold text-ink">{tenant.name}</h2>
+            <h2 className="font-display text-[2rem] text-ink">{tenant.name}</h2>
             <TenantStatusBadge status={tenant.status} deleted={!!tenant.deleted_at} />
           </div>
           <p className="text-sm text-body-soft mt-xxs">

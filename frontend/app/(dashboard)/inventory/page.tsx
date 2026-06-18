@@ -5,6 +5,7 @@ import {
   feedStockStatus,
   type FeedConsumptionLog,
 } from '@poultryos/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function InventoryPage() {
   const supabase = createSupabaseServerClient();
@@ -38,13 +39,17 @@ export default async function InventoryPage() {
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl flex-wrap gap-md">
-        <h1 className="text-3xl font-bold text-ink">Inventory</h1>
-        <div className="flex gap-sm">
-          <Link href="/inventory/purchase" className="btn-outline">Record purchase</Link>
-          <Link href="/inventory/new" className="btn-primary">New item</Link>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Operations"
+        title="Inventory"
+        subtitle="Feed, medicine and equipment stock with days-of-stock burn rate."
+        actions={
+          <>
+            <Link href="/inventory/purchase" className="btn-outline">Record purchase</Link>
+            <Link href="/inventory/new" className="btn-primary">New item</Link>
+          </>
+        }
+      />
 
       <div className="card p-0 overflow-x-auto">
         <table className="w-full text-sm">

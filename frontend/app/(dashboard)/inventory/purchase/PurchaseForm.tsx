@@ -7,12 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 const schema = z.object({
   item_id: z.string().uuid(),
   quantity: z.coerce.number().positive(),
   cost_per_unit: z.coerce.number().min(0),
   supplier: z.string().optional(),
-  movement_date: z.string().min(1),
+  movement_date: z.string().min(1).refine((v) => v <= todayISO(), 'Purchase date cannot be in the future'),
   notes: z.string().optional(),
 });
 type Form = z.infer<typeof schema>;
@@ -66,7 +68,7 @@ export function PurchaseForm({ items }: { items: Item[] }) {
         <Field label="Quantity" error={errors.quantity?.message}><input type="number" step="0.001" className="input" {...register('quantity')} /></Field>
         <Field label="Cost / unit (₹)" error={errors.cost_per_unit?.message}><input type="number" step="0.01" className="input" {...register('cost_per_unit')} /></Field>
         <Field label="Supplier"><input className="input" {...register('supplier')} /></Field>
-        <Field label="Date" error={errors.movement_date?.message}><input type="date" className="input" {...register('movement_date')} /></Field>
+        <Field label="Date" error={errors.movement_date?.message}><input type="date" max={todayISO()} className="input" {...register('movement_date')} /></Field>
       </div>
       <Field label="Notes"><textarea rows={2} className="input h-auto py-sm" {...register('notes')} /></Field>
       <button type="submit" disabled={loading} className="btn-primary w-full">{loading ? 'Saving…' : 'Record purchase'}</button>

@@ -17,7 +17,7 @@ export default async function EditInventoryItemPage({ params }: { params: { id: 
   return (
     <div className="max-w-[560px] mx-auto">
       <Link href={`/inventory/${item.id}`} className="text-sm text-primary-dark font-semibold">&larr; {item.item_name}</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit item</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit item</h1>
       <EditInventoryItemForm item={item as any} />
     </div>
   );

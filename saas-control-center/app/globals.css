@@ -4,21 +4,27 @@
 
 @layer base {
   html {
-    /* --font-sans is injected by next/font (IBM Plex Sans) in app/layout.tsx */
-    font-family: var(--font-sans), 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* --font-sans (Inter) injected by next/font in app/layout.tsx */
+    font-family: var(--font-sans), 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    letter-spacing: 0.16px; /* editorial Inter dialect (DESIGN.md) */
   }
   body {
     @apply bg-canvas-soft text-ink antialiased;
   }
-  * {
-    @apply border-mute;
+  /* Display headings run EB Garamond Light (300) — editorial serif, never bold */
+  .font-display,
+  h1.display, h2.display, h3.display {
+    font-family: var(--font-display), 'EB Garamond', 'Times New Roman', serif;
+    font-weight: 300;
+    letter-spacing: -0.32px;
   }
-  /* Visible keyboard focus everywhere — blueprint §3.3 (state.focus) */
+  * {
+    @apply border-hairline;
+  }
   :focus-visible {
-    outline: 2px solid theme('colors.primary');
+    outline: 2px solid theme('colors.ink');
     outline-offset: 2px;
   }
-  /* Reduced motion: collapse transitions/animations */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -30,21 +36,61 @@
 
 @layer components {
   .card {
-    @apply bg-canvas border border-mute rounded-card p-lg;
+    @apply bg-canvas border border-hairline rounded-xl p-lg;
   }
+  /* button-primary: near-black INK PILL — the only CTA color */
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-primary text-on-primary rounded-lg px-lg py-md font-semibold text-base min-h-[44px] hover:bg-primary-dark transition-colors disabled:opacity-50;
+    @apply inline-flex items-center justify-center bg-primary text-on-primary rounded-pill px-md py-[10px] font-medium text-[15px] min-h-[40px] hover:bg-primary-dark transition-colors disabled:opacity-50;
   }
   .btn-outline {
-    @apply inline-flex items-center justify-center bg-canvas border border-primary-dark text-primary-dark rounded-lg px-lg py-md font-semibold text-base min-h-[44px] hover:bg-primary-subtle transition-colors;
+    @apply inline-flex items-center justify-center bg-transparent border border-hairline-strong text-ink rounded-pill px-md py-[10px] font-medium text-[15px] min-h-[40px] hover:bg-surface-strong transition-colors;
   }
   .btn-subtle {
-    @apply inline-flex items-center justify-center bg-primary-subtle text-primary rounded-lg px-lg py-md font-semibold text-base min-h-[44px] hover:opacity-80 transition-opacity;
+    @apply inline-flex items-center justify-center bg-primary-subtle text-ink rounded-pill px-md py-[10px] font-medium text-[15px] min-h-[40px] hover:opacity-80 transition-opacity;
   }
   .input {
-    @apply w-full h-[44px] px-md border border-mute rounded-md bg-canvas text-ink text-base focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary;
+    @apply w-full h-[44px] px-md border border-hairline-strong rounded-md bg-canvas text-ink text-base focus:outline-none focus:border-2 focus:border-ink;
   }
   .label {
-    @apply block text-sm font-semibold text-ink mb-xs;
+    @apply block text-sm font-medium text-ink mb-xs;
   }
+  .badge {
+    @apply inline-flex items-center bg-surface-strong text-ink rounded-pill px-[10px] py-xxs text-[12px] font-semibold uppercase tracking-[0.96px];
+  }
+}
+
+@layer components {
+  /* Section caption used for sidebar groups + topbar eyebrow. */
+  .nav-section-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.96px] text-muted-soft;
+  }
+}
+
+@layer utilities {
+  /* Thin, restrained scrollbar — replaces the chunky default browser one. */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.hairline-strong') transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.hairline-strong');
+    border-radius: 9999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: theme('colors.muted');
+  }
+
+  /* Atmospheric gradient orbs — decoration ONLY. */
+  .orb-mint     { background: radial-gradient(circle at center, theme('colors.gradient-mint') 0%, transparent 70%); }
+  .orb-peach    { background: radial-gradient(circle at center, theme('colors.gradient-peach') 0%, transparent 70%); }
+  .orb-lavender { background: radial-gradient(circle at center, theme('colors.gradient-lavender') 0%, transparent 70%); }
+  .orb-sky      { background: radial-gradient(circle at center, theme('colors.gradient-sky') 0%, transparent 70%); }
+  .orb-rose     { background: radial-gradient(circle at center, theme('colors.gradient-rose') 0%, transparent 70%); }
 }

@@ -22,7 +22,7 @@ export default async function EditTransactionPage({ params }: { params: { id: st
   return (
     <div className="max-w-[720px] mx-auto">
       <Link href="/transactions" className="text-sm text-primary-dark font-semibold">&larr; Transactions</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit transaction</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit transaction</h1>
       <EditTransactionForm txn={txn as any} farms={farms ?? []} buyers={buyers ?? []} batches={batches ?? []} />
     </div>
   );

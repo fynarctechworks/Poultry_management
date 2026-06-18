@@ -185,7 +185,7 @@ export default async function RazorpayCommandCenterPage() {
       {/* Header                                                               */}
       {/* ------------------------------------------------------------------ */}
       <div className="mb-2xl">
-        <h2 className="text-2xl font-bold text-ink mb-xxs">Razorpay Command Center</h2>
+        <h2 className="font-display text-[2rem] text-ink mb-xxs">Razorpay Command Center</h2>
         <p className="text-sm text-body-soft">
           Transactions, settlements, refunds and webhook health across all tenants.
         </p>

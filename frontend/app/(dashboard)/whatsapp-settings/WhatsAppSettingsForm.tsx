@@ -9,25 +9,45 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { PhoneInput } from '@/components/PhoneInput';
 import { isValidPhoneString } from '@/lib/constants/countries';
 
+// Category keys = the 6 Meta-approved template ids that send-whatsapp-message
+// gates on via profiles.whatsapp_preferences (per-category opt-out). Keep these
+// in lockstep with the mobile settings screen + the Edge Function's allow-list.
+const CATEGORIES: { key: string; label: string; hint: string }[] = [
+  { key: 'mortality_alert', label: 'Mortality spike alerts', hint: 'Real-time when deaths exceed your threshold' },
+  { key: 'heat_stress_alert', label: 'Heat-stress alerts', hint: 'When forecast ≥ your heat threshold' },
+  { key: 'vaccination_reminder', label: 'Vaccination reminders', hint: '1 day before a dose is due' },
+  { key: 'payment_reminder', label: 'Payment reminders', hint: 'Buyer dues at day 7 / 15 / 30 overdue' },
+  { key: 'low_stock_alert', label: 'Low-stock alerts', hint: 'Feed / medicine below threshold' },
+  { key: 'daily_digest', label: 'Daily digest', hint: '8 PM IST — mortality, feed, market prices' },
+];
+
 const schema = z.object({
   whatsapp_phone: z.string().refine((v) => isValidPhoneString(v), 'Enter a valid phone number'),
   whatsapp_opt_in: z.boolean(),
+  preferences: z.record(z.boolean()),
 });
 type Form = z.infer<typeof schema>;
 
-interface Props { initialPhone: string; initialOptIn: boolean; }
+interface Props { initialPhone: string; initialOptIn: boolean; initialPreferences: Record<string, boolean> | null; }
 
-export function WhatsAppSettingsForm({ initialPhone, initialOptIn }: Props) {
+export function WhatsAppSettingsForm({ initialPhone, initialOptIn, initialPreferences }: Props) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, control, handleSubmit, formState: { errors } } = useForm<Form>({
+  const stored = initialPreferences ?? {};
+  const defaultPreferences = Object.fromEntries(
+    CATEGORIES.map((c) => [c.key, stored[c.key] ?? true]),
+  );
+
+  const { register, control, watch, handleSubmit, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
-    defaultValues: { whatsapp_phone: initialPhone, whatsapp_opt_in: initialOptIn },
+    defaultValues: { whatsapp_phone: initialPhone, whatsapp_opt_in: initialOptIn, preferences: defaultPreferences },
   });
+
+  const optedIn = watch('whatsapp_opt_in');
 
   async function onSubmit(data: Form) {
     setError(null);
@@ -40,6 +60,7 @@ export function WhatsAppSettingsForm({ initialPhone, initialOptIn }: Props) {
       .update({
         whatsapp_phone: data.whatsapp_phone || null,
         whatsapp_opt_in: data.whatsapp_opt_in,
+        whatsapp_preferences: data.preferences,
       })
       .eq('id', user.id);
     setLoading(false);
@@ -67,16 +88,21 @@ export function WhatsAppSettingsForm({ initialPhone, initialOptIn }: Props) {
         </div>
       </label>
 
-      <div className="rounded-md bg-mute-soft p-md text-xs text-body">
-        <p className="font-semibold text-ink mb-xs">What you'll receive (when opted in):</p>
-        <ul className="space-y-xxs list-disc list-inside">
-          <li>Daily digest at 8 PM IST — mortality, feed, market prices</li>
-          <li>Mortality spike alerts (real-time)</li>
-          <li>Vaccination reminders (1 day before)</li>
-          <li>Heat-stress alerts (when ≥ threshold)</li>
-          <li>Payment reminders for buyers (day 7 / 15 / 30 overdue)</li>
-          <li>Low-stock alerts (feed, medicine)</li>
-        </ul>
+      <div className={`rounded-md border border-mute p-md transition-opacity ${optedIn ? '' : 'opacity-50'}`}>
+        <p className="font-semibold text-ink mb-xs">Notification categories</p>
+        <p className="text-xs text-body mb-md">Fine-tune which alerts reach you. Turn any off to stop just that type — your other alerts keep coming.</p>
+        <div className="space-y-sm">
+          {CATEGORIES.map((c) => (
+            <label key={c.key} className="flex items-start gap-md cursor-pointer">
+              <input type="checkbox" className="size-5 mt-xxs" disabled={!optedIn} {...register(`preferences.${c.key}` as const)} />
+              <div>
+                <p className="text-sm font-semibold text-ink">{c.label}</p>
+                <p className="text-xs text-body-soft">{c.hint}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+        {!optedIn && <p className="mt-md text-xs text-body-soft">Turn on WhatsApp notifications above to choose categories.</p>}
       </div>
 
       <div className="flex items-center gap-md">

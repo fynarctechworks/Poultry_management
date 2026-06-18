@@ -22,7 +22,7 @@ export function StatTile({ label, value, href, delta, valueClass, icon: Icon, su
       }
     >
       <div className="flex items-center justify-between gap-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-body-soft">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.96px] text-muted">{label}</p>
         {Icon && <Icon size={15} className="text-body-soft shrink-0" />}
       </div>
 

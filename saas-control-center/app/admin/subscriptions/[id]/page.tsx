@@ -32,7 +32,7 @@ export default async function PlanDetailPage({ params }: { params: { id: string 
     <div className="max-w-[900px]">
       <Link href="/admin/subscriptions" className="text-sm text-body-soft hover:text-ink">← All plans</Link>
       <div className="flex items-center gap-md mt-sm mb-lg">
-        <h2 className="text-2xl font-bold text-ink">{plan.name}</h2>
+        <h2 className="font-display text-[2rem] text-ink">{plan.name}</h2>
         <span className="text-xs font-mono text-body-soft">{plan.code}</span>
         <span className={`text-[11px] font-bold uppercase rounded-sm px-xs py-px ${plan.is_active ? 'bg-success-soft text-success-ink' : 'bg-mute-soft text-body'}`}>
           {plan.is_active ? 'active' : 'archived'}

@@ -164,7 +164,7 @@ export default async function SuccessDetailPage({ params }: { params: { tenantId
           ← Customer Success
         </Link>
         <div className="flex flex-wrap items-center gap-md mt-sm">
-          <h2 className="text-2xl font-bold text-ink">{tenant.name}</h2>
+          <h2 className="font-display text-[2rem] text-ink">{tenant.name}</h2>
           <StatusBadge status={tenant.status} />
         </div>
         <p className="text-sm text-body-soft mt-xxs">

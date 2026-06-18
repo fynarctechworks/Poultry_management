@@ -7,8 +7,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 const schema = z.object({
-  log_date: z.string().min(1),
+  log_date: z.string().min(1).refine((v) => v <= todayISO(), 'Log date cannot be in the future'),
   birds_dead: z.coerce.number().int().min(0),
   death_cause: z.enum(['disease', 'culled', 'injury', 'heat_stress', 'unknown']).optional().or(z.literal('')),
   eggs_collected: z.coerce.number().int().min(0).optional(),
@@ -71,7 +73,7 @@ export function EditDailyLogForm({ log }: { log: LogRow }) {
     <form onSubmit={handleSubmit(onSubmit)} className="card space-y-md">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
         <Field label="Log date" error={errors.log_date?.message}>
-          <input type="date" className="input" {...register('log_date')} />
+          <input type="date" max={todayISO()} className="input" {...register('log_date')} />
         </Field>
         <Field label="Birds dead" error={errors.birds_dead?.message}>
           <input type="number" min={0} className="input" {...register('birds_dead')} />

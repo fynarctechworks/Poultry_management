@@ -11,9 +11,15 @@ export function MarkDoneButton({ id }: { id: string }) {
 
   async function markDone() {
     setLoading(true);
+    // Record who administered the dose (audit + traceability), not just the date.
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from('vaccinations')
-      .update({ status: 'done', administered_date: new Date().toISOString().slice(0, 10) })
+      .update({
+        status: 'done',
+        administered_date: new Date().toISOString().slice(0, 10),
+        administered_by: user?.id ?? null,
+      })
       .eq('id', id);
     setLoading(false);
     if (error) {

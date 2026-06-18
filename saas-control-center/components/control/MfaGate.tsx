@@ -27,8 +27,10 @@ export function MfaGate() {
             <ShieldAlert size={22} />
           </span>
           <div>
-            <h1 className="text-xl font-bold text-ink">Set up two-factor authentication</h1>
-            <p className="text-sm text-body-soft">
+            <h1 className="font-display text-[1.5rem] leading-[1.2] tracking-[-0.32px] text-ink">
+              Set up two-factor authentication
+            </h1>
+            <p className="mt-xxs text-sm text-muted">
               2FA is required for every Control Center operator. Enroll an authenticator to continue.
             </p>
           </div>

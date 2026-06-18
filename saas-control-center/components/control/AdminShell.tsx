@@ -12,26 +12,53 @@ import {
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
 
-// Full Control Center module map. `ready` items are built (Increment 1);
-// the rest render as visible-but-disabled with a "soon" tag so the operator
-// sees the full surface without dead links.
-const NAV: { href: string; label: string; icon: typeof Building2; perm?: string; ready: boolean }[] = [
-  { href: '/admin', label: 'Overview', icon: LayoutDashboard, ready: true },
-  { href: '/admin/tenants', label: 'Tenants', icon: Building2, perm: 'tenant:read', ready: true },
-  { href: '/admin/subscriptions', label: 'Plans', icon: CreditCard, perm: 'subscription:read', ready: true },
-  { href: '/admin/billing', label: 'Billing', icon: Receipt, perm: 'billing:read', ready: true },
-  { href: '/admin/razorpay', label: 'Razorpay', icon: IndianRupee, perm: 'revenue:read', ready: true },
-  { href: '/admin/discounts', label: 'Discounts', icon: Tag, perm: 'discount:read', ready: true },
-  { href: '/admin/revenue', label: 'Revenue', icon: TrendingUp, perm: 'revenue:read', ready: true },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, perm: 'revenue:read', ready: true },
-  { href: '/admin/support', label: 'Support', icon: Headphones, perm: 'support:read', ready: true },
-  { href: '/admin/success', label: 'Customer Success', icon: HeartPulse, perm: 'success:read', ready: true },
-  { href: '/admin/errors', label: 'Errors', icon: Bug, perm: 'error:read', ready: true },
-  { href: '/admin/audit', label: 'Audit Log', icon: ScrollText, perm: 'audit:read', ready: true },
-  { href: '/admin/access', label: 'Access Control', icon: ShieldCheck, perm: 'access:read', ready: true },
-  { href: '/admin/flags', label: 'Feature Flags', icon: ToggleRight, perm: 'flag:read', ready: true },
-  { href: '/admin/system', label: 'System', icon: Activity, perm: 'system:read', ready: true },
-  { href: '/admin/security', label: 'Security & 2FA', icon: ShieldCheckIcon, ready: true },
+// Full Control Center module map, grouped into sections. `ready` items are
+// built; the rest render as visible-but-disabled with a "soon" tag so the
+// operator sees the full surface without dead links. Sections keep the nav
+// scannable and short enough to avoid a chunky scrollbar.
+type NavItem = { href: string; label: string; icon: typeof Building2; perm?: string; ready: boolean };
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'Platform',
+    items: [
+      { href: '/admin', label: 'Overview', icon: LayoutDashboard, ready: true },
+      { href: '/admin/system', label: 'System', icon: Activity, perm: 'system:read', ready: true },
+    ],
+  },
+  {
+    label: 'Customers',
+    items: [
+      { href: '/admin/tenants', label: 'Tenants', icon: Building2, perm: 'tenant:read', ready: true },
+      { href: '/admin/support', label: 'Support', icon: Headphones, perm: 'support:read', ready: true },
+      { href: '/admin/success', label: 'Customer Success', icon: HeartPulse, perm: 'success:read', ready: true },
+    ],
+  },
+  {
+    label: 'Billing',
+    items: [
+      { href: '/admin/subscriptions', label: 'Plans', icon: CreditCard, perm: 'subscription:read', ready: true },
+      { href: '/admin/billing', label: 'Billing', icon: Receipt, perm: 'billing:read', ready: true },
+      { href: '/admin/razorpay', label: 'Razorpay', icon: IndianRupee, perm: 'revenue:read', ready: true },
+      { href: '/admin/discounts', label: 'Discounts', icon: Tag, perm: 'discount:read', ready: true },
+      { href: '/admin/revenue', label: 'Revenue', icon: TrendingUp, perm: 'revenue:read', ready: true },
+      { href: '/admin/analytics', label: 'Analytics', icon: BarChart3, perm: 'revenue:read', ready: true },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { href: '/admin/errors', label: 'Errors', icon: Bug, perm: 'error:read', ready: true },
+      { href: '/admin/audit', label: 'Audit Log', icon: ScrollText, perm: 'audit:read', ready: true },
+      { href: '/admin/flags', label: 'Feature Flags', icon: ToggleRight, perm: 'flag:read', ready: true },
+    ],
+  },
+  {
+    label: 'Security',
+    items: [
+      { href: '/admin/access', label: 'Access Control', icon: ShieldCheck, perm: 'access:read', ready: true },
+      { href: '/admin/security', label: 'Security & 2FA', icon: ShieldCheckIcon, ready: true },
+    ],
+  },
 ];
 
 export function AdminShell({
@@ -59,9 +86,12 @@ export function AdminShell({
   }, [pathname]);
 
   // Only show modules the operator can actually open. Items without a `perm`
-  // (e.g. Overview) are always visible; '*' grants the full surface.
+  // (e.g. Overview) are always visible; '*' grants the full surface. Empty
+  // groups (operator lacks every perm in the section) are dropped entirely.
   const isSuper = permissions.includes('*');
-  const visibleNav = NAV.filter((n) => !n.perm || isSuper || permissions.includes(n.perm));
+  const visibleGroups = NAV_GROUPS
+    .map((g) => ({ ...g, items: g.items.filter((n) => !n.perm || isSuper || permissions.includes(n.perm)) }))
+    .filter((g) => g.items.length > 0);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -99,8 +129,9 @@ export function AdminShell({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/poultry-mark.png" alt="" className="h-9 w-9 rounded-lg shrink-0" />
             <div>
-              <h1 className="text-xl font-bold text-primary leading-none">PoultryOS</h1>
-              <p className="text-xs font-semibold text-body-soft mt-xxs uppercase tracking-wide">
+              {/* Sidebar wordmark — font-display gives editorial serif character at the nav root */}
+              <h1 className="font-display text-xl leading-none text-ink tracking-[-0.16px]">PoultryOS</h1>
+              <p className="text-[10px] font-semibold text-muted mt-xxs uppercase tracking-[0.96px]">
                 Control Center
               </p>
             </div>
@@ -113,41 +144,46 @@ export function AdminShell({
             <X size={18} />
           </button>
         </div>
-        <nav className="flex-1 min-h-0 px-sm overflow-y-auto">
-          {visibleNav.map(({ href, label, icon: Icon, ready }) => {
-            const active = pathname === href || (href !== '/admin' && pathname.startsWith(href + '/'));
-            if (!ready) {
-              return (
-                <span
-                  key={href}
-                  className="flex items-center justify-between gap-md px-md py-sm rounded-md text-sm font-semibold mb-xxs text-body-soft cursor-not-allowed opacity-60"
-                  title="Coming in a later increment"
-                >
-                  <span className="flex items-center gap-md">
-                    <Icon size={18} />
+        <nav className="flex-1 min-h-0 px-sm pb-md overflow-y-auto scrollbar-thin">
+          {visibleGroups.map((group) => (
+            <div key={group.label} className="mb-lg last:mb-0">
+              <p className="nav-section-label px-md mb-xs">{group.label}</p>
+              {group.items.map(({ href, label, icon: Icon, ready }) => {
+                const active = pathname === href || (href !== '/admin' && pathname.startsWith(href + '/'));
+                if (!ready) {
+                  return (
+                    <span
+                      key={href}
+                      className="flex items-center justify-between gap-md px-md py-sm rounded-md text-[15px] font-medium mb-xxs text-body-soft cursor-not-allowed opacity-60"
+                      title="Coming in a later increment"
+                    >
+                      <span className="flex items-center gap-md">
+                        <Icon size={18} className="shrink-0" />
+                        {label}
+                      </span>
+                      <span className="text-[10px] font-bold uppercase bg-mute-soft text-body rounded-sm px-xs py-px">
+                        soon
+                      </span>
+                    </span>
+                  );
+                }
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={cn(
+                      'flex items-center gap-md px-md py-sm rounded-md text-[15px] font-medium mb-xxs transition-colors',
+                      active ? 'bg-primary-subtle text-primary' : 'text-body hover:bg-mute-soft'
+                    )}
+                  >
+                    <Icon size={18} className="shrink-0" />
                     {label}
-                  </span>
-                  <span className="text-[10px] font-bold uppercase bg-mute-soft text-body rounded-sm px-xs py-px">
-                    soon
-                  </span>
-                </span>
-              );
-            }
-            return (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMobileNavOpen(false)}
-                className={cn(
-                  'flex items-center gap-md px-md py-sm rounded-md text-sm font-semibold mb-xxs',
-                  active ? 'bg-primary-subtle text-primary' : 'text-body hover:bg-mute-soft'
-                )}
-              >
-                <Icon size={18} />
-                {label}
-              </Link>
-            );
-          })}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
       </aside>
 
@@ -233,7 +269,7 @@ export function AdminShell({
           </div>
         </header>
 
-        <main className="flex-1 min-h-0 px-lg lg:px-2xl py-xl overflow-y-auto">{children}</main>
+        <main className="flex-1 min-h-0 px-lg lg:px-2xl py-xl overflow-y-auto scrollbar-thin">{children}</main>
       </div>
     </div>
   );

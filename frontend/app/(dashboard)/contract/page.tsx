@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { UpgradeGate } from '@/components/UpgradeGate';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function ContractListPage() {
   return (
@@ -30,14 +31,17 @@ async function ContractListContent() {
 
   return (
     <div className="max-w-[1400px] mx-auto">
-      <div className="flex items-center justify-between mb-xs">
-        <h1 className="text-3xl font-bold text-ink">Contract Farming</h1>
-        <div className="flex items-center gap-md">
-          <Link href="/contract/settlements" className="btn-outline">Settlement history</Link>
-          <Link href="/contract/new" className="btn-primary">Start cycle</Link>
-        </div>
-      </div>
-      <p className="text-sm text-body mb-2xl">Contract cycles across all your farms. Settlement math is tariff-card driven.</p>
+      <PageHeader
+        eyebrow="Money"
+        title="Contract Farming"
+        subtitle="Contract cycles across all your farms. Settlement math is tariff-card driven."
+        actions={
+          <>
+            <Link href="/contract/settlements" className="btn-outline">Settlement history</Link>
+            <Link href="/contract/new" className="btn-primary">Start cycle</Link>
+          </>
+        }
+      />
 
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm">

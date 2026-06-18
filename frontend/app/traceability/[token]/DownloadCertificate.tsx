@@ -24,7 +24,7 @@ export function DownloadCertificate({ record }: Props) {
     const pageWidth = doc.internal.pageSize.getWidth();
 
     doc.setFontSize(20);
-    doc.setTextColor(113, 50, 245); // primary purple
+    doc.setTextColor(41, 37, 36); // colors.primary (ink) #292524 — retired Kraken purple
     doc.text('PoultryOS', pageWidth / 2, 20, { align: 'center' });
 
     doc.setFontSize(14);
@@ -41,7 +41,7 @@ export function DownloadCertificate({ record }: Props) {
       startY: 46,
       theme: 'grid',
       head: [['Field', 'Value']],
-      headStyles: { fillColor: [113, 50, 245], textColor: 255, fontStyle: 'bold' },
+      headStyles: { fillColor: [41, 37, 36], textColor: 255, fontStyle: 'bold' },
       bodyStyles: { textColor: [16, 17, 20] },
       styles: { fontSize: 11, cellPadding: 4 },
       body: [

@@ -36,7 +36,7 @@ export default async function BuyerDetailPage({ params }: { params: { id: string
       <Link href="/khata" className="text-sm text-primary-dark font-semibold">&larr; Khata</Link>
       <div className="flex items-baseline justify-between mt-md flex-wrap gap-md">
         <div>
-          <h1 className="text-3xl font-bold text-ink">{buyer.buyer_name}</h1>
+          <h1 className="font-display text-3xl text-ink">{buyer.buyer_name}</h1>
           <p className="text-sm text-body mt-xs">{buyer.phone ?? '—'} {buyer.whatsapp_phone ? `· WhatsApp ${buyer.whatsapp_phone}` : ''}</p>
           <div className="flex items-center gap-md mt-sm">
             <Link href={`/khata/${buyer.id}/edit`} className="text-sm text-primary-dark font-semibold">Edit buyer &rarr;</Link>

@@ -1,10 +1,10 @@
 import { colors } from '@/lib/theme/tokens';
 
 /**
- * Left "brand" panel of the split-screen auth shell for the operator Control
- * Center. Carries the logo, an eyebrow line, and a marketing headline over the
- * purple aurora gradient. Hidden below `lg` (the form column shows a compact
- * logo instead). Brand colour stays Kraken Purple per DESIGN.md.
+ * Left brand panel of the split-screen auth shell for the operator Control Center.
+ * Editorial layout: EB Garamond Light (300) display headline over an atmospheric
+ * pastel-orb gradient (lavender + sky stops from DESIGN.md gradient tokens) on a
+ * dark canvas. Hidden below `lg` — the form column shows a compact logo instead.
  */
 export function AuthBrandPanel({
   eyebrow = 'Internal operator console',
@@ -18,21 +18,34 @@ export function AuthBrandPanel({
       className="relative m-3 hidden w-[44%] flex-col justify-between overflow-hidden rounded-card p-10 text-on-dark lg:flex xl:w-1/2 xl:p-12"
       style={{
         background:
-          `radial-gradient(120% 120% at 12% 100%, ${colors.primaryDeep} 0%, transparent 55%),` +
-          `radial-gradient(90% 90% at 100% 0%, ${colors.primaryGlow} 0%, transparent 45%),` +
-          `radial-gradient(120% 120% at 100% 100%, ${colors.primary} 0%, transparent 50%),` +
-          `linear-gradient(150deg, ${colors.canvasSoft} 0%, ${colors.primaryHaze} 32%, ${colors.primary} 72%, ${colors.primaryDeep} 100%)`,
+          `radial-gradient(80% 80% at 80% 15%, ${colors.primaryGlow}55 0%, transparent 60%),` +
+          `radial-gradient(70% 70% at 20% 85%, ${colors.primaryHaze}44 0%, transparent 55%),` +
+          `linear-gradient(160deg, ${colors.surfaceDark} 0%, ${colors.surfaceDarkElevated} 100%)`,
       }}
     >
-      <div className="flex flex-col gap-xs">
+      {/* Atmospheric mint orb — pure decoration, no content */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -top-16 h-[320px] w-[320px] rounded-full opacity-20"
+        style={{
+          background: `radial-gradient(circle, ${colors.gradientMint} 0%, transparent 70%)`,
+        }}
+      />
+
+      <div className="relative flex flex-col gap-xs">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/poultry-logo-white.png" alt="PoultryOS" className="h-10 w-auto self-start" />
-        <span className="text-sm font-semibold uppercase tracking-wide opacity-80">Control Center</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.96px] text-on-dark opacity-60">
+          Control Center
+        </span>
       </div>
 
-      <div className="max-w-md">
-        <p className="mb-sm text-sm font-medium opacity-80">{eyebrow}</p>
-        <h2 className="text-3xl font-semibold leading-tight tracking-tight xl:text-[2.6rem]">
+      <div className="relative max-w-[380px]">
+        <p className="mb-md text-xs font-medium uppercase tracking-[0.96px] text-on-dark opacity-60">
+          {eyebrow}
+        </p>
+        {/* Display headline: EB Garamond Light (font-display, weight 300) — editorial, never bold */}
+        <h2 className="font-display text-[2.4rem] leading-[1.15] tracking-[-0.36px] text-on-dark xl:text-[3rem] xl:leading-[1.1]">
           {headline}
         </h2>
       </div>

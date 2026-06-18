@@ -13,7 +13,7 @@ export default async function NewVaccinationPage() {
   return (
     <div className="max-w-[720px] mx-auto">
       <Link href="/vaccinations" className="text-sm text-primary-dark font-semibold">&larr; Vaccinations</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Schedule vaccination</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Schedule vaccination</h1>
       <VaccinationForm batches={(batches as any) ?? []} />
     </div>
   );

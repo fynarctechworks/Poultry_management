@@ -26,7 +26,7 @@ export function BatchForm({ sheds }: { sheds: Shed[] }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<Form>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<Form>({
     resolver: zodResolver(schema),
     defaultValues: {
       shed_id: sheds[0]?.id,
@@ -35,16 +35,25 @@ export function BatchForm({ sheds }: { sheds: Shed[] }) {
     },
   });
 
+  // A batch always inherits its shed's poultry type (mirrors the transfer_batch
+  // rule, which refuses a destination shed of a different type).
+  const selectedShed = sheds.find((s) => s.id === watch('shed_id')) ?? sheds[0];
+
   async function onSubmit(data: Form) {
     setError(null);
-    setLoading(true);
     const shed = sheds.find((s) => s.id === data.shed_id);
-    if (!shed) { setError('Pick a shed'); setLoading(false); return; }
+    if (!shed) { setError('Pick a shed'); return; }
+    // Placement must respect shed capacity — transfer_batch enforces this, so
+    // placement must too, otherwise a batch can be created over capacity.
+    if (data.opening_bird_count > shed.capacity) {
+      return setError(`Opening count (${data.opening_bird_count.toLocaleString('en-IN')}) exceeds shed capacity (${shed.capacity.toLocaleString('en-IN')}).`);
+    }
+    setLoading(true);
     const { data: row, error } = await supabase.from('batches').insert({
       shed_id: data.shed_id,
       farm_id: shed.farm_id,
       breed_name: data.breed_name,
-      poultry_type: data.poultry_type,
+      poultry_type: shed.poultry_type, // inherit from shed, never the stale form value
       placement_date: data.placement_date,
       opening_bird_count: data.opening_bird_count,
       current_bird_count: data.opening_bird_count,
@@ -74,17 +83,13 @@ export function BatchForm({ sheds }: { sheds: Shed[] }) {
             ))}
           </select>
         </Field>
-        <Field label="Type">
-          <select className="input" {...register('poultry_type')}>
-            <option value="broiler">Broiler</option>
-            <option value="layer">Layer</option>
-            <option value="breeder">Breeder</option>
-          </select>
+        <Field label="Type (from shed)">
+          <input className="input capitalize bg-canvas-soft" value={selectedShed?.poultry_type ?? ''} disabled readOnly />
         </Field>
         <Field label="Breed" error={errors.breed_name?.message}><input className="input" placeholder="Cobb 500 / Vencobb" {...register('breed_name')} /></Field>
         <Field label="Placement date" error={errors.placement_date?.message}><input type="date" className="input" {...register('placement_date')} /></Field>
-        <Field label="Opening bird count" error={errors.opening_bird_count?.message}>
-          <input type="number" min={1} className="input" {...register('opening_bird_count')} />
+        <Field label={`Opening bird count${selectedShed ? ` (max ${selectedShed.capacity.toLocaleString('en-IN')})` : ''}`} error={errors.opening_bird_count?.message}>
+          <input type="number" min={1} max={selectedShed?.capacity} className="input" {...register('opening_bird_count')} />
         </Field>
         <Field label="Cost per bird (₹)"><input type="number" step="0.01" className="input" {...register('cost_per_bird')} /></Field>
       </div>

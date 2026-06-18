@@ -28,7 +28,7 @@ export default async function DiscountsPage() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Discounts &amp; Coupons</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Discounts &amp; Coupons</h2>
       <p className="text-sm text-body-soft mb-xl">Flat / percentage discounts delivered as coupon codes, custom grants or promotions.</p>
 
       <DiscountTools discounts={discountList.map((d) => ({ id: d.id, name: d.name }))} canManage={!!canManageRes.data} />

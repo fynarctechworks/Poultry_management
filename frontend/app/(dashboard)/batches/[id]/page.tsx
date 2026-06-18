@@ -6,6 +6,7 @@ import { ProfitCalculator } from './ProfitCalculator';
 import { CloseBatchForm } from './CloseBatchForm';
 import { TransferBatchForm } from './TransferBatchForm';
 import { HarvestForm } from './HarvestForm';
+import { GenerateCertificate } from './GenerateCertificate';
 import { HdepCurve } from './HdepCurve';
 import { SellTimingCard } from './SellTimingCard';
 import { DeleteButton } from '@/components/DeleteButton';
@@ -75,6 +76,33 @@ export default async function BatchDetailPage({ params }: { params: { id: string
 
   const harvestedBirds = (harvests ?? []).reduce((s, h) => s + (h.birds_harvested ?? 0), 0);
   const harvestRevenue = (harvests ?? []).reduce((s, h) => s + Number(h.revenue ?? 0), 0);
+
+  // Existing traceability record (if any) — only batches past their growing phase
+  // qualify for a certificate.
+  const isPastGrowing = batch.status === 'harvested' || batch.status === 'closed';
+  let traceToken: string | null = null;
+  let traceLocked = false;
+  if (isPastGrowing) {
+    const { data: trace } = await supabase
+      .from('traceability_records')
+      .select('qr_token, is_locked')
+      .eq('batch_id', params.id)
+      .maybeSingle();
+    traceToken = (trace?.qr_token as string | undefined) ?? null;
+    traceLocked = Boolean(trace?.is_locked);
+  }
+
+  // Food-safety guard: if any recent incident's drug withdrawal hasn't cleared, warn before
+  // any sale. (close_batch / record_harvest don't block on this — see audit report 04.)
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const withdrawalUntil = (incidents ?? [])
+    .map((h) => h.withdrawal_clearance_date as string | null)
+    .filter((d): d is string => !!d && d >= todayISO)
+    .sort()
+    .at(-1);
+  const withdrawalWarning = withdrawalUntil
+    ? `Birds are under medicine withdrawal until ${formatDateDDMonYYYY(withdrawalUntil)} — do not sell for human consumption before then.`
+    : null;
 
   const totalDeaths = (logs ?? []).reduce((s, l) => s + (l.birds_dead ?? 0), 0);
   const totalFeed = (logs ?? []).reduce((s, l) => s + Number(l.feed_consumed_kg ?? 0), 0);
@@ -152,7 +180,7 @@ export default async function BatchDetailPage({ params }: { params: { id: string
     <div className="max-w-[1200px] mx-auto">
       <Link href={`/farms/${(batch.sheds as any)?.farm_id ?? batch.farm_id}`} className="text-sm text-primary-dark font-semibold">&larr; Farm</Link>
       <div className="flex items-baseline justify-between mt-md">
-        <h1 className="text-3xl font-bold text-ink">{batch.batch_code}</h1>
+        <h1 className="font-display text-3xl text-ink">{batch.batch_code}</h1>
         <span className={`px-md py-xs rounded-md text-sm font-semibold ${batch.status === 'active' ? 'bg-success-soft text-success-ink' : 'bg-mute-soft text-body'}`}>
           {batch.status}
         </span>
@@ -173,7 +201,7 @@ export default async function BatchDetailPage({ params }: { params: { id: string
 
       {batch.status === 'active' && (
         <div className="mt-md flex flex-wrap gap-md">
-          <CloseBatchForm batchId={batch.id} />
+          <CloseBatchForm batchId={batch.id} withdrawalWarning={withdrawalWarning} />
           <TransferBatchForm
             batchId={batch.id}
             currentShedId={batch.shed_id}
@@ -184,7 +212,14 @@ export default async function BatchDetailPage({ params }: { params: { id: string
             batchId={batch.id}
             currentBirdCount={batch.current_bird_count}
             buyers={buyers ?? []}
+            withdrawalWarning={withdrawalWarning}
           />
+        </div>
+      )}
+
+      {isPastGrowing && (
+        <div className="mt-md">
+          <GenerateCertificate batchId={batch.id} existingToken={traceToken} isLocked={traceLocked} />
         </div>
       )}
 

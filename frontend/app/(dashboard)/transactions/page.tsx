@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { MarkPaidButton } from './MarkPaidButton';
 import { DeleteButton } from '@/components/DeleteButton';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function TransactionsPage() {
   const supabase = createSupabaseServerClient();
@@ -15,10 +16,12 @@ export default async function TransactionsPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Transactions</h1>
-        <Link href="/transactions/new" className="btn-primary">Add transaction</Link>
-      </div>
+      <PageHeader
+        eyebrow="Money"
+        title="Transactions"
+        subtitle="Income and expenses across all your farms."
+        actions={<Link href="/transactions/new" className="btn-primary">Add transaction</Link>}
+      />
 
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm">

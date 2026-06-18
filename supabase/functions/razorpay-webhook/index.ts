@@ -27,6 +27,7 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createHmac } from "node:crypto";
+import { dispatchEmail, resolveTenantOwnerEmail } from "../_shared/send-email-client.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -188,6 +189,23 @@ serve(async (req: Request) => {
         body: JSON.stringify({ invoice_id: invoice.id }),
       }).catch((e) => console.warn("invoice pdf trigger failed:", e));
 
+      // Payment-success email (best-effort — never blocks webhook ack).
+      const successEmail = await resolveTenantOwnerEmail(ts.tenant_id);
+      if (successEmail) {
+        await dispatchEmail({
+          recipient_email: successEmail,
+          email_type: "payment_success",
+          template_id: "payment_success",
+          tenant_id: ts.tenant_id,
+          template_data: {
+            amount: `₹${Number(totalInr).toLocaleString("en-IN")}`,
+            planName: plan?.name ?? undefined,
+            invoiceId: invNo,
+            paidOn: new Date().toISOString().slice(0, 10),
+          },
+        });
+      }
+
       await markProcessed("processed");
       return jsonResponse({ ok: true, invoice_number: invNo, invoice_id: invoice.id });
     } catch (e) {
@@ -210,6 +228,20 @@ serve(async (req: Request) => {
           tenant_id: ts.tenant_id, razorpay_subscription_id: subscriptionId, status: "failed",
           failure_reason: pay?.error_description ?? pay?.error_reason ?? "payment failed",
         });
+
+        // Payment-failed email (best-effort).
+        const failEmail = await resolveTenantOwnerEmail(ts.tenant_id);
+        if (failEmail) {
+          await dispatchEmail({
+            recipient_email: failEmail,
+            email_type: "payment_failed",
+            template_id: "payment_failed",
+            tenant_id: ts.tenant_id,
+            template_data: {
+              amount: pay?.amount ? `₹${(Number(pay.amount) / 100).toLocaleString("en-IN")}` : undefined,
+            },
+          });
+        }
       }
     }
     await markProcessed("processed");

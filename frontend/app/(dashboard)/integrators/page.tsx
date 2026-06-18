@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function IntegratorsPage() {
   const supabase = createSupabaseServerClient();
@@ -11,10 +12,12 @@ export default async function IntegratorsPage() {
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Integrators</h1>
-        <Link href="/integrators/new" className="btn-primary">Add custom integrator</Link>
-      </div>
+      <PageHeader
+        eyebrow="Money"
+        title="Integrators"
+        subtitle="Pre-loaded tariff cards plus any custom integrators you add."
+        actions={<Link href="/integrators/new" className="btn-primary">Add custom integrator</Link>}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
         {(integrators ?? []).map((i: any) => {

@@ -29,44 +29,47 @@ export function ReportExports({ farms }: { farms: Farm[] }) {
     setError(null);
     setLoading(true);
 
-    let rows: any[] | null = null;
+    let rows: any[] = [];
     let headers: string[] = [];
 
     try {
       if (type === 'daily_logs') {
-        const { data, error } = await supabase
-          .from('daily_logs')
-          .select('log_date, batch_id, birds_dead, death_cause, feed_consumed_kg, feed_type, eggs_collected, avg_bird_weight_g, notes')
-          .eq('farm_id', farmId)
-          .gte('log_date', from)
-          .lte('log_date', to)
-          .order('log_date');
-        if (error) throw error;
-        rows = data;
         headers = ['log_date', 'batch_id', 'birds_dead', 'death_cause', 'feed_consumed_kg', 'feed_type', 'eggs_collected', 'avg_bird_weight_g', 'notes'];
+        rows = await fetchAll((lo, hi) =>
+          supabase
+            .from('daily_logs')
+            .select(headers.join(', '))
+            .eq('farm_id', farmId)
+            .gte('log_date', from)
+            .lte('log_date', to)
+            .order('log_date')
+            .range(lo, hi),
+        );
       } else if (type === 'transactions') {
-        const { data, error } = await supabase
-          .from('financial_transactions')
-          .select('transaction_date, transaction_type, category, amount, quantity, price_per_unit, buyer_or_supplier, payment_status, due_date, notes')
-          .eq('farm_id', farmId)
-          .gte('transaction_date', from)
-          .lte('transaction_date', to)
-          .order('transaction_date');
-        if (error) throw error;
-        rows = data;
         headers = ['transaction_date', 'transaction_type', 'category', 'amount', 'quantity', 'price_per_unit', 'buyer_or_supplier', 'payment_status', 'due_date', 'notes'];
+        rows = await fetchAll((lo, hi) =>
+          supabase
+            .from('financial_transactions')
+            .select(headers.join(', '))
+            .eq('farm_id', farmId)
+            .gte('transaction_date', from)
+            .lte('transaction_date', to)
+            .order('transaction_date')
+            .range(lo, hi),
+        );
       } else {
-        const { data, error } = await supabase
-          .from('batches')
-          .select('batch_code, breed_name, poultry_type, placement_date, opening_bird_count, current_bird_count, status, harvest_date, birds_sold, sale_weight_kg, sale_price_per_kg, total_sale_revenue')
-          .eq('farm_id', farmId)
-          .order('placement_date', { ascending: false });
-        if (error) throw error;
-        rows = data;
         headers = ['batch_code', 'breed_name', 'poultry_type', 'placement_date', 'opening_bird_count', 'current_bird_count', 'status', 'harvest_date', 'birds_sold', 'sale_weight_kg', 'sale_price_per_kg', 'total_sale_revenue'];
+        rows = await fetchAll((lo, hi) =>
+          supabase
+            .from('batches')
+            .select(headers.join(', '))
+            .eq('farm_id', farmId)
+            .order('placement_date', { ascending: false })
+            .range(lo, hi),
+        );
       }
 
-      const csv = toCsv(headers, rows ?? []);
+      const csv = toCsv(headers, rows);
       downloadFile(csv, `${type}_${farmId.slice(0, 8)}_${from}_to_${to}.csv`, 'text/csv');
     } catch (e: any) {
       setError(e.message ?? 'Export failed');
@@ -110,10 +113,31 @@ export function ReportExports({ farms }: { farms: Farm[] }) {
   );
 }
 
+// Fetch every row across PostgREST's 1000-row page cap. Without this a "full
+// export" silently truncates at 1000 rows for an active farm.
+const PAGE_SIZE = 1000;
+async function fetchAll(
+  page: (lo: number, hi: number) => PromiseLike<{ data: any[] | null; error: any }>,
+): Promise<any[]> {
+  const all: any[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { data, error } = await page(offset, offset + PAGE_SIZE - 1);
+    if (error) throw error;
+    const batch = data ?? [];
+    all.push(...batch);
+    if (batch.length < PAGE_SIZE) break;
+  }
+  return all;
+}
+
 function toCsv(headers: string[], rows: any[]): string {
   const esc = (v: any) => {
     if (v == null) return '';
-    const s = String(v);
+    let s = String(v);
+    // CSV formula-injection guard: a leading = + - @ (or tab/CR) lets a free-text
+    // field (notes, buyer name, …) execute as a formula in Excel/Sheets. Prefix
+    // with an apostrophe so the cell is treated as literal text.
+    if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
     if (s.includes(',') || s.includes('"') || s.includes('\n')) return `"${s.replace(/"/g, '""')}"`;
     return s;
   };

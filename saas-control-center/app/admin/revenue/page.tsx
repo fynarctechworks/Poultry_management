@@ -44,7 +44,7 @@ export default async function RevenuePage() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Revenue</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Revenue</h2>
       <p className="text-sm text-body-soft mb-xl">
         Live SaaS metrics. CAC is not shown — marketing spend isn’t tracked in-app yet. Trends build from daily snapshots.
       </p>

@@ -1,24 +1,30 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { InviteForm } from './InviteForm';
 import { formatDateDDMonYYYY } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function TeamPage() {
   const supabase = createSupabaseServerClient();
 
-  const [{ data: farms }, { data: members }] = await Promise.all([
+  const [{ data: farms }, { data: members }, { data: sheds }] = await Promise.all([
     supabase.from('farms').select('id, farm_name').order('farm_name'),
     supabase
       .from('farm_users')
       .select('id, role, invited_at, accepted_at, assigned_shed_ids, farms(farm_name), profiles(full_name, phone)')
       .order('invited_at', { ascending: false }),
+    supabase.from('sheds').select('id, shed_name, farm_id').eq('status', 'active').order('shed_name'),
   ]);
 
   return (
     <div className="max-w-[1100px] mx-auto">
-      <h1 className="text-3xl font-bold text-ink mb-xs">Team</h1>
-      <p className="text-sm text-body mb-2xl">Invite workers (daily log entry on assigned sheds) and vets (read + treatment notes).</p>
+      <PageHeader
+        eyebrow="Account"
+        title="Team"
+        subtitle="Invite workers (daily log entry on assigned sheds) and vets (read + treatment notes)."
+        orbs={['lavender', 'mint']}
+      />
 
-      <InviteForm farms={farms ?? []} />
+      <InviteForm farms={farms ?? []} sheds={sheds ?? []} />
 
       <h2 className="text-lg font-bold text-ink mt-2xl mb-md">Members</h2>
       <div className="card p-0 overflow-x-auto">

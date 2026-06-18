@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function KhataPage() {
   const supabase = createSupabaseServerClient();
@@ -11,13 +12,17 @@ export default async function KhataPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-2xl">
-        <h1 className="text-3xl font-bold text-ink">Buyer Khata</h1>
-        <div className="flex items-center gap-md">
-          <Link href="/khata/aging" className="btn-outline">Aging report</Link>
-          <Link href="/khata/new" className="btn-primary">Add buyer</Link>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Money"
+        title="Buyer Khata"
+        subtitle="Outstanding balances and lifetime volume per buyer."
+        actions={
+          <>
+            <Link href="/khata/aging" className="btn-outline">Aging report</Link>
+            <Link href="/khata/new" className="btn-primary">Add buyer</Link>
+          </>
+        }
+      />
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm">
           <thead className="bg-canvas-soft border-b border-mute">

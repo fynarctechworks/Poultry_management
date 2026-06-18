@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { PriceTrend } from './PriceTrend';
 import { formatCurrencyINR, formatDateDDMonYYYY } from '@/lib/utils';
 import { stateDefaultZone, eggRatePerPiece, eggRatePerTray } from '@poultryos/shared';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function MarketPricesPage() {
   const supabase = createSupabaseServerClient();
@@ -50,11 +51,12 @@ export default async function MarketPricesPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <div className="flex items-center justify-between mb-xs">
-        <h1 className="text-3xl font-bold text-ink">Market Prices</h1>
-        <Link href="/market-prices/new" className="btn-outline">Manual entry</Link>
-      </div>
-      <p className="text-sm text-body mb-2xl">NECC zonal egg rates + 14-day broiler/egg trend by state. Set a farm&apos;s NECC zone in farm settings.</p>
+      <PageHeader
+        eyebrow="Insights"
+        title="Market Prices"
+        subtitle="NECC zonal egg rates + 14-day broiler/egg trend by state. Set a farm's NECC zone in farm settings."
+        actions={<Link href="/market-prices/new" className="btn-outline">Manual entry</Link>}
+      />
 
       {zones.length > 0 && (
         <section className="mb-2xl">
@@ -90,7 +92,7 @@ export default async function MarketPricesPage() {
 
       {byState.size === 0 && (
         <div className="card text-center py-2xl">
-          <p className="text-body">No price data yet. The fetch-market-prices cron runs at 08:00 IST.</p>
+          <p className="text-body">No price data yet. NECC egg rates update daily after 8 AM IST; add broiler prices manually with “Add price”.</p>
         </div>
       )}
 

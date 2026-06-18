@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { Sidebar } from '@/components/Sidebar';
+import { DashboardShell } from '@/components/DashboardShell';
 import { getBillingSummary } from '@/lib/subscription';
 import { SubscriptionBanners } from '@/components/SubscriptionBanners';
 import { CanWriteProvider } from '@/components/CanWriteProvider';
@@ -26,10 +26,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <CanWriteProvider canWrite={canWrite}>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar userName={profile?.full_name ?? user.email ?? 'Owner'} />
-        <main className="flex-1 min-h-0 px-2xl py-xl overflow-y-auto">
-          {billing && (
+      <DashboardShell
+        userName={profile?.full_name ?? user.email ?? 'Owner'}
+        banners={
+          billing ? (
             <SubscriptionBanners
               status={billing.status}
               isPaid={billing.is_paid}
@@ -38,10 +38,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
               renewalAt={billing.renewal_at}
               planName={billing.plan?.name ?? null}
             />
-          )}
-          {children}
-        </main>
-      </div>
+          ) : null
+        }
+      >
+        {children}
+      </DashboardShell>
     </CanWriteProvider>
   );
 }

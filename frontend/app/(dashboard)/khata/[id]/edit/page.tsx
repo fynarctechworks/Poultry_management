@@ -17,7 +17,7 @@ export default async function EditBuyerPage({ params }: { params: { id: string }
   return (
     <div className="max-w-[680px] mx-auto">
       <Link href={`/khata/${buyer.id}`} className="text-sm text-primary-dark font-semibold">&larr; {buyer.buyer_name}</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit buyer</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit buyer</h1>
       <EditBuyerForm buyer={buyer as any} />
     </div>
   );

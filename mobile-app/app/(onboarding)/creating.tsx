@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   iconError: { backgroundColor: colors.warningSoft },
-  heading: { ...typography.displaySm, color: colors.ink, textAlign: 'center', marginBottom: spacing.sm },
+  heading: { ...typography.displayMd, color: colors.ink, textAlign: 'center', marginBottom: spacing.sm },
   sub: { ...typography.bodyMd, color: colors.body, textAlign: 'center', marginBottom: spacing['2xl'] },
   checklist: { alignSelf: 'stretch', gap: spacing.md, marginTop: spacing.lg },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },

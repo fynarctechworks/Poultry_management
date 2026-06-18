@@ -23,7 +23,7 @@ export default async function SupportPage() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Support &amp; Call Center</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Support &amp; Call Center</h2>
       <p className="text-sm text-body-soft mb-xl">Tickets, calls and follow-ups. Every action lands on the tenant’s interaction timeline.</p>
       <SupportConsole
         tickets={(tickets.data ?? []) as unknown as TicketRow[]}

@@ -240,7 +240,7 @@ export function UpgradeFlow({ plans, currentPlanCode, currentCycle, hasRazorpayS
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-ink mb-xs">{hasRazorpaySub ? 'Change your plan' : 'Choose your plan'}</h1>
+      <h1 className="font-display text-3xl text-ink mb-xs">{hasRazorpaySub ? 'Change your plan' : 'Choose your plan'}</h1>
       <p className="text-sm text-body mb-xl">
         {hasRazorpaySub
           ? 'Switch plans any time. Changes are prorated on your next charge.'
@@ -299,7 +299,7 @@ export function UpgradeFlow({ plans, currentPlanCode, currentCycle, hasRazorpayS
                       {isCurrent && <span className="rounded-sm bg-success-soft px-xs py-xxs text-xs font-semibold text-success-ink">Current</span>}
                     </div>
                     <h3 className="mt-sm text-lg font-bold text-ink">{p.name}</h3>
-                    <p className="mt-xs text-3xl font-bold text-ink">
+                    <p className="mt-xs font-display text-3xl text-ink">
                       {p.is_contactable ? 'Custom' : inr(price)}
                       {!p.is_contactable && <span className="text-sm font-normal text-body">/{cycle === 'monthly' ? 'mo' : 'yr'}</span>}
                     </p>

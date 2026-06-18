@@ -106,7 +106,7 @@ async function ContractDetailContent({ id }: { id: string }) {
       <Link href="/contract" className="text-sm text-primary-dark font-semibold">&larr; Contract cycles</Link>
       <div className="flex items-baseline justify-between mt-md flex-wrap gap-md">
         <div>
-          <h1 className="text-3xl font-bold text-ink">{cycle.batches?.batch_code ?? 'Cycle'}</h1>
+          <h1 className="font-display text-3xl text-ink">{cycle.batches?.batch_code ?? 'Cycle'}</h1>
           <p className="text-sm text-body mt-xs">{cycle.integrators?.name} · {cycle.farms?.farm_name} · {cycle.batches?.breed_name}</p>
         </div>
         <span className={`px-md py-xs rounded-md text-sm font-semibold ${
@@ -173,8 +173,7 @@ async function ContractDetailContent({ id }: { id: string }) {
               href={shareHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-xs px-md py-sm rounded-md text-sm font-semibold text-white"
-              style={{ backgroundColor: '#25D366' }}
+              className="inline-flex items-center gap-xs px-md py-sm rounded-pill text-sm font-semibold text-white bg-whatsapp"
             >
               Share dispute summary
             </a>

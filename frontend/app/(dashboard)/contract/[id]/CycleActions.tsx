@@ -7,8 +7,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
 const harvestSchema = z.object({
-  actual_harvest_date: z.string().min(1),
+  actual_harvest_date: z.string().min(1).refine((v) => v <= todayISO(), 'Harvest date cannot be in the future'),
   birds_delivered: z.coerce.number().int().min(0),
   avg_weight_kg: z.coerce.number().positive(),
   actual_fcr: z.coerce.number().positive().optional(),
@@ -19,7 +21,7 @@ type HarvestForm = z.infer<typeof harvestSchema>;
 
 const settleSchema = z.object({
   actual_settlement_amount: z.coerce.number().min(0),
-  settlement_received_date: z.string().min(1),
+  settlement_received_date: z.string().min(1).refine((v) => v <= todayISO(), 'Received date cannot be in the future'),
   integrator_birds_lifted: z.coerce.number().int().min(0).optional(),
   integrator_avg_weight_kg: z.coerce.number().min(0).optional(),
   integrator_fcr: z.coerce.number().min(0).optional(),
@@ -72,6 +74,7 @@ export function CycleActions({ cycleId, status, tariffConfirmed, tariffDefaults,
   const [mode, setMode] = useState<'idle' | 'harvest' | 'settle' | 'tariff'>('idle');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [recalcMsg, setRecalcMsg] = useState<string | null>(null);
 
   const harvestForm = useForm<HarvestForm>({
     resolver: zodResolver(harvestSchema),
@@ -143,6 +146,34 @@ export function CycleActions({ cycleId, status, tariffConfirmed, tariffDefaults,
     router.refresh();
   }
 
+  // Auto-compute the expected settlement from the confirmed tariff card + saved
+  // harvest data (parity with mobile's recalcSettlement). Persists the result onto
+  // the cycle so the list view + reconciliation read the same number.
+  async function recalcSettlement() {
+    setError(null);
+    setRecalcMsg(null);
+    setLoading(true);
+    const { data, error } = await supabase.rpc('calculate_contract_settlement', { p_cycle_id: cycleId });
+    if (error) {
+      setLoading(false);
+      return setError(error.message);
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    const total = (row as { total_settlement?: number } | null)?.total_settlement;
+    if (total == null) {
+      setLoading(false);
+      return setError('Could not compute settlement — confirm tariff terms and record harvest first.');
+    }
+    const { error: upErr } = await supabase
+      .from('contract_cycles')
+      .update({ expected_settlement_amount: total, updated_at: new Date().toISOString() })
+      .eq('id', cycleId);
+    setLoading(false);
+    if (upErr) return setError(upErr.message);
+    setRecalcMsg(`Expected settlement computed from tariff: ₹${Math.round(total).toLocaleString('en-IN')}`);
+    router.refresh();
+  }
+
   async function saveTariff(data: TariffForm) {
     setError(null);
     setLoading(true);
@@ -186,11 +217,17 @@ export function CycleActions({ cycleId, status, tariffConfirmed, tariffDefaults,
             <button onClick={() => setMode('harvest')} className="btn-primary">Record harvest</button>
           )}
           {(status === 'harvest_complete' || status === 'disputed') && (
+            <button onClick={recalcSettlement} disabled={!tariffConfirmed || loading} className="btn-outline disabled:opacity-50">
+              {loading ? 'Calculating…' : 'Calculate expected settlement'}
+            </button>
+          )}
+          {(status === 'harvest_complete' || status === 'disputed') && (
             <button onClick={() => setMode('settle')} disabled={!tariffConfirmed} className="btn-primary disabled:opacity-50">Record settlement</button>
           )}
           {status === 'harvest_complete' && (
             <button onClick={() => setMode('harvest')} className="btn-outline">Edit harvest</button>
           )}
+          {recalcMsg && <span className="text-xs text-success-ink w-full">{recalcMsg}</span>}
         </div>
       )}
 
@@ -217,12 +254,12 @@ export function CycleActions({ cycleId, status, tariffConfirmed, tariffDefaults,
         <form onSubmit={harvestForm.handleSubmit(saveHarvest)} className="space-y-md">
           <h3 className="font-bold text-ink">Record harvest — your data</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-            <SimpleField label="Harvest date" error={harvestForm.formState.errors.actual_harvest_date?.message}><input type="date" className="input" {...harvestForm.register('actual_harvest_date')} /></SimpleField>
+            <SimpleField label="Harvest date" error={harvestForm.formState.errors.actual_harvest_date?.message}><input type="date" max={todayISO()} className="input" {...harvestForm.register('actual_harvest_date')} /></SimpleField>
             <SimpleField label="Birds delivered" error={harvestForm.formState.errors.birds_delivered?.message}><input type="number" min={0} className="input" {...harvestForm.register('birds_delivered')} /></SimpleField>
             <SimpleField label="Avg weight (kg)" error={harvestForm.formState.errors.avg_weight_kg?.message}><input type="number" step="0.001" className="input" {...harvestForm.register('avg_weight_kg')} /></SimpleField>
             <SimpleField label="Actual FCR"><input type="number" step="0.001" className="input" {...harvestForm.register('actual_fcr')} /></SimpleField>
             <SimpleField label="Mortality %"><input type="number" step="0.01" className="input" {...harvestForm.register('actual_mortality_pct')} /></SimpleField>
-            <SimpleField label="Expected settlement (₹)"><input type="number" step="0.01" className="input" {...harvestForm.register('expected_settlement_amount')} /></SimpleField>
+            <SimpleField label="Expected settlement (₹) — optional, or auto-calc after saving"><input type="number" step="0.01" className="input" {...harvestForm.register('expected_settlement_amount')} /></SimpleField>
           </div>
           <div className="flex gap-sm">
             <button type="submit" disabled={loading} className="btn-primary flex-1">{loading ? 'Saving…' : 'Save harvest'}</button>
@@ -237,7 +274,7 @@ export function CycleActions({ cycleId, status, tariffConfirmed, tariffDefaults,
           <p className="text-sm text-body">Enter the figures from the integrator&apos;s settlement statement. We compare them to your data and show the ₹ impact of each gap.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
             <SimpleField label="Settlement amount (₹)" error={settleForm.formState.errors.actual_settlement_amount?.message}><input type="number" step="0.01" className="input" {...settleForm.register('actual_settlement_amount')} /></SimpleField>
-            <SimpleField label="Received date" error={settleForm.formState.errors.settlement_received_date?.message}><input type="date" className="input" {...settleForm.register('settlement_received_date')} /></SimpleField>
+            <SimpleField label="Received date" error={settleForm.formState.errors.settlement_received_date?.message}><input type="date" max={todayISO()} className="input" {...settleForm.register('settlement_received_date')} /></SimpleField>
             <SimpleField label="Integrator birds lifted"><input type="number" min={0} className="input" {...settleForm.register('integrator_birds_lifted')} /></SimpleField>
             <SimpleField label="Integrator avg weight (kg)"><input type="number" step="0.001" className="input" {...settleForm.register('integrator_avg_weight_kg')} /></SimpleField>
             <SimpleField label="Integrator FCR"><input type="number" step="0.001" className="input" {...settleForm.register('integrator_fcr')} /></SimpleField>

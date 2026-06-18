@@ -17,7 +17,7 @@ const schema = z.object({
   buyer_id: z.string().uuid().optional().or(z.literal('')),
   buyer_or_supplier: z.string().optional(),
   batch_id: z.string().uuid().optional().or(z.literal('')),
-  transaction_date: z.string().min(1, 'Pick a date'),
+  transaction_date: z.string().min(1, 'Pick a date').refine((v) => v <= new Date().toISOString().slice(0, 10), 'Transaction date cannot be in the future'),
   payment_status: z.enum(['paid', 'pending', 'partial']),
   amount_paid: z.coerce.number().optional(),
   due_date: z.string().optional(),
@@ -131,7 +131,7 @@ export function TransactionForm({ farms, buyers, batches }: Props) {
           </Field>
         )}
         <Field label="Transaction date" error={errors.transaction_date?.message}>
-          <input type="date" className="input" {...register('transaction_date')} />
+          <input type="date" max={new Date().toISOString().slice(0, 10)} className="input" {...register('transaction_date')} />
         </Field>
         <Field label="Payment status">
           <select className="input" {...register('payment_status')}>

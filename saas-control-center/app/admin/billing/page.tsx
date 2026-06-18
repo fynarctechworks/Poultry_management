@@ -76,7 +76,7 @@ export default async function AdminBillingPage({
 
   return (
     <div className="max-w-[1200px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Billing</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Billing</h2>
       <p className="text-sm text-body-soft mb-xl">
         Invoices, payments and refunds across all tenants — sourced from the Razorpay webhook ledger.
         {!canManage && ' You have read-only billing access; refunds require billing:manage.'}

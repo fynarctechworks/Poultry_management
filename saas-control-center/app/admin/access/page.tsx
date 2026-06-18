@@ -37,7 +37,7 @@ export default async function AccessPage() {
 
   return (
     <div className="max-w-[1100px]">
-      <h2 className="text-2xl font-bold text-ink mb-xs">Access Control</h2>
+      <h2 className="font-display text-[2rem] text-ink mb-xs">Access Control</h2>
       <p className="text-sm text-body-soft mb-xl">
         {roleRows.length} roles · {permCount ?? 0} permissions · {adminRows.length} operators.
         Role &amp; admin editing arrives with the access-management actions in a later pass.

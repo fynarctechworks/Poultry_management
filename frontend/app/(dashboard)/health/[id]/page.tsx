@@ -23,7 +23,7 @@ export default async function HealthIncidentDetailPage({ params }: { params: { i
       <Link href="/health" className="text-sm text-primary-dark font-semibold">&larr; Health incidents</Link>
       <div className="flex items-baseline justify-between mt-md mb-2xl flex-wrap gap-sm">
         <div>
-          <h1 className="text-3xl font-bold text-ink">{incident.symptom_description}</h1>
+          <h1 className="font-display text-3xl text-ink">{incident.symptom_description}</h1>
           <p className="text-sm text-body mt-xs">
             {formatDateDDMonYYYY(incident.incident_date)} · {incident.batches?.batch_code} · {incident.batches?.farms?.farm_name} · {incident.affected_bird_count} birds affected
           </p>

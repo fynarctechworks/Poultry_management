@@ -17,7 +17,7 @@ export default async function EditBatchPage({ params }: { params: { id: string }
   return (
     <div className="max-w-[560px] mx-auto">
       <Link href={`/batches/${batch.id}`} className="text-sm text-primary-dark font-semibold">&larr; {batch.batch_code}</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit batch</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit batch</h1>
       <EditBatchForm batch={batch as any} />
     </div>
   );

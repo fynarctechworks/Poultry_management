@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { formatDateDDMonYYYY } from '@/lib/utils';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 export default async function WeatherPage() {
   const supabase = createSupabaseServerClient();
@@ -24,8 +25,12 @@ export default async function WeatherPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto">
-      <h1 className="text-3xl font-bold text-ink mb-xs">Weather</h1>
-      <p className="text-sm text-body mb-2xl">Per-farm conditions, 3-day forecast, and heat-stress mitigation tips.</p>
+      <PageHeader
+        eyebrow="Insights"
+        title="Weather"
+        subtitle="Per-farm conditions, 3-day forecast, and heat-stress mitigation tips."
+        orbs={['sky', 'mint']}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mb-2xl">
         {(farms ?? []).map((f) => {
@@ -54,11 +59,11 @@ export default async function WeatherPage() {
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-wider text-body-soft">Max today</p>
-                      <p className="text-2xl font-bold text-ink">{Number(w.max_temp_today ?? w.current_temp_c).toFixed(0)}°C</p>
+                      <p className="text-2xl font-medium text-ink tabular-nums">{Number(w.max_temp_today ?? w.current_temp_c).toFixed(0)}°C</p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-wider text-body-soft">Humidity</p>
-                      <p className="text-2xl font-bold text-ink">{Number(w.current_humidity).toFixed(0)}%</p>
+                      <p className="text-2xl font-medium text-ink tabular-nums">{Number(w.current_humidity).toFixed(0)}%</p>
                     </div>
                   </div>
 

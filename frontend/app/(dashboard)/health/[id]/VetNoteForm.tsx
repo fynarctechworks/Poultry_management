@@ -16,10 +16,13 @@ export function VetNoteForm({ incidentId, initialNote }: { incidentId: string; i
     setSaving(true);
     setError(null);
     setSaved(false);
-    const { error } = await supabase
-      .from('health_incidents')
-      .update({ vet_note: note })
-      .eq('id', incidentId);
+    // Go through the column-restricted RPC, not a raw table UPDATE: update_vet_note
+    // (SECURITY DEFINER) writes ONLY vet_note after checking vet/owner membership, so
+    // the vet role can't touch withdrawal_days, diagnosis, etc.
+    const { error } = await supabase.rpc('update_vet_note', {
+      p_incident_id: incidentId,
+      p_note: note,
+    });
     setSaving(false);
     if (error) {
       setError(error.message);

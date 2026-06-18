@@ -85,7 +85,7 @@ export default async function TenantsPage({
     <div className="max-w-[1200px]">
       <div className="flex items-end justify-between mb-xl">
         <div>
-          <h2 className="text-2xl font-bold text-ink mb-xs">Tenants</h2>
+          <h2 className="font-display text-[2rem] text-ink mb-xs">Tenants</h2>
           <p className="text-sm text-body-soft">
             {total.toLocaleString('en-IN')} tenant{total === 1 ? '' : 's'}{q ? ` for “${q}”` : ''} · MRR ₹{totalMrr.toLocaleString('en-IN')}
           </p>

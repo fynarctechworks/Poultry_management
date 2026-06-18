@@ -41,7 +41,7 @@ export function HealthCard({ title, href, icon: Icon, stats, hasDanger, hasWarni
         <div className="grid place-items-center w-8 h-8 rounded-md bg-primary-subtle text-primary shrink-0">
           <Icon size={16} />
         </div>
-        <p className="text-xs font-bold uppercase tracking-wide text-body-soft">{title}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.96px] text-muted">{title}</p>
         <span className="ml-auto text-body-soft group-hover:text-primary transition-colors duration-base">
           <ArrowIcon />
         </span>
@@ -51,7 +51,7 @@ export function HealthCard({ title, href, icon: Icon, stats, hasDanger, hasWarni
       <div className="grid grid-cols-2 gap-x-lg gap-y-sm">
         {stats.map((s) => (
           <div key={s.label}>
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-body-soft leading-none mb-xxs">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.96px] text-muted leading-none mb-xxs">
               {s.label}
             </p>
             <p

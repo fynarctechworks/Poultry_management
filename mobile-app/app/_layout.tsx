@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Platform } from 'react-native';
 import { Slot, Redirect } from 'expo-router';
+import { useFonts } from 'expo-font';
 import {
-  useFonts,
-  IBMPlexSans_400Regular,
-  IBMPlexSans_500Medium,
-  IBMPlexSans_600SemiBold,
-  IBMPlexSans_700Bold,
-} from '@expo-google-fonts/ibm-plex-sans';
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import {
+  EBGaramond_400Regular,
+  EBGaramond_500Medium,
+} from '@expo-google-fonts/eb-garamond';
 import * as Notifications from 'expo-notifications';
 import { Providers } from '../components/providers';
 import { supabase } from '../lib/supabase';
@@ -34,13 +38,16 @@ export default function RootLayout() {
   const { currentFarm, setCurrentFarm } = useFarmStore();
   const [farmHydrated, setFarmHydrated] = useState(false);
 
-  // IBM Plex Sans — registered under the exact family names the typography
-  // tokens reference (theme/tokens.ts `fonts`). 4 weights max (perf budget).
+  // ElevenLabs type pairing (DESIGN.md): Inter for body/UI, EB Garamond Light (300)
+  // for editorial display headlines. Registered under the exact family names the
+  // typography tokens reference (theme/tokens.ts `fonts`).
   const [fontsLoaded] = useFonts({
-    IBMPlexSans_400Regular,
-    IBMPlexSans_500Medium,
-    IBMPlexSans_600SemiBold,
-    IBMPlexSans_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    EBGaramond_400Regular,
+    EBGaramond_500Medium,
   });
 
   // Register push token after auth resolves

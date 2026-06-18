@@ -18,7 +18,7 @@ export default async function EditDailyLogPage({ params }: { params: { id: strin
   return (
     <div className="max-w-[720px] mx-auto">
       <Link href="/daily-log" className="text-sm text-primary-dark font-semibold">&larr; Daily logs</Link>
-      <h1 className="text-3xl font-bold text-ink mt-md mb-2xl">Edit daily log</h1>
+      <h1 className="font-display text-3xl text-ink mt-md mb-2xl">Edit daily log</h1>
       <EditDailyLogForm log={log as any} />
       <div className="card mt-lg">
         <p className="text-sm font-semibold text-ink mb-xs">Delete this log</p>

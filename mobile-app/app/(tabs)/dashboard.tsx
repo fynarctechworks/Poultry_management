@@ -330,12 +330,12 @@ export default function DashboardScreen() {
       >
         <OfflineBanner visible={!isOnline} pendingCount={pendingCount} />
 
-        {/* Greeting */}
+        {/* Dashboard hero — editorial greeting header */}
         <View style={styles.greetingWrap}>
+          <Text style={styles.farmName}>{currentFarm?.farm_name ?? 'PoultryOS'}</Text>
           <Text style={styles.greeting}>
             {t('dashboard.hello')}{firstName ? `, ${firstName}` : ''}
           </Text>
-          <Text style={styles.farmName}>{currentFarm?.farm_name ?? 'PoultryOS'}</Text>
         </View>
 
         {/* First-run setup progress (hero for freshly-onboarded farms) */}
@@ -483,16 +483,21 @@ const styles = StyleSheet.create({
   },
   greetingWrap: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
+    paddingTop: spacing['2xl'],
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.mute,
   },
-  greeting: {
-    ...typography.displaySm,
-    color: colors.ink,
-  },
+  // Farm name as eyebrow (caption-uppercase) — appears ABOVE the serif greeting
   farmName: {
     ...typography.captionUppercase,
-    color: colors.body,
-    marginTop: spacing.xxs,
+    color: colors.muted,
+    marginBottom: spacing.xs,
+  },
+  // Greeting uses displayMd (24px EB Garamond 300) — editorial voice
+  greeting: {
+    ...typography.displayMd,
+    color: colors.ink,
   },
   weatherWidget: {
     marginHorizontal: spacing.lg,
