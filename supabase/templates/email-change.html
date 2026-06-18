@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>Confirm your new email</title>
+  <style>
+    @media (prefers-color-scheme: dark){.eb{background:#0c0a09!important}.ec{background:#1c1917!important;border-color:#292524!important}.th{color:#f5f5f4!important}.tb{color:#d6d3d1!important}.tm{color:#a8a29e!important}}
+    @media only screen and (max-width:600px){.ec{width:100%!important;border-radius:0!important}.ep{padding:24px!important}}
+  </style>
+</head>
+<body class="eb" style="margin:0;padding:0;background:#f5f5f5;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Confirm your new PoultryOS email address.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
+    <tr><td align="center" style="padding:32px 16px;">
+      <table role="presentation" class="ec" width="560" cellpadding="0" cellspacing="0" style="width:560px;max-width:560px;background:#ffffff;border:1px solid #e7e5e4;border-radius:16px;overflow:hidden;">
+        <tr><td class="ep" style="padding:40px;">
+          <p style="margin:0 0 28px;font-family:'EB Garamond',Georgia,serif;font-size:22px;color:#292524;letter-spacing:-0.3px;">PoultryOS</p>
+          <h1 class="th" style="margin:0 0 16px;font-family:'EB Garamond',Georgia,serif;font-size:26px;font-weight:400;line-height:1.25;letter-spacing:-0.5px;color:#292524;">Confirm your new email</h1>
+          <p class="tb" style="margin:0 0 16px;font-family:'Inter',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;line-height:1.6;color:#4e4e4e;">A request was made to change the email on your PoultryOS account from <strong>{{ .Email }}</strong> to <strong>{{ .NewEmail }}</strong>. Confirm to complete the change.</p>
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 24px;">
+            <tr><td align="center" bgcolor="#292524" style="border-radius:9999px;">
+              <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:13px 28px;min-height:44px;box-sizing:border-box;font-family:'Inter',Arial,sans-serif;font-size:15px;font-weight:600;line-height:18px;color:#ffffff;text-decoration:none;border-radius:9999px;">Confirm new email</a>
+            </td></tr>
+          </table>
+          <p class="tm" style="margin:0 0 16px;font-family:'Inter',Arial,sans-serif;font-size:12px;line-height:1.5;color:#a8a29e;word-break:break-all;">Or paste this link into your browser:<br><a href="{{ .ConfirmationURL }}" style="color:#292524;">{{ .ConfirmationURL }}</a></p>
+          <p class="tm" style="margin:24px 0 0;padding-top:16px;border-top:1px solid #e7e5e4;font-family:'Inter',Arial,sans-serif;font-size:12px;line-height:1.5;color:#a8a29e;">If you didn't request this change, contact support immediately — someone may be trying to access your account.</p>
+        </td></tr>
+      </table>
+      <p style="margin:24px 0 0;font-family:'Inter',Arial,sans-serif;font-size:12px;color:#a8a29e;text-align:center;">PoultryOS — farm management for Indian poultry farmers.</p>
+    </td></tr>
+  </table>
+</body>
+</html>
